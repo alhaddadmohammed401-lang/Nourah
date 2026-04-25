@@ -1,6 +1,6 @@
 # AGENTS.md — Skincare App Master Context
 # READ THIS ENTIRE FILE BEFORE TOUCHING ANY CODE
-# Last updated: [UPDATE THIS AFTER EVERY SESSION]
+# Last updated: 2026-04-25
 
 ---
 
@@ -501,7 +501,7 @@ Never use variables without this prefix for client-side keys.
 ### Phase 3 — Assemble (Weeks 3–7)
 #### Project Setup
 - [x] NativeWind v4 installed and configured
-  Note: NativeWind is installed but Metro config is temporarily disabled due to Windows config issue. Re-enable after base screens are stable.
+  Note: NativeWind Metro/Babel config re-enabled for className support on 2026-04-25.
 - [ ] tailwind.config.js configured with design tokens
 - [x] /constants/colors.ts created
 - [x] /constants/fonts.ts created
@@ -635,7 +635,7 @@ feature/[name] ← specific feature work
 ## CURRENT TASK
 # ⬇️ AGENT: READ AND DO ONLY THIS SECTION ⬇️
 
-**Status:** Project setup committed to GitHub
+**Status:** Onboarding welcome screen refactored to NativeWind and TypeScript check passed
 
 **Next task:** Build onboarding welcome screen
 
