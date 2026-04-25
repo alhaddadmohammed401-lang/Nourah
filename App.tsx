@@ -1,16 +1,35 @@
-import './global.css';
-
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
   return (
-    <View className="flex-1 items-center justify-center bg-softBlush">
-      <Text className="text-3xl font-bold text-brandRose">
+    <View style={styles.container}>
+      <Text style={styles.title}>
         Nourah
       </Text>
-      <Text className="mt-2 text-base text-deepMauve">
+      <Text style={styles.subtitle}>
         Your skin, understood.
       </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F9E8E8',
+  },
+  title: {
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: 'bold',
+    color: '#E8637A',
+  },
+  subtitle: {
+    marginTop: 8,
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#2D1B2E',
+  },
+});
