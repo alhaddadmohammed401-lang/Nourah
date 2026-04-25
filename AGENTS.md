@@ -510,13 +510,13 @@ Never use variables without this prefix for client-side keys.
 - [ ] All placeholder screens created
 
 #### Authentication
-- [ ] Supabase client initialized (`/services/supabase.ts`)
+- [x] Supabase client initialized (`/services/supabase.ts`)
 - [ ] Supabase database schema applied (SQL above)
 - [ ] RLS policies applied
-- [ ] Login screen built
-- [ ] Sign up screen built
-- [ ] Auth service built (`/services/auth.ts`)
-- [ ] useAuth hook built
+- [x] Login screen built
+- [x] Sign up screen built
+- [x] Auth service built (`/services/auth.ts`)
+- [x] useAuth hook built
 
 #### Onboarding
 - [x] Welcome screen (Screen 1)
