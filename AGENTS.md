@@ -519,9 +519,9 @@ Never use variables without this prefix for client-side keys.
 - [ ] useAuth hook built
 
 #### Onboarding
-- [ ] Welcome screen (Screen 1)
-- [ ] Skin concerns picker (Screen 2)
-- [ ] Skin type selector (Screen 3)
+- [x] Welcome screen (Screen 1)
+- [x] Skin concerns picker (Screen 2)
+- [x] Skin type selector (Screen 3)
 - [ ] Onboarding data saved to Supabase profiles table
 
 #### Core Screens

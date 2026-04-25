@@ -85,7 +85,10 @@ export default function SkinConcernsScreen() {
           ]}
           onPress={() => {
             if (selected.length > 0) {
-              router.push('/(onboarding)/skintype');
+              router.push({
+                pathname: '/(onboarding)/skintype',
+                params: { concerns: selected.join(',') },
+              });
             }
           }}
           disabled={selected.length === 0}
