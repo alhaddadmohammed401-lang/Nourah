@@ -17,6 +17,9 @@ import {
   type RoutineStep,
   type RoutineTimeOfDay,
 } from '../../services/routineService';
+import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
+
+const routineIcon = require('../../assets/icons/nourah-scan-icon.png');
 
 // Builds a local date key so routine completion resets when the user's device date changes.
 function getLocalDateKey(date: Date) {
@@ -48,29 +51,42 @@ function RoutineStepCard({
     ? 'border-brandRose bg-brandRose'
     : 'border-lightGray bg-softBlush';
   const checkTextClassName = completed ? 'text-white' : 'text-darkGray';
+  const savingClassName = saving ? 'opacity-70' : 'opacity-100';
 
   return (
     <Pressable
-      className="mb-4 rounded-2xl border border-lightGray bg-white px-5 py-5 active:opacity-80"
+      className={`mb-3 rounded-2xl border border-lightGray bg-white px-4 py-4 active:opacity-80 ${savingClassName}`}
       onPress={() => onToggle(step.id)}
       disabled={saving}
       accessibilityRole="button"
       accessibilityLabel={`${step.titleEn}, ${completed ? 'completed' : 'not completed'}`}
     >
       <View className="flex-row items-start">
-        <View className="mr-4 h-11 w-11 items-center justify-center rounded-full bg-softBlush">
+        <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-softBlush">
           <Text className="text-[15px] font-semibold text-brandRose">
             {String(step.stepNumber).padStart(2, '0')}
           </Text>
         </View>
 
         <View className="flex-1">
-          <Text className="text-[20px] font-semibold text-deepMauve">
-            {step.titleEn}
-          </Text>
-          <Text className="mt-1 text-[17px] leading-7 text-deepMauve">
-            {step.titleAr}
-          </Text>
+          <View className="flex-row items-start">
+            <View className="flex-1 pr-3">
+              <Text className="text-[19px] font-semibold text-deepMauve">
+                {step.titleEn}
+              </Text>
+              <Text className="mt-1 text-[16px] leading-7 text-deepMauve">
+                {step.titleAr}
+              </Text>
+            </View>
+
+            <View
+              className={`h-9 w-9 items-center justify-center rounded-full border ${checkClassName}`}
+            >
+              <Text className={`text-[17px] font-semibold ${checkTextClassName}`}>
+                {completed ? '✓' : ''}
+              </Text>
+            </View>
+          </View>
 
           <Text className="mt-3 text-[15px] leading-6 text-darkGray">
             {step.descriptionEn}
@@ -84,14 +100,6 @@ function RoutineStepCard({
               {step.ingredientEn} | {step.ingredientAr}
             </Text>
           </View>
-        </View>
-
-        <View
-          className={`ml-4 h-9 w-9 items-center justify-center rounded-full border ${checkClassName}`}
-        >
-          <Text className={`text-[17px] font-semibold ${checkTextClassName}`}>
-            {completed ? '✓' : ''}
-          </Text>
         </View>
       </View>
     </Pressable>
@@ -266,25 +274,35 @@ export default function RoutineScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-softBlush">
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <View className="flex-1 bg-softBlush">
+      <SafeAreaView className="flex-1 bg-softBlush">
+        <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-      <ScrollView className="flex-1 bg-softBlush" showsVerticalScrollIndicator={false}>
-        <View className="px-5 pb-10 pt-6">
-          <View className="mb-6">
-            <Text className="text-[28px] font-semibold text-deepMauve">
-              {headerTitleEn}
-            </Text>
-            <Text className="mt-1 text-[21px] leading-8 text-deepMauve">
-              {headerTitleAr}
-            </Text>
-            <Text className="mt-4 text-[15px] leading-6 text-darkGray">
-              Three calm steps for GCC heat, sunscreen days, and steady skin.
-            </Text>
-            <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-              ثلاث خطوات هادئة تناسب حرارة الخليج وأيام واقي الشمس.
-            </Text>
-          </View>
+        <ScrollView
+          className="flex-1 bg-softBlush"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="px-5 pb-10 pt-6">
+            <View className="mb-6 flex-row items-start justify-between">
+              <View className="flex-1 pr-5">
+                <Text className="text-[28px] font-semibold text-deepMauve">
+                  {headerTitleEn}
+                </Text>
+                <Text className="mt-1 text-[21px] leading-8 text-deepMauve">
+                  {headerTitleAr}
+                </Text>
+                <Text className="mt-4 text-[15px] leading-6 text-darkGray">
+                  Three calm steps for GCC heat, sunscreen days, and steady skin.
+                </Text>
+                <Text className="mt-1 text-[15px] leading-7 text-darkGray">
+                  ثلاث خطوات هادئة تناسب حرارة الخليج وأيام واقي الشمس.
+                </Text>
+              </View>
+
+              <View className="h-24 w-24 items-center justify-center rounded-2xl bg-white">
+                <GeneratedIcon source={routineIcon} size="lg" />
+              </View>
+            </View>
 
           <View className="mb-5 flex-row rounded-2xl bg-white p-1">
             <Pressable
@@ -311,13 +329,20 @@ export default function RoutineScreen() {
               accessibilityRole="button"
               accessibilityState={{ disabled: !plan.isPremium }}
             >
-              <Text
-                className={`text-[15px] font-semibold ${
-                  selectedTimeOfDay === 'pm' ? 'text-white' : 'text-deepMauve'
-                }`}
-              >
-                PM | مساء
-              </Text>
+              <View className="flex-row items-center">
+                <Text
+                  className={`text-[15px] font-semibold ${
+                    selectedTimeOfDay === 'pm' ? 'text-white' : 'text-deepMauve'
+                  }`}
+                >
+                  PM | مساء
+                </Text>
+                {!plan.isPremium ? (
+                  <Text className="ml-2 text-[11px] font-semibold text-gold">
+                    Premium
+                  </Text>
+                ) : null}
+              </View>
             </Pressable>
           </View>
 
@@ -404,6 +429,7 @@ export default function RoutineScreen() {
           </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
