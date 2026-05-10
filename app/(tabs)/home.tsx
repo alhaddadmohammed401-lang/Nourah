@@ -1,6 +1,13 @@
 import { useRouter } from 'expo-router';
-import { Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
+import {
+  Pressable,
+  SafeAreaView,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
 import { colors } from '../../constants/colors';
+import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
 
 type HomeRoutineStep = {
   id: string;
@@ -15,6 +22,9 @@ const HOME_ROUTINE_STEPS: HomeRoutineStep[] = [
   { id: 'protect', order: '03', labelEn: 'Protect', labelAr: 'حماية' },
 ];
 
+const homeIcon = require('../../assets/icons/nourah-home-icon.png');
+const scanIcon = require('../../assets/icons/nourah-scan-icon.png');
+
 // Shows the daily landing surface and routes users into their routine.
 export default function HomeScreen() {
   const router = useRouter();
@@ -25,38 +35,55 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-softBlush">
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <View className="flex-1 bg-softBlush">
+      <SafeAreaView className="flex-1 bg-softBlush">
+        <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-      <View className="flex-1 bg-softBlush px-5 pt-8">
-        <View className="mb-8">
-          <Text className="text-[32px] font-semibold text-brandRose">
-            Nourah
-          </Text>
-          <Text className="mt-1 text-[19px] leading-8 text-deepMauve">
-            نورة
-          </Text>
-          <Text className="mt-3 text-[15px] leading-6 text-darkGray">
-            Your skin, understood.
-          </Text>
-          <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-            بشرتك مفهومة بعناية.
-          </Text>
+        <View className="flex-1 bg-softBlush px-5 pt-8">
+        <View className="mb-7 flex-row items-start justify-between">
+          <View className="flex-1 pr-5">
+            <Text className="text-[34px] font-semibold text-brandRose">
+              Nourah
+            </Text>
+            <Text className="mt-1 text-[19px] leading-8 text-deepMauve">
+              نورة
+            </Text>
+            <Text className="mt-3 text-[15px] leading-6 text-darkGray">
+              Your skin, understood.
+            </Text>
+            <Text className="mt-1 text-[15px] leading-7 text-darkGray">
+              بشرتك مفهومة بعناية.
+            </Text>
+          </View>
+
+          <View className="h-24 w-24 items-center justify-center rounded-2xl bg-white">
+            <GeneratedIcon source={homeIcon} size="lg" />
+          </View>
         </View>
 
         <View className="mb-5 rounded-2xl bg-white p-5">
-          <Text className="text-[13px] font-semibold uppercase text-brandRose">
-            Today
-          </Text>
-          <Text className="mt-3 text-[24px] font-semibold text-deepMauve">
-            Keep it calm.
-          </Text>
-          <Text className="mt-2 text-[15px] leading-6 text-darkGray">
-            Your morning routine is ready for UAE heat, humidity, and sunscreen days.
-          </Text>
-          <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-            روتينك الصباحي جاهز لحرارة الإمارات والرطوبة وأيام واقي الشمس.
-          </Text>
+          <View className="flex-row items-start justify-between">
+            <View className="flex-1 pr-4">
+              <Text className="text-[13px] font-semibold uppercase text-brandRose">
+                Today
+              </Text>
+              <Text className="mt-3 text-[24px] font-semibold text-deepMauve">
+                Keep it calm.
+              </Text>
+              <Text className="mt-2 text-[15px] leading-6 text-darkGray">
+                Your morning routine is ready for UAE heat, humidity, and sunscreen days.
+              </Text>
+              <Text className="mt-1 text-[15px] leading-7 text-darkGray">
+                روتينك الصباحي جاهز لحرارة الإمارات والرطوبة وأيام واقي الشمس.
+              </Text>
+            </View>
+
+            <View className="rounded-full bg-softBlush px-3 py-2">
+              <Text className="text-[12px] font-semibold text-brandRose">
+                UAE UV
+              </Text>
+            </View>
+          </View>
         </View>
 
         <Pressable
@@ -75,10 +102,15 @@ export default function HomeScreen() {
               </Text>
             </View>
 
-            <View className="rounded-full bg-softBlush px-3 py-2">
-              <Text className="text-[13px] font-semibold text-brandRose">
-                Open
-              </Text>
+            <View className="items-end">
+              <View className="h-14 w-14 items-center justify-center rounded-2xl bg-softBlush">
+                <GeneratedIcon source={scanIcon} size="sm" />
+              </View>
+              <View className="mt-3 rounded-full bg-softBlush px-3 py-2">
+                <Text className="text-[13px] font-semibold text-brandRose">
+                  Open
+                </Text>
+              </View>
             </View>
           </View>
 
@@ -101,7 +133,8 @@ export default function HomeScreen() {
             Tap to check off each step for today.
           </Text>
         </Pressable>
-      </View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }

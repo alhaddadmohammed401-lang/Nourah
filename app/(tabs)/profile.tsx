@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { colors } from '../../constants/colors';
+import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/auth';
 
@@ -25,6 +26,8 @@ const PROFILE_STATS: ProfileStat[] = [
   { id: 'routine', labelEn: 'Routine days', labelAr: 'أيام الروتين', value: '3' },
   { id: 'products', labelEn: 'Checked products', labelAr: 'منتجات مفحوصة', value: '0' },
 ];
+
+const profileIcon = require('../../assets/icons/nourah-profile-icon.png');
 
 // Shows account state, soft progress stats, and a safe sign-out path.
 export default function ProfileScreen() {
@@ -58,35 +61,51 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-softBlush">
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <View className="flex-1 bg-softBlush">
+      <SafeAreaView className="flex-1 bg-softBlush">
+        <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-      <View className="flex-1 bg-softBlush">
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="flex-1 bg-softBlush">
+          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <View className="px-5 pb-10 pt-8">
-            <Text className="text-[28px] font-semibold text-deepMauve">
-              Profile
-            </Text>
-            <Text className="mt-1 text-[20px] leading-8 text-deepMauve">
-              الملف الشخصي
-            </Text>
-
-            <View className="mt-6 rounded-2xl bg-white p-5">
-              <View className="h-16 w-16 items-center justify-center rounded-full bg-softLavender">
-                <Text className="text-[24px] font-semibold text-brandRose">
-                  N
+            <View className="flex-row items-start justify-between">
+              <View className="flex-1 pr-5">
+                <Text className="text-[28px] font-semibold text-deepMauve">
+                  Profile
+                </Text>
+                <Text className="mt-1 text-[20px] leading-8 text-deepMauve">
+                  الملف الشخصي
+                </Text>
+                <Text className="mt-4 text-[15px] leading-6 text-darkGray">
+                  Your skin record, settings, and subscription status in one calm place.
                 </Text>
               </View>
 
-              <Text className="mt-5 text-[22px] font-semibold text-deepMauve">
-                {displayName}
-              </Text>
-              <Text className="mt-2 text-[15px] text-darkGray">{email}</Text>
+              <View className="h-24 w-24 items-center justify-center rounded-2xl bg-white">
+                <GeneratedIcon source={profileIcon} size="lg" />
+              </View>
+            </View>
 
-              <View className="mt-5 self-start rounded-full bg-softBlush px-4 py-2">
-                <Text className="text-[13px] font-semibold text-brandRose">
-                  Free plan | الخطة المجانية
-                </Text>
+            <View className="mt-6 rounded-2xl bg-white p-5">
+              <View className="flex-row items-start">
+                <View className="h-16 w-16 items-center justify-center rounded-full bg-softLavender">
+                  <Text className="text-[24px] font-semibold text-brandRose">
+                    N
+                  </Text>
+                </View>
+
+                <View className="ml-4 flex-1">
+                  <Text className="text-[22px] font-semibold text-deepMauve">
+                    {displayName}
+                  </Text>
+                  <Text className="mt-2 text-[15px] text-darkGray">{email}</Text>
+
+                  <View className="mt-4 self-start rounded-full bg-softBlush px-4 py-2">
+                    <Text className="text-[13px] font-semibold text-brandRose">
+                      Free plan | الخطة المجانية
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
 
@@ -155,8 +174,9 @@ export default function ProfileScreen() {
               )}
             </Pressable>
           </View>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+          </ScrollView>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }

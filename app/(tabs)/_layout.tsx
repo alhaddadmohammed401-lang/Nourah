@@ -1,27 +1,31 @@
 import { Tabs } from 'expo-router';
-import { Text, View } from 'react-native';
+import { type ImageSourcePropType, View } from 'react-native';
 import { colors } from '../../constants/colors';
+import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
 
 type TabIconProps = {
-  label: string;
+  icon: ImageSourcePropType;
   focused: boolean;
 };
 
-// Draws a small text-based tab mark so web preview does not show default placeholder icons.
-function TabIcon({ label, focused }: TabIconProps) {
+const homeIcon = require('../../assets/icons/nourah-home-icon.png');
+const scanIcon = require('../../assets/icons/nourah-scan-icon.png');
+const productsIcon = require('../../assets/icons/nourah-products-icon.png');
+const profileIcon = require('../../assets/icons/nourah-profile-icon.png');
+
+// Draws a small generated Nourah icon inside the tab mark.
+function TabIcon({ icon, focused }: TabIconProps) {
   return (
     <View
-      className={`h-7 w-7 items-center justify-center rounded-full ${
-        focused ? 'bg-brandRose' : 'bg-softBlush'
+      className={`h-9 w-9 items-center justify-center rounded-full ${
+        focused ? 'bg-softBlush' : 'bg-white'
       }`}
     >
-      <Text
-        className={`text-[11px] font-semibold ${
-          focused ? 'text-white' : 'text-darkGray'
-        }`}
-      >
-        {label}
-      </Text>
+      <GeneratedIcon
+        source={icon}
+        size="tab"
+        opacity={focused ? 'opacity-100' : 'opacity-70'}
+      />
     </View>
   );
 }
@@ -40,14 +44,14 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ focused }) => <TabIcon label="H" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon={homeIcon} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="scan"
         options={{
           title: 'Scan',
-          tabBarIcon: ({ focused }) => <TabIcon label="S" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon={scanIcon} focused={focused} />,
         }}
       />
       <Tabs.Screen name="routine" options={{ href: null }} />
@@ -55,14 +59,18 @@ export default function TabsLayout() {
         name="products"
         options={{
           title: 'Products',
-          tabBarIcon: ({ focused }) => <TabIcon label="P" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon={productsIcon} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabIcon label="Me" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon={profileIcon} focused={focused} />
+          ),
         }}
       />
     </Tabs>

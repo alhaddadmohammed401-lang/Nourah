@@ -9,6 +9,9 @@ import {
   View,
 } from 'react-native';
 import { colors } from '../../constants/colors';
+import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
+
+const scanIcon = require('../../assets/icons/nourah-scan-icon.png');
 
 // Shows a camera-ready scan surface without calling paid scan APIs during preview.
 export default function ScanScreen() {
@@ -35,23 +38,30 @@ export default function ScanScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-scanBg">
-      <StatusBar barStyle="light-content" backgroundColor={colors.scanBg} />
+    <View className="flex-1 bg-scanBg">
+      <SafeAreaView className="flex-1 bg-scanBg">
+        <StatusBar barStyle="light-content" backgroundColor={colors.scanBg} />
 
-      <View className="flex-1 bg-scanBg px-5 pb-8 pt-8">
-        <View>
-          <Text className="text-[28px] font-semibold text-white">
-            Face scan
-          </Text>
-          <Text className="mt-1 text-[20px] leading-8 text-softBlush">
-            فحص البشرة
-          </Text>
-          <Text className="mt-4 text-[15px] leading-6 text-lightGray">
-            Soft lighting, no filters, and one scan when you are ready.
-          </Text>
-          <Text className="mt-1 text-[15px] leading-7 text-lightGray">
-            إضاءة هادئة، بدون فلاتر، وفحص واحد عند الاستعداد.
-          </Text>
+        <View className="flex-1 bg-scanBg px-5 pb-8 pt-8">
+        <View className="flex-row items-start justify-between">
+          <View className="flex-1 pr-5">
+            <Text className="text-[28px] font-semibold text-white">
+              Face scan
+            </Text>
+            <Text className="mt-1 text-[20px] leading-8 text-softBlush">
+              فحص البشرة
+            </Text>
+            <Text className="mt-4 text-[15px] leading-6 text-lightGray">
+              Soft lighting, no filters, and one scan when you are ready.
+            </Text>
+            <Text className="mt-1 text-[15px] leading-7 text-lightGray">
+              إضاءة هادئة، بدون فلاتر، وفحص واحد عند الاستعداد.
+            </Text>
+          </View>
+
+          <View className="h-20 w-20 items-center justify-center rounded-2xl bg-deepMauve">
+            <GeneratedIcon source={scanIcon} size="md" />
+          </View>
         </View>
 
         <View className="flex-1 items-center justify-center">
@@ -90,7 +100,8 @@ export default function ScanScreen() {
             </Text>
           )}
         </Pressable>
-      </View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
