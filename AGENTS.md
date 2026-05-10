@@ -502,7 +502,7 @@ Never use variables without this prefix for client-side keys.
 #### Project Setup
 - [x] NativeWind v4 installed and configured
   Note: NativeWind Metro/Babel config re-enabled for className support on 2026-04-25.
-- [ ] tailwind.config.js configured with design tokens
+- [x] tailwind.config.js configured with design tokens
 - [x] /constants/colors.ts created
 - [x] /constants/fonts.ts created
 - [ ] Google Fonts loaded (DMSerifDisplay, DMSans, Tajawal)
@@ -530,7 +530,7 @@ Never use variables without this prefix for client-side keys.
 - [ ] Perfect Corp API integrated
 - [ ] Scan results screen built
 - [ ] GCC badge overlays added to results
-- [ ] Routine screen built (AM/PM toggle)
+- [x] Routine screen built (AM/PM toggle)
 - [ ] Gemini Flash API integrated for routine text
 
 #### Ingredient Scanner
