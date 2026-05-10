@@ -81,10 +81,16 @@ export default function OnboardingWelcomeScreen() {
           <Text className="ml-2 text-lg font-semibold text-white">→</Text>
         </Pressable>
 
-        <Text className="mt-4 text-sm text-darkGray">
-          Already have an account?{' '}
-          <Text className="font-semibold text-brandRose">Sign in</Text>
-        </Text>
+        <View className="mt-4 flex-row">
+          <Text className="text-sm text-darkGray">Already have an account? </Text>
+          <Pressable
+            onPress={() => router.push('/(auth)/login')}
+            accessibilityRole="link"
+            accessibilityLabel="Sign in"
+          >
+            <Text className="text-sm font-semibold text-brandRose">Sign in</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );

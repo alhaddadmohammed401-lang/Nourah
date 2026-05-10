@@ -525,10 +525,10 @@ Never use variables without this prefix for client-side keys.
 - [ ] Onboarding data saved to Supabase profiles table
 
 #### Core Screens
-- [ ] Home screen built
-- [ ] Face scan screen built (camera + oval guide)
+- [x] Home screen built (mock scan service; flip EXPO_PUBLIC_SCAN_MODE=live for Perfect Corp)
+- [x] Face scan screen built (camera + oval guide) (mock canvas; expo-camera deferred)
 - [ ] Perfect Corp API integrated
-- [ ] Scan results screen built
+- [x] Scan results screen built (inline result sheet on Scan screen; standalone /scan-results deferred)
 - [ ] GCC badge overlays added to results
 - [ ] Routine screen built (AM/PM toggle)
 - [ ] Gemini Flash API integrated for routine text

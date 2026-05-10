@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-09T00:00:00Z",
+  "title": "Design System: Nourah",
+  "extensions": {
+    "colorMeta": {
+      "brand-rose": {
+        "role": "primary",
+        "displayName": "Blush at Dawn",
+        "canonical": "#E8637A",
+        "tonalRamp": ["#3F1119", "#5E1F2A", "#7E2D3C", "#A03C50", "#C04E64", "#E8637A", "#F0A2B0", "#FBE2E6"]
+      },
+      "deep-mauve": {
+        "role": "primary",
+        "displayName": "Mauve Evening",
+        "canonical": "#2D1B2E",
+        "tonalRamp": ["#0F060F", "#1B0F1C", "#2D1B2E", "#4F3450", "#735372", "#9B7A99", "#C8AEC4", "#ECE2EA"]
+      },
+      "soft-blush": {
+        "role": "secondary",
+        "displayName": "First Light Blush",
+        "canonical": "#F9E8E8",
+        "tonalRamp": ["#5C3A3A", "#8E6463", "#B58F8E", "#CFA9A8", "#DFC5C3", "#ECDADA", "#F9E8E8", "#FCF4F4"]
+      },
+      "dusty-pink": {
+        "role": "secondary",
+        "displayName": "Dusty Pink",
+        "canonical": "#D4A0A7",
+        "tonalRamp": ["#3E1F23", "#5E2F35", "#80444C", "#A26269", "#BC838B", "#D4A0A7", "#E5C2C7", "#F4E4E6"]
+      },
+      "soft-lavender": {
+        "role": "secondary",
+        "displayName": "Mirror Lavender",
+        "canonical": "#F0E6F6",
+        "tonalRamp": ["#3A2D40", "#5B4863", "#7E6B85", "#A192A7", "#C4B8C8", "#DBD0E1", "#F0E6F6", "#FAF6FC"]
+      },
+      "gold": {
+        "role": "tertiary",
+        "displayName": "Gold",
+        "canonical": "#C9A84C",
+        "tonalRamp": ["#3B2F0F", "#5A4818", "#7C6322", "#9F8230", "#B89540", "#C9A84C", "#DCC279", "#F0E5BD"]
+      },
+      "success": {
+        "role": "functional",
+        "displayName": "Sage Success",
+        "canonical": "#7BA892",
+        "tonalRamp": ["#1F3329", "#2F4D3E", "#436957", "#5A8472", "#6E9684", "#7BA892", "#A6C4B5", "#DDEAE3"]
+      },
+      "warning": {
+        "role": "functional",
+        "displayName": "Amber Warning",
+        "canonical": "#D9A76A",
+        "tonalRamp": ["#3F2C12", "#5E441E", "#7E5C2C", "#A1773D", "#BD8F50", "#D9A76A", "#E8C397", "#F6E6CD"]
+      },
+      "error": {
+        "role": "functional",
+        "displayName": "Garnet Error",
+        "canonical": "#C74A60",
+        "tonalRamp": ["#3B0E16", "#5A1820", "#7B232E", "#9C2F3D", "#B53C4E", "#C74A60", "#DC8590", "#F2D2D7"]
+      },
+      "charcoal": {
+        "role": "neutral",
+        "displayName": "Charcoal",
+        "canonical": "#2D2D2D",
+        "tonalRamp": ["#0E0E0E", "#1B1B1B", "#2D2D2D", "#494949", "#6A6A6A", "#8E8E8E", "#BABABA", "#E8E8E8"]
+      },
+      "dark-gray": {
+        "role": "neutral",
+        "displayName": "Slate Gray",
+        "canonical": "#5A5A5A",
+        "tonalRamp": ["#161616", "#262626", "#3A3A3A", "#4B4B4B", "#5A5A5A", "#7C7C7C", "#A8A8A8", "#DDDDDD"]
+      },
+      "light-gray": {
+        "role": "neutral",
+        "displayName": "Mist Gray",
+        "canonical": "#E0E0E0",
+        "tonalRamp": ["#2A2A2A", "#494949", "#6A6A6A", "#8E8E8E", "#B4B4B4", "#CFCFCF", "#E0E0E0", "#F4F4F4"]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#1A1A1A", "#3A3A3A", "#5A5A5A", "#8A8A8A", "#B4B4B4", "#D9D9D9", "#F0F0F0", "#FFFFFF"]
+      },
+      "scan-black": {
+        "role": "functional",
+        "displayName": "Scan Black",
+        "canonical": "#0D0D0D",
+        "tonalRamp": ["#000000", "#0D0D0D", "#1F1F1F", "#3A3A3A", "#5A5A5A", "#8A8A8A", "#C2C2C2", "#EAEAEA"]
+      },
+      "score-green": {
+        "role": "functional",
+        "displayName": "Score Green",
+        "canonical": "#7DB87A",
+        "tonalRamp": ["#1F3320", "#2F4D2F", "#436D43", "#5A8E5A", "#6FA56F", "#7DB87A", "#A6D1A4", "#DDEEDC"]
+      },
+      "score-amber": {
+        "role": "functional",
+        "displayName": "Score Amber",
+        "canonical": "#E8A838",
+        "tonalRamp": ["#3F2C09", "#5E4310", "#7E5C18", "#A07724", "#C09033", "#E8A838", "#F1C57A", "#FAE7C2"]
+      },
+      "score-red": {
+        "role": "functional",
+        "displayName": "Score Red",
+        "canonical": "#E07070",
+        "tonalRamp": ["#3F1414", "#5E1F1F", "#7E2C2C", "#A03B3B", "#BD4F4F", "#E07070", "#ECA1A1", "#F8DCDC"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Onboarding hero copy and scan-result headlines only." },
+      "headline": { "displayName": "Headline", "purpose": "Score numbers and big-display moments." },
+      "title": { "displayName": "Title", "purpose": "Screen titles." },
+      "body-large": { "displayName": "Body Large", "purpose": "Section headers and button labels." },
+      "body": { "displayName": "Body", "purpose": "Default reading text. ~60-70ch line length." },
+      "label": { "displayName": "Label", "purpose": "Secondary labels, captions, chip text." },
+      "caption": { "displayName": "Caption", "purpose": "Timestamps, fine print, badge text." }
+    },
+    "shadows": [
+      { "name": "card-lift", "value": "0 2px 12px rgba(26, 26, 26, 0.06)", "purpose": "Default lift for cards, bottom sheets, the bottom-tab active indicator." },
+      { "name": "modal-lift", "value": "0 8px 32px rgba(26, 26, 26, 0.10)", "purpose": "Reserved for full modals and the paywall surface. Maximum allowed shadow weight." }
+    ],
+    "motion": [
+      { "name": "ease-quart", "value": "cubic-bezier(0.165, 0.84, 0.44, 1)", "purpose": "Default ease-out for state transitions (button press, tab switch)." },
+      { "name": "duration-fast", "value": "120ms", "purpose": "Press states, micro-feedback." },
+      { "name": "duration-base", "value": "240ms", "purpose": "Screen transitions, sheet open." },
+      { "name": "duration-slow", "value": "480ms", "purpose": "Scan-ring pulse, score reveal." }
+    ],
+    "breakpoints": [
+      { "name": "phone-sm", "value": "360px" },
+      { "name": "phone-md", "value": "390px" },
+      { "name": "phone-lg", "value": "428px" },
+      { "name": "tablet", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main call to action. Brand Rose fill, used sparingly per The One-Voice Rule.",
+      "html": "<button class=\"ds-btn-primary\">Continue</button>",
+      "css": ".ds-btn-primary { background: #E8637A; color: #FFFFFF; font-family: 'DM Sans', system-ui, sans-serif; font-size: 17px; font-weight: 500; line-height: 1.45; letter-spacing: normal; height: 52px; padding: 0 24px; border: none; border-radius: 12px; cursor: pointer; transition: background 120ms cubic-bezier(0.165, 0.84, 0.44, 1), transform 120ms cubic-bezier(0.165, 0.84, 0.44, 1); } .ds-btn-primary:hover { background: #D4A0A7; } .ds-btn-primary:active { background: #D4A0A7; transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #E8637A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet confirmations and non-primary CTAs. Sits on Blush ground without competing.",
+      "html": "<button class=\"ds-btn-secondary\">Skip for now</button>",
+      "css": ".ds-btn-secondary { background: #F9E8E8; color: #2D1B2E; font-family: 'DM Sans', system-ui, sans-serif; font-size: 17px; font-weight: 500; line-height: 1.45; height: 52px; padding: 0 24px; border: none; border-radius: 12px; cursor: pointer; transition: background 120ms cubic-bezier(0.165, 0.84, 0.44, 1); } .ds-btn-secondary:hover { background: #F0E6F6; } .ds-btn-secondary:focus-visible { outline: 2px solid #E8637A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Score Card",
+      "kind": "card",
+      "refersTo": "score-card-good",
+      "description": "Signature reassurance-first surface. Big serif score number, plain-language label, climate flags below. Color reflects the score band but text always pairs with an icon and label.",
+      "html": "<article class=\"ds-score-card\"><div class=\"ds-score-band\"><svg class=\"ds-score-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg><span class=\"ds-score-label\">Hydration</span></div><div class=\"ds-score-number\">82</div><p class=\"ds-score-message\">Your skin is well hydrated. Keep it up.</p><div class=\"ds-score-flags\"><span class=\"ds-flag\">High UV</span><span class=\"ds-flag\">Humidity</span></div></article>",
+      "css": ".ds-score-card { background: #7DB87A; color: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(26, 26, 26, 0.06); display: flex; flex-direction: column; gap: 8px; max-width: 320px; } .ds-score-band { display: flex; align-items: center; gap: 8px; } .ds-score-icon { width: 16px; height: 16px; } .ds-score-label { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; opacity: 0.95; } .ds-score-number { font-family: 'DM Serif Display', Georgia, serif; font-size: 32px; font-weight: 400; line-height: 1.15; letter-spacing: -0.005em; } .ds-score-message { font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; margin: 4px 0 0 0; opacity: 0.95; } .ds-score-flags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; } .ds-flag { background: rgba(255, 255, 255, 0.18); color: #FFFFFF; font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.02em; padding: 4px 10px; border-radius: 9999px; }"
+    },
+    {
+      "name": "Halal Badge",
+      "kind": "chip",
+      "refersTo": "halal-badge",
+      "description": "Pill marker on ingredient-result cards. Always paired with the leaf glyph; never stands alone as color-only signal.",
+      "html": "<span class=\"ds-halal-badge\"><svg class=\"ds-halal-icon\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.61C8.66 19.61 11.21 19 13 17c2.66-2.61 4-5.81 4-9z\"/></svg>Halal-friendly</span>",
+      "css": ".ds-halal-badge { display: inline-flex; align-items: center; gap: 4px; background: #7BA892; color: #FFFFFF; font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 400; line-height: 1.4; letter-spacing: 0.02em; padding: 4px 10px; border-radius: 9999px; } .ds-halal-icon { width: 12px; height: 12px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Concern Chip",
+      "kind": "chip",
+      "refersTo": "chip-unselected",
+      "description": "Skin-concern picker. Lavender at rest, dusty pink when selected. Used in onboarding and filter contexts.",
+      "html": "<div class=\"ds-chip-row\"><button class=\"ds-chip\" type=\"button\">Acne</button><button class=\"ds-chip ds-chip--selected\" type=\"button\">Pigmentation</button><button class=\"ds-chip\" type=\"button\">Dryness</button></div>",
+      "css": ".ds-chip-row { display: flex; gap: 8px; flex-wrap: wrap; } .ds-chip { background: #F0E6F6; color: #2D1B2E; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; padding: 8px 14px; border: none; border-radius: 9999px; cursor: pointer; transition: background 120ms cubic-bezier(0.165, 0.84, 0.44, 1); } .ds-chip:hover { background: #DBD0E1; } .ds-chip--selected { background: #D4A0A7; color: #FFFFFF; } .ds-chip--selected:hover { background: #BC838B; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Form input with Mauve Evening text on White, Mist Gray border at rest, Brand Rose border on focus.",
+      "html": "<label class=\"ds-input-wrap\"><span class=\"ds-input-label\">Email</span><input class=\"ds-input\" type=\"email\" placeholder=\"name@example.com\" /></label>",
+      "css": ".ds-input-wrap { display: flex; flex-direction: column; gap: 6px; max-width: 360px; } .ds-input-label { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; color: #5A5A5A; } .ds-input { background: #FFFFFF; color: #2D1B2E; font-family: 'DM Sans', system-ui, sans-serif; font-size: 17px; font-weight: 400; line-height: 1.45; height: 52px; padding: 0 16px; border: 1px solid #E0E0E0; border-radius: 12px; outline: none; transition: border-color 120ms cubic-bezier(0.165, 0.84, 0.44, 1); } .ds-input::placeholder { color: #5A5A5A; opacity: 0.6; } .ds-input:focus-visible { border-color: #E8637A; border-width: 1.5px; }"
+    },
+    {
+      "name": "Bottom Tab Nav",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Four-tab bottom navigation. Active tab in Brand Rose, inactive in Slate Gray. Scan icon visually first-among-equals at 8% larger.",
+      "html": "<nav class=\"ds-tabbar\"><button class=\"ds-tab ds-tab--active\" type=\"button\"><svg class=\"ds-tab-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 9.5 12 3l9 6.5V21H3z\"/></svg><span class=\"ds-tab-label\">Home</span></button><button class=\"ds-tab\" type=\"button\"><svg class=\"ds-tab-icon ds-tab-icon--scan\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg><span class=\"ds-tab-label\">Scan</span></button><button class=\"ds-tab\" type=\"button\"><svg class=\"ds-tab-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z\"/><path d=\"M3 6h18\"/></svg><span class=\"ds-tab-label\">Products</span></button><button class=\"ds-tab\" type=\"button\"><svg class=\"ds-tab-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"7\" r=\"4\"/><path d=\"M5 21a7 7 0 0 1 14 0\"/></svg><span class=\"ds-tab-label\">Profile</span></button></nav>",
+      "css": ".ds-tabbar { display: flex; gap: 0; background: #FFFFFF; padding: 8px 4px 12px 4px; border-top: 1px solid #E0E0E0; max-width: 420px; } .ds-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; color: #5A5A5A; border: none; padding: 6px 4px; cursor: pointer; transition: color 120ms cubic-bezier(0.165, 0.84, 0.44, 1); } .ds-tab--active { color: #E8637A; } .ds-tab-icon { width: 22px; height: 22px; } .ds-tab-icon--scan { width: 24px; height: 24px; } .ds-tab-label { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.02em; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Soft Brief",
+    "overview": "Nourah is the knowledgeable friend who happens to be a dermatologist's daughter. The visual system carries that voice in soft surfaces, generous spacing, and a rose-and-mauve identity that reads as beauty-and-wellness, never as a clinic and never as a SaaS tool. The reference lane is Flo crossed with the Glossier app: friendly, accessible-feminine, mass-market warm, with quiet expertise sitting underneath every screen.\n\nDensity is deliberately low. Type breathes. Cards are pillowy on result and scoring surfaces (where the user needs to feel reassured before she is instructed) and tighter on auth and form surfaces (where she needs to move quickly). Arabic and English are equal first-class citizens, neither is a fallback. Tajawal carries the same hierarchy as DM Sans.\n\nThis system explicitly rejects: generic SaaS-dashboard aesthetics; clinical or pharmacy styling; Sephora-style commerce density; and Gen-Z neon beauty.",
+    "keyCharacteristics": [
+      "Rose-and-mauve as identity, lavender as gentle counterweight, blush as a quiet ground.",
+      "Pillowy on results and scoring, tighter on forms and auth (the Mix Rule).",
+      "A single dark surface (the face-scan camera) in an otherwise light app.",
+      "Soft, low-opacity shadows. Nothing sharp, nothing harsh.",
+      "Serif headings + humanist sans body. Tajawal at full hierarchy in Arabic.",
+      "Score colors and halal status always paired with iconography and a label."
+    ],
+    "rules": [
+      { "name": "The Premium-Gold Rule", "body": "Gold appears only on premium badges, subscription affordances, and paywall surfaces. Never as decoration, never on free-tier UI.", "section": "colors" },
+      { "name": "The Scan-Black Rule", "body": "#0D0D0D appears only on the face-scan camera surface. The rest of the app is light. There is no dark mode.", "section": "colors" },
+      { "name": "The Score-Triplet Rule", "body": "Score colors (green, amber, red) are never the sole signal. Always paired with the score number, a label, and an icon glyph.", "section": "colors" },
+      { "name": "The One-Voice Rule", "body": "Brand Rose carries CTAs and active states. It does not also carry decoration, illustration accents, or background gradients. Its rarity is the point.", "section": "colors" },
+      { "name": "The Bilingual-Parity Rule", "body": "Arabic and English receive equal hierarchy at every level. Tajawal Regular maps to DM Sans Regular, Tajawal Medium maps to DM Sans Medium. Heading sizes hold; line-height bumps by ~10% in Arabic to give Tajawal's taller glyphs room to breathe. Never down-tier Arabic to a fallback role.", "section": "typography" },
+      { "name": "The Serif-Heading Rule", "body": "DM Serif Display is reserved for screen titles, score numbers, and hero copy. Never used for body, buttons, labels, or chips.", "section": "typography" },
+      { "name": "The Soft-Only Rule", "body": "Shadow opacity never exceeds 0.10. Shadow blur never goes under 8px. Anything sharper reads as generic-medical or AI-template.", "section": "elevation" },
+      { "name": "The Flat-Ground Rule", "body": "Screen backgrounds (Blush, White) carry no shadow. Only floating surfaces lift.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use DM Serif Display only for screen titles, score numbers, and hero copy. Body and labels are always DM Sans (or Tajawal in Arabic).",
+      "Do pair every score color with the score number, a plain-language label, and an icon glyph. Color alone never carries score state.",
+      "Do confine Scan Black (#0D0D0D) to the face-scan camera surface. The rest of the app is light, full stop.",
+      "Do use 16px on cards, 12px on buttons and inputs, and rounded-full on chips and badges.",
+      "Do tint shadows with warm gray at low opacity: rgba(26, 26, 26, 0.06) for Card Lift, rgba(26, 26, 26, 0.10) ceiling for Modal Lift.",
+      "Do give Tajawal equal hierarchy at every level. Bump Arabic line-height ~10% to let Tajawal's glyphs breathe.",
+      "Do lead reassurance copy before prescription copy on every result surface.",
+      "Do restrict Gold (#C9A84C) to premium badges, subscription affordances, and the paywall."
+    ],
+    "donts": [
+      "Don't use generic SaaS-dashboard patterns: dense KPI grids, hero-metric templates, side-stripe colored borders, flat blue-and-gray admin aesthetics.",
+      "Don't use clinical or pharmacy styling: sterile white-and-teal medical look, stock medical iconography, warning-heavy red-flag visuals.",
+      "Don't use Sephora-style commerce density: bold sale stickers, neon promotional banners, dense product grids fighting for attention.",
+      "Don't use Gen-Z neon beauty: hot pink on black, gradient text, glassmorphism, filtered-influencer aesthetics.",
+      "Don't use raw #000 or #fff. Use Charcoal (#2D2D2D), Mauve Evening (#2D1B2E), or the White token.",
+      "Don't down-tier Arabic. Tajawal hierarchy must equal DM Sans hierarchy in every screen.",
+      "Don't apply shadows with opacity above 0.10 or blur under 8px.",
+      "Don't put Gold anywhere except premium badges and subscription affordances.",
+      "Don't nest cards. A card inside a card is always wrong here.",
+      "Don't use border-left or border-right greater than 1px as a colored accent.",
+      "Don't introduce a dark mode. The Scan Black surface is the only dark surface."
+    ]
+  }
+}

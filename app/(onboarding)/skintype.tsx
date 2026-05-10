@@ -24,18 +24,18 @@ export default function SkinTypeScreen() {
 
   const handleComplete = async () => {
     if (!selectedType) return;
-    
-    const concerns = params.concerns ? (params.concerns as string).split(',') : [];
-    const skinType = selectedType;
-    
-    // MOCK: Save onboarding data to Supabase profiles
-    // This will be properly implemented once Auth is set up
-    console.log('--- SAVING ONBOARDING DATA ---');
-    console.log('Concerns:', concerns);
-    console.log('Skin Type:', skinType);
-    console.log('------------------------------');
 
-    router.push('/(tabs)');
+    // The user has finished the unauthenticated onboarding interview. Carry their
+    // answers into signup so the account creation step can persist them. Going
+    // straight to /(tabs) here would bounce back through the auth guard since no
+    // session exists yet.
+    router.push({
+      pathname: '/(auth)/signup',
+      params: {
+        concerns: (params.concerns as string) ?? '',
+        skinType: selectedType,
+      },
+    });
   };
 
   return (

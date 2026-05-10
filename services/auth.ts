@@ -1,17 +1,24 @@
 import { supabase } from './supabase';
 
-export const signUp = async (email: string, password: string, name?: string) => {
+export const signUp = async (
+  email: string,
+  password: string,
+  name?: string,
+  phone?: string,
+) => {
   if (!supabase) {
     console.warn('Supabase not initialized. Returning mock success.');
     return { data: { user: { id: 'mock-user-id' } }, error: null };
   }
 
+  // Phone is stored in user_metadata until Twilio OTP is wired in a later craft run.
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         name,
+        phone,
       },
     },
   });

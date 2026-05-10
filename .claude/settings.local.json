@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(claude plugin:*)"
+      "Bash(claude plugin:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx expo *)",
+      "Bash(curl -s -o NUL -w \"%{http_code}\" http://localhost:8082/ --max-time 5)",
+      "Bash(curl -s -o NUL -w \"%{http_code} %{size_download}\" \"http://localhost:8082/node_modules/expo-router/entry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&unstable_transformProfile=hermes-stable\" --max-time 60)",
+      "Bash(curl -s \"http://localhost:8082/node_modules/expo-router/entry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&unstable_transformProfile=hermes-stable\" --max-time 60)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8082)",
+      "Bash(git ls-tree *)",
+      "Bash(git fetch *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
