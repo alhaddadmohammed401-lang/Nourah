@@ -55,14 +55,14 @@ function RoutineStepCard({
 
   return (
     <Pressable
-      className={`mb-3 rounded-2xl border border-lightGray bg-white px-4 py-4 active:opacity-80 ${savingClassName}`}
+      className={`mb-4 rounded-2xl border border-lightGray bg-white px-4 py-5 active:opacity-80 ${savingClassName}`}
       onPress={() => onToggle(step.id)}
       disabled={saving}
       accessibilityRole="button"
       accessibilityLabel={`${step.titleEn}, ${completed ? 'completed' : 'not completed'}`}
     >
       <View className="flex-row items-start">
-        <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-softBlush">
+        <View className="mr-4 h-11 w-11 items-center justify-center rounded-full bg-softBlush">
           <Text className="text-[15px] font-semibold text-brandRose">
             {String(step.stepNumber).padStart(2, '0')}
           </Text>
@@ -74,13 +74,13 @@ function RoutineStepCard({
               <Text className="text-[19px] font-semibold text-deepMauve">
                 {step.titleEn}
               </Text>
-              <Text className="mt-1 text-[16px] leading-7 text-deepMauve">
+              <Text className="mt-2 text-[16px] leading-7 text-deepMauve">
                 {step.titleAr}
               </Text>
             </View>
 
             <View
-              className={`h-9 w-9 items-center justify-center rounded-full border ${checkClassName}`}
+              className={`h-11 w-11 items-center justify-center rounded-full border ${checkClassName}`}
             >
               <Text className={`text-[17px] font-semibold ${checkTextClassName}`}>
                 {completed ? '✓' : ''}
@@ -88,14 +88,14 @@ function RoutineStepCard({
             </View>
           </View>
 
-          <Text className="mt-3 text-[15px] leading-6 text-darkGray">
+          <Text className="mt-4 text-[15px] leading-6 text-darkGray">
             {step.descriptionEn}
           </Text>
           <Text className="mt-1 text-[15px] leading-7 text-darkGray">
             {step.descriptionAr}
           </Text>
 
-          <View className="mt-4 self-start rounded-full bg-softLavender px-3 py-2">
+          <View className="mt-5 self-start rounded-full bg-softLavender px-4 py-2">
             <Text className="text-[13px] font-medium text-deepMauve">
               {step.ingredientEn} | {step.ingredientAr}
             </Text>
@@ -299,12 +299,12 @@ export default function RoutineScreen() {
                 </Text>
               </View>
 
-              <View className="h-24 w-24 items-center justify-center rounded-2xl bg-white">
+              <View className="h-24 w-24 items-center justify-center rounded-2xl border border-lightGray bg-white">
                 <GeneratedIcon source={routineIcon} size="lg" />
               </View>
             </View>
 
-          <View className="mb-5 flex-row rounded-2xl bg-white p-1">
+          <View className="mb-6 flex-row rounded-2xl border border-lightGray bg-white p-1">
             <Pressable
               className={`h-12 flex-1 items-center justify-center rounded-xl ${
                 selectedTimeOfDay === 'am' ? 'bg-brandRose' : 'bg-white'
@@ -338,9 +338,11 @@ export default function RoutineScreen() {
                   PM | مساء
                 </Text>
                 {!plan.isPremium ? (
-                  <Text className="ml-2 text-[11px] font-semibold text-gold">
-                    Premium
-                  </Text>
+                  <View className="ml-2 rounded-full border border-gold px-2 py-1">
+                    <Text className="text-[11px] font-semibold text-gold">
+                      Premium
+                    </Text>
+                  </View>
                 ) : null}
               </View>
             </Pressable>
