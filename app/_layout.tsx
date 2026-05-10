@@ -2,15 +2,20 @@ import '../global.css';
 
 import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import { Platform } from 'react-native';
 import { AuthProvider, useAuth } from '../hooks/useAuth';
 
+const isCodexPreviewAuth =
+  Platform.OS === 'web' && process.env.EXPO_PUBLIC_CODEX_PREVIEW_AUTH === 'true';
+
+// Protects real app routes while allowing a local Codex web preview when explicitly enabled.
 function InitialLayout() {
   const { session, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || isCodexPreviewAuth) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';

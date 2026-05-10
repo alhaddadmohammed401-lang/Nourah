@@ -502,7 +502,7 @@ Never use variables without this prefix for client-side keys.
 #### Project Setup
 - [x] NativeWind v4 installed and configured
   Note: NativeWind Metro/Babel config re-enabled for className support on 2026-04-25.
-- [ ] tailwind.config.js configured with design tokens
+- [x] tailwind.config.js configured with design tokens
 - [x] /constants/colors.ts created
 - [x] /constants/fonts.ts created
 - [ ] Google Fonts loaded (DMSerifDisplay, DMSans, Tajawal)
@@ -530,7 +530,7 @@ Never use variables without this prefix for client-side keys.
 - [ ] Perfect Corp API integrated
 - [x] Scan results screen built (inline result sheet on Scan screen; standalone /scan-results deferred)
 - [ ] GCC badge overlays added to results
-- [ ] Routine screen built (AM/PM toggle)
+- [x] Routine screen built (AM/PM toggle)
 - [ ] Gemini Flash API integrated for routine text
 
 #### Ingredient Scanner
@@ -541,7 +541,7 @@ Never use variables without this prefix for client-side keys.
 - [ ] Ingredient result bottom sheet built
 
 #### Commerce
-- [ ] Products screen built
+- [x] Products screen built
 - [ ] Affiliate product data created (`/constants/products.ts`)
 - [ ] Amazon.ae affiliate links integrated
 - [ ] iHerb affiliate links integrated
@@ -554,7 +554,7 @@ Never use variables without this prefix for client-side keys.
 #### Polish
 - [ ] Progress tracking screen built (premium)
 - [ ] Push notifications set up
-- [ ] Profile screen built
+- [x] Profile screen built
 - [ ] Settings screen built (language, notifications)
 - [ ] Arabic translations complete (`/locales/ar.json`)
 - [ ] English translations complete (`/locales/en.json`)

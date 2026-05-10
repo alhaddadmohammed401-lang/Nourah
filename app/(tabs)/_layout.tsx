@@ -65,6 +65,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <TabGlyph kind="scan" color={color} size={24} />,
         }}
       />
+      <Tabs.Screen name="routine" options={{ href: null }} />
       <Tabs.Screen
         name="products"
         options={{

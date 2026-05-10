@@ -153,9 +153,7 @@ export default function HomeScreen() {
               window="AM"
               steps={SAMPLE_AM_STEPS}
               isPremium={isPremium}
-              onPress={() => {
-                // Routine screen is out of scope for this craft run.
-              }}
+              onPress={() => router.push('/(tabs)/routine')}
             />
           </View>
         ) : null}
