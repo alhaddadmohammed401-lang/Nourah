@@ -35,7 +35,7 @@ export default function SkinTypeScreen() {
     console.log('Skin Type:', skinType);
     console.log('------------------------------');
 
-    router.push('/(tabs)');
+    router.push('/(tabs)/home');
   };
 
   return (

@@ -29,7 +29,7 @@ function InitialLayout() {
       router.replace('/(onboarding)');
     } else if (session && (inAuthGroup || inOnboardingGroup)) {
       // Logged in but sitting on auth or onboarding screens
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/home');
     }
   }, [session, loading, segments]);
 

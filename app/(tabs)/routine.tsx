@@ -218,7 +218,7 @@ export default function RoutineScreen() {
 
   // Returns users to the landing tab after they finish reviewing the routine.
   function handleBackHomePress() {
-    router.replace('/(tabs)');
+    router.replace('/(tabs)/home');
   }
 
   if (loadingPlan || loadingCompletion) {
@@ -269,7 +269,7 @@ export default function RoutineScreen() {
     <SafeAreaView className="flex-1 bg-softBlush">
       <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1 bg-softBlush" showsVerticalScrollIndicator={false}>
         <View className="px-5 pb-10 pt-6">
           <View className="mb-6">
             <Text className="text-[28px] font-semibold text-deepMauve">

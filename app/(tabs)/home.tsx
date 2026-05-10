@@ -28,7 +28,7 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-softBlush">
       <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-      <View className="flex-1 px-5 pt-8">
+      <View className="flex-1 bg-softBlush px-5 pt-8">
         <View className="mb-8">
           <Text className="text-[32px] font-semibold text-brandRose">
             Nourah

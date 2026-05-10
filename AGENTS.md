@@ -525,7 +525,7 @@ Never use variables without this prefix for client-side keys.
 - [ ] Onboarding data saved to Supabase profiles table
 
 #### Core Screens
-- [ ] Home screen built
+- [x] Home screen built
 - [ ] Face scan screen built (camera + oval guide)
 - [ ] Perfect Corp API integrated
 - [ ] Scan results screen built
@@ -541,7 +541,7 @@ Never use variables without this prefix for client-side keys.
 - [ ] Ingredient result bottom sheet built
 
 #### Commerce
-- [ ] Products screen built
+- [x] Products screen built
 - [ ] Affiliate product data created (`/constants/products.ts`)
 - [ ] Amazon.ae affiliate links integrated
 - [ ] iHerb affiliate links integrated
@@ -554,7 +554,7 @@ Never use variables without this prefix for client-side keys.
 #### Polish
 - [ ] Progress tracking screen built (premium)
 - [ ] Push notifications set up
-- [ ] Profile screen built
+- [x] Profile screen built
 - [ ] Settings screen built (language, notifications)
 - [ ] Arabic translations complete (`/locales/ar.json`)
 - [ ] English translations complete (`/locales/en.json`)
