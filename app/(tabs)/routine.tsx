@@ -1,7 +1,3 @@
-// TODO(i18n): the En/Ar pipe-concat ("AM | صباح", `${ingredientEn} | ${ingredientAr}`,
-// stacked title rows) is a placeholder. When react-i18next lands, switch to a single
-// active-language string per element. The Bilingual-Parity Rule wants parity, not
-// bilingual mashing on a single line.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -22,6 +18,7 @@ import {
   type RoutineTimeOfDay,
 } from '../../services/routineService';
 import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const routineIcon = require('../../assets/icons/nourah-scan-icon.png');
 
@@ -39,7 +36,8 @@ function getRoutineCompletionStorageKey(timeOfDay: RoutineTimeOfDay) {
   return `routine:${getLocalDateKey(new Date())}:${timeOfDay}`;
 }
 
-// Renders one routine step with bilingual copy and a tap target for completion.
+// Renders one routine step with a tap target for completion. Step copy resolves through
+// the locale dictionary so the active language is the only one rendered.
 function RoutineStepCard({
   step,
   completed,
@@ -51,6 +49,11 @@ function RoutineStepCard({
   saving: boolean;
   onToggle: (stepId: string) => void;
 }) {
+  const { t } = useLanguage();
+  const title = t(`routine.step.${step.id}.title`);
+  const body = t(`routine.step.${step.id}.body`);
+  const ingredient = t(`routine.step.${step.id}.ingredient`);
+
   const checkClassName = completed
     ? 'border-brandRose bg-brandRose'
     : 'border-lightGray bg-softBlush';
@@ -63,11 +66,22 @@ function RoutineStepCard({
       onPress={() => onToggle(step.id)}
       disabled={saving}
       accessibilityRole="button"
-      accessibilityLabel={`${step.titleEn}, ${completed ? 'completed' : 'not completed'}`}
+      accessibilityLabel={t('routine.a11yStepFmt', {
+        title,
+        state: completed ? t('routine.a11yStateCompleted') : t('routine.a11yStateNotCompleted'),
+      })}
     >
       <View className="flex-row items-start">
         <View className="mr-4 h-11 w-11 items-center justify-center rounded-full bg-softBlush">
-          <Text className="text-[15px] font-semibold text-brandRose">
+          <Text
+            className="text-brandRose"
+            style={{
+              fontFamily: 'DMSerifDisplay-Regular',
+              fontSize: 19,
+              fontWeight: '400',
+              lineHeight: 22,
+            }}
+          >
             {String(step.stepNumber).padStart(2, '0')}
           </Text>
         </View>
@@ -75,12 +89,7 @@ function RoutineStepCard({
         <View className="flex-1">
           <View className="flex-row items-start">
             <View className="flex-1 pr-3">
-              <Text className="text-[19px] font-semibold text-deepMauve">
-                {step.titleEn}
-              </Text>
-              <Text className="mt-2 text-[16px] leading-7 text-deepMauve">
-                {step.titleAr}
-              </Text>
+              <Text className="text-[19px] font-semibold text-deepMauve">{title}</Text>
             </View>
 
             <View
@@ -92,17 +101,10 @@ function RoutineStepCard({
             </View>
           </View>
 
-          <Text className="mt-4 text-[15px] leading-6 text-darkGray">
-            {step.descriptionEn}
-          </Text>
-          <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-            {step.descriptionAr}
-          </Text>
+          <Text className="mt-3 text-[15px] leading-6 text-darkGray">{body}</Text>
 
           <View className="mt-5 self-start rounded-full bg-softLavender px-4 py-2">
-            <Text className="text-[13px] font-medium text-deepMauve">
-              {step.ingredientEn} | {step.ingredientAr}
-            </Text>
+            <Text className="text-[13px] font-medium text-deepMauve">{ingredient}</Text>
           </View>
         </View>
       </View>
@@ -113,9 +115,9 @@ function RoutineStepCard({
 // Builds the daily AM routine surface and keeps completion saved on the device.
 export default function RoutineScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [plan, setPlan] = useState<RoutinePlan | null>(null);
-  const [selectedTimeOfDay, setSelectedTimeOfDay] =
-    useState<RoutineTimeOfDay>('am');
+  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState<RoutineTimeOfDay>('am');
   const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [loadingCompletion, setLoadingCompletion] = useState(true);
@@ -138,10 +140,8 @@ export default function RoutineScreen() {
     completedStepIds.includes(step.id)
   ).length;
 
-  const headerTitleEn =
-    selectedTimeOfDay === 'am' ? 'Your morning.' : 'Your evening.';
-  const headerTitleAr =
-    selectedTimeOfDay === 'am' ? 'صباحك.' : 'مساؤك.';
+  const headerTitle =
+    selectedTimeOfDay === 'am' ? t('routine.titleAm') : t('routine.titlePm');
 
   // Loads the mock routine plan behind a service layer so real Gemini output can replace it later.
   async function loadPlan() {
@@ -151,7 +151,7 @@ export default function RoutineScreen() {
     const { data, error } = await getRoutinePlan();
 
     if (error || !data) {
-      setPlanError(error ?? 'Routine plan could not be prepared. Please try again.');
+      setPlanError(error ?? t('routine.needsRefresh'));
       setPlan(null);
     } else {
       setPlan(data);
@@ -177,9 +177,7 @@ export default function RoutineScreen() {
       );
     } catch {
       setCompletedStepIds([]);
-      setCompletionError(
-        'Saved routine progress could not be loaded. You can still use the routine.'
-      );
+      setCompletionError(t('routine.progressLoadError'));
     } finally {
       setLoadingCompletion(false);
     }
@@ -195,13 +193,10 @@ export default function RoutineScreen() {
     void loadCompletion();
   }, [completionStorageKey, plan]);
 
-  // Keeps free users on AM while still showing the PM value clearly as a premium upgrade.
+  // Free users cannot enter the PM tab. The PM segment renders disabled rather than
+  // snapping back silently, so the user understands the gate before tapping.
   function handleTimeOfDayPress(timeOfDay: RoutineTimeOfDay) {
-    if (timeOfDay === 'pm' && !plan?.isPremium) {
-      setSelectedTimeOfDay('am');
-      return;
-    }
-
+    if (timeOfDay === 'pm' && !plan?.isPremium) return;
     setSelectedTimeOfDay(timeOfDay);
   }
 
@@ -222,15 +217,15 @@ export default function RoutineScreen() {
       );
     } catch {
       setCompletedStepIds(completedStepIds);
-      setCompletionError('This step could not be saved. Please try again.');
+      setCompletionError(t('routine.stepSaveError'));
     } finally {
       setSavingStepId(null);
     }
   }
 
   // Returns users to the landing tab after they finish reviewing the routine.
-  // Routine is reached via router.push from Home, so back() is the correct
-  // affordance, replace() would flatten history.
+  // Routine is reached via router.push from Home, so back() is the correct affordance,
+  // replace() would flatten history.
   function handleBackHomePress() {
     if (router.canGoBack()) {
       router.back();
@@ -246,10 +241,10 @@ export default function RoutineScreen() {
         <View className="flex-1 items-center justify-center px-5">
           <ActivityIndicator color={colors.brandRose} />
           <Text className="mt-5 text-center text-[17px] font-semibold text-deepMauve">
-            Preparing your routine
+            {t('routine.loadingTitle')}
           </Text>
           <Text className="mt-2 text-center text-[15px] leading-7 text-darkGray">
-            نجهز روتينك اليومي بهدوء
+            {t('routine.loadingBody')}
           </Text>
         </View>
       </SafeAreaView>
@@ -263,19 +258,15 @@ export default function RoutineScreen() {
         <View className="flex-1 justify-center px-5">
           <View className="rounded-2xl border border-lightGray bg-white p-6">
             <Text className="text-[24px] font-semibold text-deepMauve">
-              Routine needs a refresh.
+              {t('routine.needsRefresh')}
             </Text>
-            <Text className="mt-3 text-[15px] leading-6 text-darkGray">
-              {planError}
-            </Text>
+            <Text className="mt-3 text-[15px] leading-6 text-darkGray">{planError}</Text>
             <Pressable
               className="mt-6 h-[52px] items-center justify-center rounded-xl bg-brandRose active:bg-dustyPink"
               onPress={loadPlan}
               accessibilityRole="button"
             >
-              <Text className="text-[17px] font-semibold text-white">
-                Try again
-              </Text>
+              <Text className="text-[17px] font-semibold text-white">{t('routine.retry')}</Text>
             </Pressable>
           </View>
         </View>
@@ -283,29 +274,42 @@ export default function RoutineScreen() {
     );
   }
 
+  const bandLabelKey =
+    plan.skinBand === 'green'
+      ? 'routine.bandLabelGreen'
+      : plan.skinBand === 'amber'
+      ? 'routine.bandLabelAmber'
+      : 'routine.bandLabelRed';
+  const reassureKey =
+    plan.skinBand === 'green'
+      ? 'routine.reassureGreen'
+      : plan.skinBand === 'amber'
+      ? 'routine.reassureAmber'
+      : 'routine.reassureRed';
+
   return (
     <View className="flex-1 bg-softBlush">
       <SafeAreaView className="flex-1 bg-softBlush">
         <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-        <ScrollView
-          className="flex-1 bg-softBlush"
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView className="flex-1 bg-softBlush" showsVerticalScrollIndicator={false}>
           <View className="px-5 pb-10 pt-6">
             <View className="mb-6 flex-row items-start justify-between">
               <View className="flex-1 pr-5">
-                <Text className="text-[28px] font-semibold text-deepMauve">
-                  {headerTitleEn}
+                <Text
+                  className="text-deepMauve"
+                  style={{
+                    fontFamily: 'DMSerifDisplay-Regular',
+                    fontSize: 28,
+                    fontWeight: '400',
+                    lineHeight: 34,
+                    letterSpacing: -0.2,
+                  }}
+                >
+                  {headerTitle}
                 </Text>
-                <Text className="mt-1 text-[21px] leading-8 text-deepMauve">
-                  {headerTitleAr}
-                </Text>
-                <Text className="mt-4 text-[15px] leading-6 text-darkGray">
-                  Three calm steps for GCC heat, sunscreen days, and steady skin.
-                </Text>
-                <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-                  ثلاث خطوات هادئة تناسب حرارة الخليج وأيام واقي الشمس.
+                <Text className="mt-3 text-[15px] leading-6 text-darkGray">
+                  {t('routine.intro')}
                 </Text>
               </View>
 
@@ -314,134 +318,131 @@ export default function RoutineScreen() {
               </View>
             </View>
 
-          <View className="mb-6 flex-row rounded-2xl border border-lightGray bg-white p-1">
-            <Pressable
-              className={`h-12 flex-1 items-center justify-center rounded-xl ${
-                selectedTimeOfDay === 'am' ? 'bg-brandRose' : 'bg-white'
-              }`}
-              onPress={() => handleTimeOfDayPress('am')}
-              accessibilityRole="button"
-            >
-              <Text
-                className={`text-[15px] font-semibold ${
-                  selectedTimeOfDay === 'am' ? 'text-white' : 'text-deepMauve'
-                }`}
-              >
-                AM | صباح
-              </Text>
-            </Pressable>
+            <View className="mb-6 flex-row rounded-2xl border border-lightGray bg-softBlush p-1">
+              <TimeSegment
+                active={selectedTimeOfDay === 'am'}
+                disabled={false}
+                label={t('routine.tabAm')}
+                onPress={() => handleTimeOfDayPress('am')}
+              />
+              <TimeSegment
+                active={selectedTimeOfDay === 'pm'}
+                disabled={!plan.isPremium}
+                label={t('routine.tabPm')}
+                premiumChip={!plan.isPremium ? t('routine.premiumChip') : undefined}
+                onPress={() => handleTimeOfDayPress('pm')}
+              />
+            </View>
 
-            <Pressable
-              className={`ml-1 h-12 flex-1 items-center justify-center rounded-xl ${
-                selectedTimeOfDay === 'pm' ? 'bg-brandRose' : 'bg-white'
-              }`}
-              onPress={() => handleTimeOfDayPress('pm')}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: !plan.isPremium }}
-            >
-              <View className="flex-row items-center">
-                <Text
-                  className={`text-[15px] font-semibold ${
-                    selectedTimeOfDay === 'pm' ? 'text-white' : 'text-deepMauve'
-                  }`}
-                >
-                  PM | مساء
-                </Text>
-                {!plan.isPremium ? (
-                  <View className="ml-2 rounded-full border border-gold px-2 py-1">
-                    <Text className="text-[11px] font-semibold text-gold">
-                      Premium
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-            </Pressable>
-          </View>
-
-          <View className="mb-5 rounded-2xl bg-white p-5">
-            <View className="flex-row items-start">
-              <View className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-softLavender">
-                <Text className="text-[17px] font-semibold text-brandRose">
-                  {plan.bandGlyph}
-                </Text>
-              </View>
-              <View className="flex-1">
-                <Text className="text-[15px] font-semibold text-deepMauve">
-                  Tuned for your {plan.bandLabelEn.toLowerCase()} skin today.
-                </Text>
-                <Text className="mt-1 text-[15px] leading-6 text-darkGray">
-                  {plan.reassuranceEn}
-                </Text>
-                <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-                  {plan.reassuranceAr}
-                </Text>
+            <View className="mb-5 rounded-2xl bg-white p-5">
+              <View className="flex-row items-start">
+                <View className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-softLavender">
+                  <Text className="text-[17px] font-semibold text-brandRose">
+                    {plan.bandGlyph}
+                  </Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-[15px] font-semibold text-deepMauve">
+                    {t('routine.tunedForFmt', { band: t(bandLabelKey) })}
+                  </Text>
+                  <Text className="mt-1 text-[15px] leading-6 text-darkGray">
+                    {t(reassureKey)}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <View className="mb-4 flex-row items-center justify-between">
-            <View>
+            <View className="mb-4">
               <Text className="text-[17px] font-semibold text-deepMauve">
-                Steps today
+                {t('routine.stepsToday')}
               </Text>
               <Text className="mt-1 text-[13px] text-darkGray">
-                Completed: {completedCount} of {visibleSteps.length}
+                {t('routine.completedFmt', { done: completedCount, total: visibleSteps.length })}
               </Text>
             </View>
-            <View className="rounded-full bg-white px-3 py-2">
-              <Text className="text-[13px] font-semibold text-brandRose">
-                {completedCount}/{visibleSteps.length}
+
+            {completionError ? (
+              <View className="mb-4 rounded-2xl border border-error bg-white p-4">
+                <Text className="text-[14px] leading-5 text-error">{completionError}</Text>
+              </View>
+            ) : null}
+
+            {visibleSteps.map((step) => (
+              <RoutineStepCard
+                key={step.id}
+                step={step}
+                completed={completedStepIds.includes(step.id)}
+                saving={savingStepId === step.id}
+                onToggle={handleStepToggle}
+              />
+            ))}
+
+            {!plan.isPremium ? (
+              <View className="mt-1 rounded-2xl border border-gold bg-white p-5">
+                <Text className="text-[13px] font-semibold uppercase tracking-[2px] text-gold">
+                  {t('routine.premiumEyebrow')}
+                </Text>
+                <Text className="mt-3 text-[17px] font-semibold text-deepMauve">
+                  {t('routine.premiumTitle')}
+                </Text>
+                <Text className="mt-2 text-[15px] leading-6 text-darkGray">
+                  {t('routine.premiumBody')}
+                </Text>
+              </View>
+            ) : null}
+
+            <Pressable
+              className="mt-7 h-[52px] items-center justify-center rounded-xl border border-brandRose bg-white active:bg-softBlush"
+              onPress={handleBackHomePress}
+              accessibilityRole="button"
+            >
+              <Text className="text-[17px] font-semibold text-brandRose">
+                {t('routine.back')}
               </Text>
-            </View>
+            </Pressable>
           </View>
-
-          {completionError ? (
-            <View className="mb-4 rounded-2xl border border-error bg-white p-4">
-              <Text className="text-[14px] leading-5 text-error">
-                {completionError}
-              </Text>
-            </View>
-          ) : null}
-
-          {visibleSteps.map((step) => (
-            <RoutineStepCard
-              key={step.id}
-              step={step}
-              completed={completedStepIds.includes(step.id)}
-              saving={savingStepId === step.id}
-              onToggle={handleStepToggle}
-            />
-          ))}
-
-          {!plan.isPremium ? (
-            <View className="mt-1 rounded-2xl border border-gold bg-white p-5">
-              <Text className="text-[13px] font-semibold uppercase text-gold">
-                Premium PM routine
-              </Text>
-              <Text className="mt-3 text-[17px] font-semibold text-deepMauve">
-                Evening care, tuned for repair.
-              </Text>
-              <Text className="mt-2 text-[15px] leading-6 text-darkGray">
-                {plan.premiumHintEn}
-              </Text>
-              <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-                {plan.premiumHintAr}
-              </Text>
-            </View>
-          ) : null}
-
-          <Pressable
-            className="mt-7 h-[52px] items-center justify-center rounded-xl border border-brandRose bg-white active:bg-softBlush"
-            onPress={handleBackHomePress}
-            accessibilityRole="button"
-          >
-            <Text className="text-[17px] font-semibold text-brandRose">
-              Back to home
-            </Text>
-          </Pressable>
-        </View>
-      </ScrollView>
+        </ScrollView>
       </SafeAreaView>
     </View>
+  );
+}
+
+// One half of the AM/PM segmented control. Inactive segments stay transparent so the
+// soft blush track still reads through, and disabled (free PM) drops opacity rather
+// than vanishing.
+function TimeSegment({
+  active,
+  disabled,
+  label,
+  premiumChip,
+  onPress,
+}: {
+  active: boolean;
+  disabled: boolean;
+  label: string;
+  premiumChip?: string;
+  onPress: () => void;
+}) {
+  const tint = active ? 'bg-brandRose' : 'bg-transparent';
+  const text = active ? 'text-white' : 'text-deepMauve';
+  const wrap = `${disabled ? 'opacity-50' : 'opacity-100'} h-12 flex-1 items-center justify-center rounded-xl ${tint}`;
+
+  return (
+    <Pressable
+      className={wrap}
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active, disabled }}
+    >
+      <View className="flex-row items-center">
+        <Text className={`text-[15px] font-semibold ${text}`}>{label}</Text>
+        {premiumChip ? (
+          <View className="ml-2 rounded-full border border-gold px-2 py-0.5">
+            <Text className="text-[11px] font-semibold text-gold">{premiumChip}</Text>
+          </View>
+        ) : null}
+      </View>
+    </Pressable>
   );
 }

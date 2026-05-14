@@ -1,3 +1,5 @@
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch.
 import { useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {

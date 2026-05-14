@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Text, View } from 'react-native';
 import { colors } from '../../constants/colors';
+import { useLanguage } from '../../hooks/useLanguage';
 
 type IconKind = 'home' | 'scan' | 'products' | 'profile';
 
@@ -30,6 +31,8 @@ function TabGlyph({
 }
 
 export default function TabsLayout() {
+  const { t } = useLanguage();
+
   return (
     <Tabs
       screenOptions={{
@@ -54,14 +57,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tabs.home'),
           tabBarIcon: ({ color }) => <TabGlyph kind="home" color={color} size={22} />,
         }}
       />
       <Tabs.Screen
         name="scan"
         options={{
-          title: 'Scan',
+          title: t('tabs.scan'),
           tabBarIcon: ({ color }) => <TabGlyph kind="scan" color={color} size={24} />,
         }}
       />
@@ -69,14 +72,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="products"
         options={{
-          title: 'Products',
+          title: t('tabs.products'),
           tabBarIcon: ({ color }) => <TabGlyph kind="products" color={color} size={22} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.profile'),
           tabBarIcon: ({ color }) => <TabGlyph kind="profile" color={color} size={22} />,
         }}
       />

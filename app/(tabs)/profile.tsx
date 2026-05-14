@@ -12,36 +12,42 @@ import {
 import { colors } from '../../constants/colors';
 import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
+import type { Lang } from '../../constants/locales';
 import { signOut } from '../../services/auth';
-
-type ProfileStat = {
-  id: string;
-  labelEn: string;
-  labelAr: string;
-  value: string;
-};
-
-const PROFILE_STATS: ProfileStat[] = [
-  { id: 'scans', labelEn: 'Scans', labelAr: 'الفحوصات', value: '1' },
-  { id: 'routine', labelEn: 'Routine days', labelAr: 'أيام الروتين', value: '3' },
-  { id: 'products', labelEn: 'Checked products', labelAr: 'منتجات مفحوصة', value: '0' },
-];
 
 const profileIcon = require('../../assets/icons/nourah-profile-icon.png');
 
-// Shows account state, soft progress stats, and a safe sign-out path.
+// Settings + identity surface. Headlines the language toggle so the bilingual promise is
+// always within reach. Sign-out lives at the bottom because it's the destructive path.
 export default function ProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t, lang, setLang } = useLanguage();
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
+  const [showRestartHint, setShowRestartHint] = useState(false);
 
   const displayName =
     typeof user?.user_metadata?.name === 'string'
       ? user.user_metadata.name
-      : 'Nourah member';
+      : t('profile.memberFallback');
 
-  const email = user?.email ?? 'Preview account';
+  const email = user?.email ?? t('profile.previewAccount');
+
+  const stats: { id: string; labelKey: string; value: string }[] = [
+    { id: 'scans', labelKey: 'profile.statScans', value: '1' },
+    { id: 'routine', labelKey: 'profile.statRoutineDays', value: '3' },
+    { id: 'products', labelKey: 'profile.statCheckedProducts', value: '0' },
+  ];
+
+  // Persists the chosen language and surfaces the restart hint when Arabic flips RTL,
+  // since native layout direction only finalizes on a fresh JS load.
+  async function handleLanguagePress(next: Lang) {
+    if (next === lang) return;
+    await setLang(next);
+    setShowRestartHint(next === 'ar');
+  }
 
   // Signs out through the auth service and returns the user to onboarding when complete.
   async function handleSignOutPress() {
@@ -65,19 +71,15 @@ export default function ProfileScreen() {
       <SafeAreaView className="flex-1 bg-softBlush">
         <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-        <View className="flex-1 bg-softBlush">
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <View className="px-5 pb-10 pt-8">
             <View className="flex-row items-start justify-between">
               <View className="flex-1 pr-5">
                 <Text className="text-[28px] font-semibold text-deepMauve">
-                  Profile
+                  {t('profile.title')}
                 </Text>
-                <Text className="mt-1 text-[20px] leading-8 text-deepMauve">
-                  الملف الشخصي
-                </Text>
-                <Text className="mt-4 text-[15px] leading-6 text-darkGray">
-                  Your skin record, settings, and subscription status in one calm place.
+                <Text className="mt-3 text-[15px] leading-6 text-darkGray">
+                  {t('profile.subtitle')}
                 </Text>
               </View>
 
@@ -89,20 +91,16 @@ export default function ProfileScreen() {
             <View className="mt-6 rounded-2xl bg-white p-5">
               <View className="flex-row items-start">
                 <View className="h-16 w-16 items-center justify-center rounded-full bg-softLavender">
-                  <Text className="text-[24px] font-semibold text-brandRose">
-                    N
-                  </Text>
+                  <Text className="text-[24px] font-semibold text-brandRose">N</Text>
                 </View>
 
                 <View className="ml-4 flex-1">
-                  <Text className="text-[22px] font-semibold text-deepMauve">
-                    {displayName}
-                  </Text>
+                  <Text className="text-[22px] font-semibold text-deepMauve">{displayName}</Text>
                   <Text className="mt-2 text-[15px] text-darkGray">{email}</Text>
 
                   <View className="mt-4 self-start rounded-full bg-softBlush px-4 py-2">
                     <Text className="text-[13px] font-semibold text-brandRose">
-                      Free plan | الخطة المجانية
+                      {t('profile.freePlan')}
                     </Text>
                   </View>
                 </View>
@@ -110,52 +108,66 @@ export default function ProfileScreen() {
             </View>
 
             <View className="mt-5 rounded-2xl bg-white p-5">
-              <Text className="text-[17px] font-semibold text-deepMauve">
-                Your skin record
+              <Text className="text-[13px] font-semibold uppercase tracking-[2px] text-darkGray">
+                {t('profile.settingsTitle')}
               </Text>
-              <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-                سجل بشرتك
+
+              <Text className="mt-4 text-[15px] font-semibold text-deepMauve">
+                {t('profile.languageLabel')}
+              </Text>
+
+              <View className="mt-3 flex-row rounded-2xl border border-lightGray bg-softBlush p-1">
+                <LangOption
+                  active={lang === 'en'}
+                  label={t('profile.languageEnglish')}
+                  onPress={() => handleLanguagePress('en')}
+                />
+                <LangOption
+                  active={lang === 'ar'}
+                  label={t('profile.languageArabic')}
+                  onPress={() => handleLanguagePress('ar')}
+                />
+              </View>
+
+              {showRestartHint ? (
+                <Text className="mt-3 text-[13px] leading-5 text-darkGray">
+                  {t('profile.restartHint')}
+                </Text>
+              ) : null}
+            </View>
+
+            <View className="mt-5 rounded-2xl bg-white p-5">
+              <Text className="text-[17px] font-semibold text-deepMauve">
+                {t('profile.statsTitle')}
               </Text>
 
               <View className="mt-5">
-                {PROFILE_STATS.map((stat) => (
+                {stats.map((stat, idx) => (
                   <View
                     key={stat.id}
-                    className="mb-4 flex-row items-center justify-between border-b border-lightGray pb-4"
+                    className={`flex-row items-center justify-between ${
+                      idx < stats.length - 1 ? 'mb-4 border-b border-lightGray pb-4' : ''
+                    }`}
                   >
-                    <View className="flex-1 pr-4">
-                      <Text className="text-[15px] font-semibold text-deepMauve">
-                        {stat.labelEn}
-                      </Text>
-                      <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-                        {stat.labelAr}
-                      </Text>
-                    </View>
-                    <Text className="text-[24px] font-semibold text-brandRose">
-                      {stat.value}
+                    <Text className="flex-1 pr-4 text-[15px] font-semibold text-deepMauve">
+                      {t(stat.labelKey)}
                     </Text>
+                    <Text className="text-[24px] font-semibold text-brandRose">{stat.value}</Text>
                   </View>
                 ))}
               </View>
             </View>
 
             <View className="mt-5 rounded-2xl border border-gold bg-white p-5">
-              <Text className="text-[13px] font-semibold uppercase text-gold">
-                Dermatologist-backed
+              <Text className="text-[13px] font-semibold uppercase tracking-[2px] text-gold">
+                {t('profile.dermEyebrow')}
               </Text>
-              <Text className="mt-3 text-[15px] leading-6 text-darkGray">
-                Nourah is guided by quiet expertise from a licensed dermatologist in Dubai.
-              </Text>
-              <Text className="mt-1 text-[15px] leading-7 text-darkGray">
-                نورة مبنية على خبرة هادئة من طبيبة جلدية مرخصة في دبي.
-              </Text>
+              <Text className="mt-3 text-[15px] leading-6 text-darkGray">{t('profile.dermBody')}</Text>
             </View>
 
             {signOutError ? (
               <View className="mt-5 rounded-2xl border border-error bg-white p-4">
-                <Text className="text-[14px] leading-5 text-error">
-                  {signOutError}
-                </Text>
+                <Text className="text-[14px] leading-5 text-error">{signOutError}</Text>
               </View>
             ) : null}
 
@@ -169,14 +181,43 @@ export default function ProfileScreen() {
                 <ActivityIndicator color={colors.brandRose} />
               ) : (
                 <Text className="text-[17px] font-semibold text-brandRose">
-                  Sign out
+                  {t('profile.signOut')}
                 </Text>
               )}
             </Pressable>
           </View>
-          </ScrollView>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
+  );
+}
+
+// Renders one segment of the language pill. Active is brandRose, inactive sits flat on
+// the soft blush track so the unselected option still reads as a tappable choice rather
+// than disappearing into the surface.
+function LangOption({
+  active,
+  label,
+  onPress,
+}: {
+  active: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      className={`h-12 flex-1 items-center justify-center rounded-xl ${
+        active ? 'bg-brandRose' : 'bg-transparent'
+      }`}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+    >
+      <Text
+        className={`text-[15px] font-semibold ${active ? 'text-white' : 'text-deepMauve'}`}
+      >
+        {label}
+      </Text>
+    </Pressable>
   );
 }

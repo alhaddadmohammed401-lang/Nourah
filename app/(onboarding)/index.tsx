@@ -1,3 +1,6 @@
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch. Onboarding is shown once per lifetime, so leaving it
+// English for now is acceptable while Profile carries the language toggle.
 import { useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { colors } from '../../constants/colors';

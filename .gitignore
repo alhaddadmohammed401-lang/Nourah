@@ -36,6 +36,10 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Claude harness session artifacts
+.claude/worktrees/
+.claude/launch.json
+
 # generated native folders
 /ios
 /android

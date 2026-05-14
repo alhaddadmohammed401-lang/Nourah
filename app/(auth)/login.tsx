@@ -1,3 +1,6 @@
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch. Login is shown to returning users only, so leaving it
+// English for now is acceptable while Profile carries the language toggle.
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import {

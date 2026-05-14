@@ -1,6 +1,8 @@
 // Daily skincare tips, derm-backed and short. Rotated by day-of-month modulo so the same
 // tip appears on the same day across all users. The voice is reassuring, never alarmist,
 // per PRODUCT.md design principle "Reassure first, prescribe second".
+// TODO(i18n): Currently English-only. When the Arabic-side derm review is ready, add an
+// ar tips array and route through useLanguage().lang in the Home screen consumer.
 
 export const DAILY_TIPS: string[] = [
   'Reapply SPF every two hours when you are outside. Gulf sun does not negotiate.',

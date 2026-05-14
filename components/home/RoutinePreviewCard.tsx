@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Card } from '../ui/Card';
+import { useLanguage } from '../../hooks/useLanguage';
 
 type RoutineWindow = 'AM' | 'PM';
 
@@ -21,14 +22,18 @@ export function RoutinePreviewCard({
   isPremium,
   onPress,
 }: RoutinePreviewCardProps) {
+  const { t } = useLanguage();
+  const eyebrow =
+    window === 'AM' ? t('home.routinePreview.eyebrowAm') : t('home.routinePreview.eyebrowPm');
+
   return (
     <Card onPress={onPress}>
       <View className="flex-row items-baseline justify-between">
         <Text className="text-[12px] font-medium uppercase tracking-[2px] text-darkGray">
-          Today, {window}
+          {eyebrow}
         </Text>
         <Text className="text-[12px] font-medium text-brandRose">
-          {steps.length} steps →
+          {t('home.routinePreview.stepsSuffixFmt', { count: steps.length })}
         </Text>
       </View>
 
@@ -52,7 +57,7 @@ export function RoutinePreviewCard({
       {!isPremium ? (
         <View className="mt-4 border-t border-lightGray pt-3">
           <Text className="text-[12px] font-medium tracking-wide text-gold">
-            Unlock PM with Premium
+            {t('home.routinePreview.unlockPm')}
           </Text>
         </View>
       ) : null}
@@ -60,8 +65,12 @@ export function RoutinePreviewCard({
   );
 }
 
-export const SAMPLE_AM_STEPS: Step[] = [
-  { name: 'Cleanse', ingredient: 'Gentle gel cleanser' },
-  { name: 'Treat', ingredient: 'Niacinamide 5%' },
-  { name: 'Protect', ingredient: 'SPF 50 mineral filter' },
-];
+// The Home preview lives outside React render context for the t() function so it accepts
+// a translator. Keeping the steps small and stable here mirrors the routine service mock.
+export function buildSampleAmSteps(t: (key: string) => string): Step[] {
+  return [
+    { name: t('home.routinePreview.stepCleanse'), ingredient: t('home.routinePreview.ingredientCleanse') },
+    { name: t('home.routinePreview.stepTreat'), ingredient: t('home.routinePreview.ingredientTreat') },
+    { name: t('home.routinePreview.stepProtect'), ingredient: t('home.routinePreview.ingredientProtect') },
+  ];
+}

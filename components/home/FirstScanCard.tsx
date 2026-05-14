@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
+import { useLanguage } from '../../hooks/useLanguage';
 
 type FirstScanCardProps = {
   onPress?: () => void;
@@ -8,6 +9,7 @@ type FirstScanCardProps = {
 // Soft Lavender ground sets it apart from a real result without alarming. Reassurance-first
 // copy per PRODUCT.md: "Let's read your skin" leads, the action follows.
 export function FirstScanCard({ onPress }: FirstScanCardProps) {
+  const { t } = useLanguage();
   const shadow = {
     shadowColor: '#1A1A1A',
     shadowOffset: { width: 0, height: 2 },
@@ -24,7 +26,7 @@ export function FirstScanCard({ onPress }: FirstScanCardProps) {
           style={shadow}
         >
           <Text className="text-[12px] font-medium uppercase tracking-[2px] text-deepMauve opacity-70">
-            First step
+            {t('home.firstScan.eyebrow')}
           </Text>
           <Text
             className="mt-2 text-deepMauve"
@@ -35,14 +37,13 @@ export function FirstScanCard({ onPress }: FirstScanCardProps) {
               lineHeight: 30,
             }}
           >
-            Let's read your skin.
+            {t('home.firstScan.title')}
           </Text>
           <Text className="mt-2 text-[15px] leading-6 text-deepMauve opacity-80">
-            A quick scan tells us where you are today. Everything we suggest after this
-            is built on what we find.
+            {t('home.firstScan.body')}
           </Text>
           <View className="mt-4 flex-row items-center">
-            <Text className="text-[13px] font-medium text-brandRose">Start your first scan</Text>
+            <Text className="text-[13px] font-medium text-brandRose">{t('home.firstScan.cta')}</Text>
             <Text className="ml-1 text-[13px] font-medium text-brandRose">→</Text>
           </View>
         </View>
