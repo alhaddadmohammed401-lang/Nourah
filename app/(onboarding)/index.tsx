@@ -5,21 +5,17 @@ import { useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { colors } from '../../constants/colors';
 
-type WelcomeFeature = {
-  label: string;
-};
+const PROMISE_TAGS = ['Halal-aware', 'GCC climate', 'AI-powered'];
 
-const WELCOME_FEATURES: WelcomeFeature[] = [
-  { label: 'Halal-aware' },
-  { label: 'GCC climate' },
-  { label: 'AI-powered' },
-];
-
-// Shows the first onboarding screen and introduces the app before collecting skin concerns.
+// First moment of the app. PRODUCT.md positions Nourah's identity as warm, confident,
+// modern — "Flo crossed with Glossier." Polish theme: bilingual logotype + calm promise.
+// The previous gold-rule-with-eyebrow ornament and the white features card both read as
+// chrome on top of the serif logotype; this version puts the logotype first, surrounds
+// it with breathing room, and lets the promise tags sit as quiet inline chips on the
+// Blush ground instead of inside a card surface.
 export default function OnboardingWelcomeScreen() {
   const router = useRouter();
 
-  // Moves the user to the next onboarding step when they press the main CTA.
   function handleGetStartedPress() {
     router.push('/(onboarding)/concerns');
   }
@@ -28,70 +24,106 @@ export default function OnboardingWelcomeScreen() {
     <SafeAreaView className="flex-1 bg-softBlush">
       <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-      <View className="flex-1 items-center px-7 pt-16">
-        <View className="mb-5 w-full flex-row items-center">
-          <View className="h-px flex-1 bg-gold opacity-50" />
-          <Text className="mx-3 text-xs font-medium uppercase text-gold">
-            skincare intelligence
-          </Text>
-          <View className="h-px flex-1 bg-gold opacity-50" />
-        </View>
+      <View className="flex-1 px-7 pt-16">
+        <Text
+          className="text-darkGray"
+          style={{
+            fontSize: 11,
+            fontWeight: '600',
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+          }}
+        >
+          Skincare intelligence
+        </Text>
 
-        <Text className="text-center text-[40px] font-light text-brandRose">
+        <Text
+          className="mt-5 text-brandRose"
+          style={{
+            fontFamily: 'DMSerifDisplay-Regular',
+            fontSize: 56,
+            lineHeight: 60,
+            letterSpacing: -1,
+          }}
+        >
           Nourah
         </Text>
-        <Text className="mb-4 text-center text-xl font-medium text-gold">
+        <Text
+          className="mt-1 text-gold"
+          style={{
+            fontFamily: 'DMSerifDisplay-Regular',
+            fontSize: 26,
+            lineHeight: 30,
+            letterSpacing: 0.2,
+          }}
+        >
           نورة
         </Text>
 
-        <Text className="mb-5 text-center text-2xl font-bold text-deepMauve">
+        <View
+          style={{
+            width: 36,
+            height: 2,
+            backgroundColor: colors.brandRose,
+            opacity: 0.6,
+            marginTop: 20,
+            borderRadius: 1,
+          }}
+        />
+
+        <Text
+          className="mt-6 text-deepMauve"
+          style={{
+            fontFamily: 'DMSerifDisplay-Regular',
+            fontSize: 28,
+            lineHeight: 34,
+            letterSpacing: -0.2,
+          }}
+        >
           Your skin, understood.
         </Text>
-
-        <View className="mb-6 h-1 w-12 rounded-full bg-brandRose opacity-60" />
-
-        <View className="mb-6 w-full rounded-2xl bg-white p-6 shadow-sm">
-          <Text className="mb-5 text-center text-base leading-6 text-darkGray">
-            AI-powered skincare guidance for GCC skin, halal-aware ingredients,
-            and climate-smart routines.
-          </Text>
-
-          <View className="flex-row flex-wrap justify-center">
-            {WELCOME_FEATURES.map((feature) => (
-              <View
-                key={feature.label}
-                className="m-1 rounded-full border border-lightGray bg-softBlush px-3 py-2"
-              >
-                <Text className="text-sm font-medium text-deepMauve">
-                  {feature.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <Text className="text-center text-sm text-dustyPink">
-          Arabic + English skincare intelligence
+        <Text className="mt-3 text-[15px] leading-[24px] text-darkGray" style={{ maxWidth: 320 }}>
+          AI-powered skincare for GCC skin: halal-aware ingredients, climate-smart
+          routines, and a reading you can trust.
         </Text>
+
+        <View className="mt-6 flex-row flex-wrap">
+          {PROMISE_TAGS.map((label) => (
+            <View
+              key={label}
+              className="mr-2 mt-2 rounded-full px-3 py-1.5"
+              style={{
+                borderWidth: 1,
+                borderColor: 'rgba(212, 160, 167, 0.55)',
+              }}
+            >
+              <Text className="text-[12px] font-medium text-deepMauve" style={{ letterSpacing: 0.2 }}>
+                {label}
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
 
-      <View className="items-center px-7 pb-8">
+      <View className="px-7 pb-8">
         <Pressable
-          className="h-14 w-full flex-row items-center justify-center rounded-xl bg-brandRose active:bg-dustyPink active:opacity-90"
+          className="h-14 w-full items-center justify-center rounded-2xl bg-brandRose active:bg-dustyPink active:opacity-90"
           onPress={handleGetStartedPress}
+          accessibilityRole="button"
         >
-          <Text className="text-lg font-bold text-white">Get Started</Text>
-          <Text className="ml-2 text-lg font-semibold text-white">→</Text>
+          <Text className="text-[17px] font-semibold text-white" style={{ letterSpacing: 0.4 }}>
+            Get started
+          </Text>
         </Pressable>
 
-        <View className="mt-4 flex-row">
-          <Text className="text-sm text-darkGray">Already have an account? </Text>
+        <View className="mt-5 flex-row items-center justify-center">
+          <Text className="text-[13px] text-darkGray">Already have an account? </Text>
           <Pressable
             onPress={() => router.push('/(auth)/login')}
             accessibilityRole="link"
             accessibilityLabel="Sign in"
           >
-            <Text className="text-sm font-semibold text-brandRose">Sign in</Text>
+            <Text className="text-[13px] font-semibold text-brandRose">Sign in</Text>
           </Pressable>
         </View>
       </View>

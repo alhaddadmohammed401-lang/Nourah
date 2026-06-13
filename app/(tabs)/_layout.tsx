@@ -69,6 +69,8 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen name="routine" options={{ href: null }} />
+      <Tabs.Screen name="scan-product" options={{ href: null }} />
+      <Tabs.Screen name="scan-history" options={{ href: null }} />
       <Tabs.Screen
         name="products"
         options={{

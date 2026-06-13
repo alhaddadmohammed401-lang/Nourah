@@ -18,9 +18,13 @@ import {
 } from '../../components/home/RoutinePreviewCard';
 import { DailyTip } from '../../components/home/DailyTip';
 import { StickyScanCTA } from '../../components/home/StickyScanCTA';
+import { PendingScanCard } from '../../components/home/PendingScanCard';
+import { FailedScanCard } from '../../components/home/FailedScanCard';
 import { useLatestScan } from '../../hooks/useLatestScan';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
+import { usePremiumStatus } from '../../hooks/usePremiumStatus';
+import { useTheme } from '../../hooks/useTheme';
 import { tipForToday } from '../../constants/tips';
 import { getTodayClimate } from '../../constants/climate';
 import {
@@ -51,6 +55,7 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
   const { scan, loading, error, refetch } = useLatestScan();
+  const { theme, colors: themeColors } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
 
   const now = useMemo(() => new Date(), []);
@@ -69,9 +74,10 @@ export default function HomeScreen() {
     return null;
   }, [user]);
 
-  // For mock mode, treat is_premium as false so the gold nudge shows. Real value comes
-  // from the profile/RevenueCat in a later craft run.
-  const isPremium = false;
+  // Reads is_premium from public.subscriptions via subscriptionService. The Routine
+  // screen's plan.isPremium comes from the routine-generate edge function which reads
+  // the same row server-side — keeping the two paths in sync.
+  const { isPremium } = usePremiumStatus();
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -83,7 +89,10 @@ export default function HomeScreen() {
     router.push('/(tabs)/scan');
   }, [router]);
 
-  const stale = scan ? isStaleScan(scan) : false;
+  const completeScan = scan && scan.status === 'complete' ? scan : null;
+  const pendingScan = scan && scan.status === 'pending' ? scan : null;
+  const failedScan = scan && scan.status === 'failed' ? scan : null;
+  const stale = completeScan ? isStaleScan(completeScan) : false;
   const ctaLabel = !scan
     ? t('home.cta.firstScan')
     : stale
@@ -98,7 +107,7 @@ export default function HomeScreen() {
 
   const reassuranceFor = useCallback(
     (s: ScanResult) => {
-      const band = bandFromScore(s.overall_score);
+      const band = bandFromScore(s.overall_score ?? 50);
       if (band === 'green') return t('home.score.reassureGreen');
       if (band === 'amber') return t('home.score.reassureAmber');
       return t('home.score.reassureRed');
@@ -108,7 +117,7 @@ export default function HomeScreen() {
 
   const categoryLabelFor = useCallback(
     (s: ScanResult) => {
-      const band = bandFromScore(s.overall_score);
+      const band = bandFromScore(s.overall_score ?? 50);
       if (band === 'green') return t('home.score.categoryGreen');
       if (band === 'amber') return t('home.score.categoryAmber');
       return t('home.score.categoryRed');
@@ -118,10 +127,16 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-softBlush">
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+      {/* StatusBar icon color flips with theme so the time/battery glyphs stay readable
+        against the new surface. backgroundColor reads from the active theme so the bar
+        matches the page surface in both modes. */}
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.surface}
+      />
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 160 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -147,16 +162,20 @@ export default function HomeScreen() {
             <ScoreCardSkeleton a11yLabel={t('home.score.loadingLabel')} />
           ) : error ? (
             <ErrorCard onRetry={onRefresh} />
-          ) : scan ? (
+          ) : pendingScan ? (
+            <PendingScanCard />
+          ) : failedScan ? (
+            <FailedScanCard rawError={failedScan.error} onRetake={goToScan} />
+          ) : completeScan ? (
             <ScoreCard
-              score={scan.overall_score}
-              band={bandFromScore(scan.overall_score)}
-              label={categoryLabelFor(scan)}
-              reassurance={reassuranceFor(scan)}
-              flags={scan.gcc_flags.map(flagLabelI18n)}
+              score={completeScan.overall_score ?? 50}
+              band={bandFromScore(completeScan.overall_score ?? 50)}
+              label={categoryLabelFor(completeScan)}
+              reassurance={reassuranceFor(completeScan)}
+              flags={completeScan.gcc_flags.map(flagLabelI18n)}
               caption={
                 stale
-                  ? t('home.score.lastScanFmt', { days: daysSinceScan(scan) })
+                  ? t('home.score.lastScanFmt', { days: daysSinceScan(completeScan) })
                   : undefined
               }
               onPress={() => {
@@ -184,7 +203,12 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <StickyScanCTA label={ctaLabel} hint={ctaHint} onPress={goToScan} />
+      {/* Hide the global "Scan again" CTA when a state-card already owns the primary
+        action. Avoids two stacked buttons fighting at the bottom of the screen — pending
+        has no action to take, failed has its own Retake button inside the card. */}
+      {pendingScan || failedScan ? null : (
+        <StickyScanCTA label={ctaLabel} hint={ctaHint} onPress={goToScan} />
+      )}
     </SafeAreaView>
   );
 }

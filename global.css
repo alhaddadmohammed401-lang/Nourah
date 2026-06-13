@@ -2,11 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Web preview only: paints Soft Blush behind the React Native SafeAreaView so the
-   document background matches the screen background at all viewport widths. Native
-   builds do not load this file. */
+/* ───────────────────────────────────────────────────────────────────────────
+   Theme tokens — CSS variables consumed by tailwind.config.js's theme-aware
+   color tokens. Toggling the `dark` class on documentElement is what swaps
+   the surface and ink colors across every utility class (bg-softBlush,
+   text-deepMauve, etc.).
+
+   Native builds don't load this file at runtime, but NativeWind v4 parses it
+   at build time so the same tokens are available there too — ThemeProvider
+   calls NativeWind's `colorScheme.set()` to keep both platforms in sync.
+   ─────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-softBlush: #F9E8E8;
+  --color-deepMauve: #2D1B2E;
+  --color-darkGray: #5A5A5A;
+  --color-dustyPink: #D4A0A7;
+  --color-white: #FFFFFF;
+  --color-softLavender: #F0E6F6;
+  --color-lightGray: #E0E0E0;
+  --color-charcoal: #2D2D2D;
+}
+
+.dark {
+  --color-softBlush: #1A0F1B;       /* page surface */
+  --color-deepMauve: #F2E2E5;       /* ink primary */
+  --color-darkGray: #D4A0A7;        /* ink secondary (was Dusty Pink — reads as muted ink on dark) */
+  --color-dustyPink: #B89AA1;       /* ink muted */
+  --color-white: #261A28;           /* card / elevated surface */
+  --color-softLavender: #1F1320;    /* tiny tint variant */
+  --color-lightGray: rgba(212, 160, 167, 0.18); /* hairline-on-dark */
+  --color-charcoal: #E8E0E2;
+}
+
+/* Web preview only: paints the page surface behind the React Native SafeAreaView so
+   the document background matches the screen background at all viewport widths. Now
+   uses the CSS variable so it follows the dark-mode toggle automatically. */
 html,
 body,
 #root {
-  background-color: #F9E8E8;
+  background-color: var(--color-softBlush);
+}
+
+/* react-native-web's vertical ScrollView gets an outer wrapper styled with
+   `overflow: hidden` via the atomic class r-overflow-1udh08x. That shorthand wins
+   over RN-Web's own overflowY:auto, so flex:1 ScrollViews stop scrolling on web.
+   Restore vertical scrolling by reasserting overflow-y on any element that has
+   the flex-1 + overflow:hidden atomic combination. Native builds skip this file. */
+.r-flex-13awgt0.r-overflow-1udh08x {
+  overflow-y: auto;
 }

@@ -1,25 +1,40 @@
-import { createElement } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 type GoogleButtonProps = {
   onPress: () => void;
   loading?: boolean;
 };
 
-// Official Google G mark from Google's brand guidelines, encoded as a data URI so we
-// don't need react-native-svg or a binary asset. Drawn from the canonical 48x48 path
-// data — four arcs in #4285F4 / #34A853 / #FBBC05 / #EA4335.
-const GOOGLE_G_SVG =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">' +
-  '<path fill="#4285F4" d="M47.5 24.55c0-1.63-.15-3.2-.43-4.7H24v9.05h13.18c-.57 3.05-2.3 5.63-4.9 7.36v6.13h7.92c4.63-4.27 7.3-10.55 7.3-17.84z"/>' +
-  '<path fill="#34A853" d="M24 48c6.6 0 12.13-2.2 16.18-5.94l-7.92-6.13c-2.2 1.47-5 2.34-8.26 2.34-6.35 0-11.73-4.28-13.66-10.04H2.18v6.32C6.2 42.55 14.5 48 24 48z"/>' +
-  '<path fill="#FBBC05" d="M10.34 28.23c-.5-1.47-.78-3.04-.78-4.66s.28-3.2.78-4.66v-6.32H2.18A23.94 23.94 0 0 0 0 23.57c0 3.87.93 7.53 2.18 10.98l8.16-6.32z"/>' +
-  '<path fill="#EA4335" d="M24 9.55c3.58 0 6.8 1.23 9.34 3.65l7.02-7.02C36.13 2.36 30.6 0 24 0 14.5 0 6.2 5.45 2.18 13.4l8.16 6.32C12.27 13.83 17.65 9.55 24 9.55z"/>' +
-  '</svg>';
+// Official Google "G" mark, rendered with react-native-svg so the result is identical
+// on web and native — no <img> data-URI tricks, no flex-stretch artifacts. Path data
+// is the canonical Material-style four-color G from Google's brand assets.
+function GoogleG({ size = 18 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        fill="#FFC107"
+        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+      />
+      <Path
+        fill="#FF3D00"
+        d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+      />
+      <Path
+        fill="#4CAF50"
+        d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+      />
+      <Path
+        fill="#1976D2"
+        d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+      />
+    </Svg>
+  );
+}
 
-const GOOGLE_G_URI = `data:image/svg+xml;utf8,${encodeURIComponent(GOOGLE_G_SVG)}`;
-
-// Google sign-in CTA. Stubbed in dev: tap shows an inline notice elsewhere on the screen.
+// "Continue with Google" CTA. Hairline-bordered white pill that matches the sign-in
+// surface treatment elsewhere — no shadow, no fill change on press beyond a quiet
+// opacity tick.
 export function GoogleButton({ onPress, loading = false }: GoogleButtonProps) {
   return (
     <Pressable
@@ -30,51 +45,28 @@ export function GoogleButton({ onPress, loading = false }: GoogleButtonProps) {
     >
       {({ pressed }) => (
         <View
-          className={`h-[52px] w-full flex-row items-center justify-center rounded-xl border border-lightGray bg-white px-6 ${
-            pressed ? 'opacity-90' : ''
-          }`}
+          style={{
+            height: 52,
+            width: '100%',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: 'rgba(212, 160, 167, 0.45)',
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 24,
+            opacity: loading ? 0.6 : pressed ? 0.92 : 1,
+          }}
         >
-          <GGlyph />
-          <Text className="ml-3 text-[17px] font-medium text-deepMauve">
-            Continue with Google
+          <View style={{ marginRight: 12 }}>
+            <GoogleG size={18} />
+          </View>
+          <Text style={{ color: '#2D1B2E', fontSize: 16, fontWeight: '500' }}>
+            {loading ? 'Opening Google…' : 'Continue with Google'}
           </Text>
         </View>
       )}
     </Pressable>
-  );
-}
-
-// On web we render a real <img> with the SVG data URI — this gives crisp Google brand
-// colors at any size with zero native-module dependency. On native (iOS/Android) we
-// fall back to a stylized monochrome circle with a "G" letter; the auth flow will be
-// replaced with the official Google SDK button in a later craft run anyway.
-function GGlyph() {
-  if (Platform.OS === 'web') {
-    return createElement('img', {
-      src: GOOGLE_G_URI,
-      width: 20,
-      height: 20,
-      alt: '',
-      'aria-hidden': true,
-      style: { display: 'inline-block', verticalAlign: 'middle' },
-    });
-  }
-  return (
-    <View
-      style={{
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: '#4285F4',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#FFFFFF',
-      }}
-    >
-      <Text style={{ color: '#4285F4', fontSize: 13, fontWeight: '700', lineHeight: 14 }}>
-        G
-      </Text>
-    </View>
   );
 }

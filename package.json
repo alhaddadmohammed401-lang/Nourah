@@ -6,7 +6,14 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked > types/database.ts",
+    "functions:serve": "supabase functions serve",
+    "functions:deploy": "supabase functions deploy"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -14,10 +21,12 @@
     "@supabase/supabase-js": "^2.104.1",
     "babel-preset-expo": "~54.0.10",
     "expo": "~54.0.33",
+    "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.13",
     "expo-linking": "~8.0.11",
     "expo-router": "~6.0.23",
     "expo-status-bar": "~3.0.9",
+    "expo-web-browser": "~15.0.11",
     "nativewind": "^4.2.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -33,6 +42,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "supabase": "^2.98.2",
     "typescript": "~5.9.2"
   },
   "private": true

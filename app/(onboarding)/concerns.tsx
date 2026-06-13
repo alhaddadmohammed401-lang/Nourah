@@ -143,7 +143,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
-  // Cards
+  // Cards. Selected state uses a soft Brand-Rose tint with a 1.5px Brand-Rose hairline,
+  // not a full Brand-Rose fill. Per the impeccable polish pass: keeps the screen quiet
+  // while still signaling "this is selected" clearly. Unselected cards now use a
+  // Dusty-Pink 30% hairline, the same border treatment used across product/routine cards.
   card: {
     width: '47%',
     paddingVertical: 20,
@@ -155,12 +158,12 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   cardSelected: {
-    backgroundColor: '#E8637A',
+    backgroundColor: '#F4D7DC',
     borderColor: '#E8637A',
   },
   cardUnselected: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#E0E0E0',
+    borderColor: 'rgba(212, 160, 167, 0.45)',
   },
   cardEmoji: {
     fontSize: 28,
@@ -172,7 +175,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cardLabelSelected: {
-    color: '#FFFFFF',
+    color: '#2D1B2E',
   },
   cardLabelUnselected: {
     color: '#2D1B2E',

@@ -145,7 +145,8 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
-  // Cards
+  // Cards. Same calmer selected-state pattern as concerns.tsx: soft Brand-Rose tint with
+  // a Brand-Rose hairline border, not a full fill. Keeps the page quiet, stays on-brand.
   card: {
     width: '100%',
     padding: 20,
@@ -153,12 +154,12 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   cardSelected: {
-    backgroundColor: '#E8637A',
+    backgroundColor: '#F4D7DC',
     borderColor: '#E8637A',
   },
   cardUnselected: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#E0E0E0',
+    borderColor: 'rgba(212, 160, 167, 0.45)',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cardLabelSelected: {
-    color: '#FFFFFF',
+    color: '#2D1B2E',
   },
   cardLabelUnselected: {
     color: '#2D1B2E',
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     paddingLeft: 36, // align with text, indent past emoji
   },
   cardDescriptionSelected: {
-    color: '#F9E8E8',
+    color: '#5A5A5A',
   },
   cardDescriptionUnselected: {
     color: '#5A5A5A',

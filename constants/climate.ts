@@ -33,7 +33,7 @@ export function getTodayClimate(date: Date = new Date()): TodayClimate {
 
   const flags: GccFlag[] = [];
   if (isHighUvSeason) flags.push('high_uv');
-  if (humidityLabel === 'Very High' || humidityLabel === 'High') flags.push('humidity_warning');
+  if (isHighUvSeason) flags.push('humidity_warning');
 
   return {
     uvIndex,

@@ -5,6 +5,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { Platform } from 'react-native';
 import { AuthProvider, useAuth } from '../hooks/useAuth';
 import { LanguageProvider } from '../hooks/useLanguage';
+import { ThemeProvider } from '../hooks/useTheme';
 
 const isCodexPreviewAuth =
   Platform.OS === 'web' && process.env.EXPO_PUBLIC_CODEX_PREVIEW_AUTH === 'true';
@@ -44,10 +45,12 @@ function InitialLayout() {
 
 export default function RootLayout() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <InitialLayout />
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <InitialLayout />
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

@@ -10,16 +10,16 @@ import {
   View,
 } from 'react-native';
 import { colors } from '../../constants/colors';
-import { GeneratedIcon } from '../../components/ui/GeneratedIcon';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import type { Lang } from '../../constants/locales';
 import { signOut } from '../../services/auth';
 
-const profileIcon = require('../../assets/icons/nourah-profile-icon.png');
-
 // Settings + identity surface. Headlines the language toggle so the bilingual promise is
 // always within reach. Sign-out lives at the bottom because it's the destructive path.
+// Polish theme: identity first, settings beneath — DM Serif Display title (drift fix
+// from font-semibold), section eyebrows that match Home and Routine, ghost sign-out so
+// it doesn't compete with the rest of the page.
 export default function ProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
@@ -34,6 +34,7 @@ export default function ProfileScreen() {
       : t('profile.memberFallback');
 
   const email = user?.email ?? t('profile.previewAccount');
+  const initial = (displayName ?? 'N').trim().charAt(0).toUpperCase() || 'N';
 
   const stats: { id: string; labelKey: string; value: string }[] = [
     { id: 'scans', labelKey: 'profile.statScans', value: '1' },
@@ -41,15 +42,12 @@ export default function ProfileScreen() {
     { id: 'products', labelKey: 'profile.statCheckedProducts', value: '0' },
   ];
 
-  // Persists the chosen language and surfaces the restart hint when Arabic flips RTL,
-  // since native layout direction only finalizes on a fresh JS load.
   async function handleLanguagePress(next: Lang) {
     if (next === lang) return;
     await setLang(next);
     setShowRestartHint(next === 'ar');
   }
 
-  // Signs out through the auth service and returns the user to onboarding when complete.
   async function handleSignOutPress() {
     setSigningOut(true);
     setSignOutError('');
@@ -71,108 +69,224 @@ export default function ProfileScreen() {
       <SafeAreaView className="flex-1 bg-softBlush">
         <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <View className="px-5 pb-10 pt-8">
-            <View className="flex-row items-start justify-between">
-              <View className="flex-1 pr-5">
-                <Text className="text-[28px] font-semibold text-deepMauve">
-                  {t('profile.title')}
-                </Text>
-                <Text className="mt-3 text-[15px] leading-6 text-darkGray">
-                  {t('profile.subtitle')}
+        <ScrollView
+          style={{ flex: 1, backgroundColor: colors.softBlush }}
+          contentContainerStyle={{ paddingBottom: 96 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="px-5 pb-10 pt-6">
+            <Text
+              className="text-deepMauve"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 32,
+                fontWeight: '400',
+                lineHeight: 38,
+                letterSpacing: -0.3,
+              }}
+            >
+              {t('profile.title')}
+            </Text>
+            <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+              {t('profile.subtitle')}
+            </Text>
+
+            {/* Identity block sits on the Blush ground, no card — the serif initial does
+              the visual work. Quieter than the previous white-card surface and frees the
+              vertical rhythm for the settings section to feel like its own area. */}
+            <View className="mt-7 flex-row items-center">
+              <View
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: colors.white,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: 'rgba(212, 160, 167, 0.45)',
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: 'DMSerifDisplay-Regular',
+                    fontSize: 28,
+                    color: colors.brandRose,
+                    lineHeight: 32,
+                  }}
+                >
+                  {initial}
                 </Text>
               </View>
-
-              <View className="h-24 w-24 items-center justify-center rounded-2xl bg-white">
-                <GeneratedIcon source={profileIcon} size="lg" />
+              <View className="ml-4 flex-1">
+                <Text
+                  className="text-deepMauve"
+                  style={{
+                    fontFamily: 'DMSerifDisplay-Regular',
+                    fontSize: 22,
+                    lineHeight: 28,
+                  }}
+                >
+                  {displayName}
+                </Text>
+                <Text className="mt-1 text-[13px] text-darkGray">{email}</Text>
+                <Text
+                  className="mt-2 text-brandRose"
+                  style={{
+                    fontSize: 11,
+                    fontWeight: '600',
+                    letterSpacing: 1.4,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {t('profile.freePlan')}
+                </Text>
               </View>
             </View>
 
-            <View className="mt-6 rounded-2xl bg-white p-5">
-              <View className="flex-row items-start">
-                <View className="h-16 w-16 items-center justify-center rounded-full bg-softLavender">
-                  <Text className="text-[24px] font-semibold text-brandRose">N</Text>
-                </View>
+            {/* Settings section: eyebrow + language inline-underline tabs (matches the
+              Routine AM/PM pattern), so the same control vocabulary is used everywhere. */}
+            <Text
+              className="mt-8 mb-1 text-darkGray"
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('profile.settingsTitle')}
+            </Text>
 
-                <View className="ml-4 flex-1">
-                  <Text className="text-[22px] font-semibold text-deepMauve">{displayName}</Text>
-                  <Text className="mt-2 text-[15px] text-darkGray">{email}</Text>
+            <Text className="mt-4 text-[15px] font-semibold text-deepMauve">
+              {t('profile.languageLabel')}
+            </Text>
 
-                  <View className="mt-4 self-start rounded-full bg-softBlush px-4 py-2">
-                    <Text className="text-[13px] font-semibold text-brandRose">
-                      {t('profile.freePlan')}
-                    </Text>
-                  </View>
-                </View>
-              </View>
+            <View
+              className="mt-2 flex-row"
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: 'rgba(212, 160, 167, 0.35)',
+              }}
+            >
+              <LangTab
+                active={lang === 'en'}
+                label={t('profile.languageEnglish')}
+                onPress={() => handleLanguagePress('en')}
+              />
+              <LangTab
+                active={lang === 'ar'}
+                label={t('profile.languageArabic')}
+                onPress={() => handleLanguagePress('ar')}
+              />
             </View>
 
-            <View className="mt-5 rounded-2xl bg-white p-5">
-              <Text className="text-[13px] font-semibold uppercase tracking-[2px] text-darkGray">
-                {t('profile.settingsTitle')}
+            {showRestartHint ? (
+              <Text className="mt-3 text-[13px] leading-5 text-darkGray">
+                {t('profile.restartHint')}
               </Text>
+            ) : null}
 
-              <Text className="mt-4 text-[15px] font-semibold text-deepMauve">
-                {t('profile.languageLabel')}
-              </Text>
-
-              <View className="mt-3 flex-row rounded-2xl border border-lightGray bg-softBlush p-1">
-                <LangOption
-                  active={lang === 'en'}
-                  label={t('profile.languageEnglish')}
-                  onPress={() => handleLanguagePress('en')}
-                />
-                <LangOption
-                  active={lang === 'ar'}
-                  label={t('profile.languageArabic')}
-                  onPress={() => handleLanguagePress('ar')}
-                />
-              </View>
-
-              {showRestartHint ? (
-                <Text className="mt-3 text-[13px] leading-5 text-darkGray">
-                  {t('profile.restartHint')}
-                </Text>
-              ) : null}
-            </View>
-
-            <View className="mt-5 rounded-2xl bg-white p-5">
-              <Text className="text-[17px] font-semibold text-deepMauve">
-                {t('profile.statsTitle')}
-              </Text>
-
-              <View className="mt-5">
-                {stats.map((stat, idx) => (
-                  <View
-                    key={stat.id}
-                    className={`flex-row items-center justify-between ${
-                      idx < stats.length - 1 ? 'mb-4 border-b border-lightGray pb-4' : ''
-                    }`}
+            {/* Stats block: serif numerals replace the bold sans figures — same typographic
+              voice as the Routine step ordinals (01 / 02 / 03), giving numbers a consistent
+              identity across the app. */}
+            <Text
+              className="mt-8 mb-3 text-deepMauve"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 20,
+                lineHeight: 26,
+              }}
+            >
+              {t('profile.statsTitle')}
+            </Text>
+            <View>
+              {stats.map((stat, idx) => (
+                <View
+                  key={stat.id}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    paddingVertical: 14,
+                    borderBottomWidth: idx < stats.length - 1 ? 1 : 0,
+                    borderBottomColor: 'rgba(212, 160, 167, 0.25)',
+                  }}
+                >
+                  <Text className="text-[14px] text-darkGray">{t(stat.labelKey)}</Text>
+                  <Text
+                    style={{
+                      fontFamily: 'DMSerifDisplay-Regular',
+                      fontSize: 22,
+                      color: colors.brandRose,
+                      lineHeight: 26,
+                      letterSpacing: 0.3,
+                    }}
                   >
-                    <Text className="flex-1 pr-4 text-[15px] font-semibold text-deepMauve">
-                      {t(stat.labelKey)}
-                    </Text>
-                    <Text className="text-[24px] font-semibold text-brandRose">{stat.value}</Text>
-                  </View>
-                ))}
-              </View>
+                    {stat.value}
+                  </Text>
+                </View>
+              ))}
             </View>
 
-            <View className="mt-5 rounded-2xl border border-gold bg-white p-5">
-              <Text className="text-[13px] font-semibold uppercase tracking-[2px] text-gold">
+            {/* Entry point into the scan history sub-route. Sits directly beneath the
+              stats block so "Scans: 1" → "View all scans →" reads as one thought. */}
+            <Pressable
+              onPress={() => router.push('/(tabs)/scan-history')}
+              accessibilityRole="button"
+              className="mt-3 self-start active:opacity-60"
+              style={{ paddingVertical: 8, paddingRight: 8 }}
+            >
+              <Text className="text-[14px] font-medium text-brandRose">
+                {t('profile.viewAllScans')} →
+              </Text>
+            </Pressable>
+
+            {/* Derm reassurance: gold tracked eyebrow + small body. Replaces the white
+              card with a quieter inline treatment so the page doesn't end on a chrome note. */}
+            <View
+              className="mt-7 p-4 rounded-2xl"
+              style={{
+                backgroundColor: 'rgba(201, 168, 76, 0.08)',
+                borderWidth: 1,
+                borderColor: 'rgba(201, 168, 76, 0.35)',
+              }}
+            >
+              <Text
+                style={{
+                  color: colors.gold,
+                  fontSize: 11,
+                  fontWeight: '600',
+                  letterSpacing: 1.8,
+                  textTransform: 'uppercase',
+                }}
+              >
                 {t('profile.dermEyebrow')}
               </Text>
-              <Text className="mt-3 text-[15px] leading-6 text-darkGray">{t('profile.dermBody')}</Text>
+              <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+                {t('profile.dermBody')}
+              </Text>
             </View>
 
             {signOutError ? (
-              <View className="mt-5 rounded-2xl border border-error bg-white p-4">
-                <Text className="text-[14px] leading-5 text-error">{signOutError}</Text>
+              <View
+                className="mt-5 rounded-2xl p-4"
+                style={{
+                  backgroundColor: 'rgba(199, 74, 96, 0.08)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(199, 74, 96, 0.35)',
+                }}
+              >
+                <Text style={{ color: colors.error, fontSize: 14, lineHeight: 20 }}>
+                  {signOutError}
+                </Text>
               </View>
             ) : null}
 
+            {/* Sign-out is destructive but rare — render as a quiet ghost link so it
+              doesn't visually fight with the main page content. */}
             <Pressable
-              className="mt-7 h-[52px] items-center justify-center rounded-xl border border-brandRose bg-white active:bg-softBlush"
+              className="mt-8 self-center px-4 py-2 active:opacity-60"
               onPress={handleSignOutPress}
               disabled={signingOut}
               accessibilityRole="button"
@@ -180,7 +294,7 @@ export default function ProfileScreen() {
               {signingOut ? (
                 <ActivityIndicator color={colors.brandRose} />
               ) : (
-                <Text className="text-[17px] font-semibold text-brandRose">
+                <Text className="text-[14px] font-medium text-brandRose">
                   {t('profile.signOut')}
                 </Text>
               )}
@@ -192,10 +306,8 @@ export default function ProfileScreen() {
   );
 }
 
-// Renders one segment of the language pill. Active is brandRose, inactive sits flat on
-// the soft blush track so the unselected option still reads as a tappable choice rather
-// than disappearing into the surface.
-function LangOption({
+// Inline-underline language tab — same control vocabulary as the Routine AM/PM tabs.
+function LangTab({
   active,
   label,
   onPress,
@@ -206,15 +318,24 @@ function LangOption({
 }) {
   return (
     <Pressable
-      className={`h-12 flex-1 items-center justify-center rounded-xl ${
-        active ? 'bg-brandRose' : 'bg-transparent'
-      }`}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
+      style={{
+        marginRight: 24,
+        paddingBottom: 10,
+        marginBottom: -1,
+        borderBottomWidth: active ? 2 : 0,
+        borderBottomColor: colors.brandRose,
+      }}
     >
       <Text
-        className={`text-[15px] font-semibold ${active ? 'text-white' : 'text-deepMauve'}`}
+        style={{
+          fontSize: 15,
+          fontWeight: active ? '600' : '500',
+          color: active ? colors.brandRose : colors.deepMauve,
+          letterSpacing: 0.3,
+        }}
       >
         {label}
       </Text>

@@ -1,7 +1,8 @@
-// Mock routine service. Returns step IDs and metadata; the actual step copy lives in the
-// locale dictionary (constants/locales.ts) so the screen renders the active language
-// directly. When Gemini Flash takes over, it returns localized fields per request and
-// the screen layer adapts without restructuring.
+// Routine service. In mock mode (no Supabase env vars, or no scan yet) returns a local
+// 6-step starter routine. In live mode, calls the routine-generate edge function which
+// caches Gemini output in public.routines.
+
+import { supabase } from './supabase';
 
 export type RoutineTimeOfDay = 'am' | 'pm';
 
@@ -11,6 +12,12 @@ export type RoutineStep = {
   id: string;
   timeOfDay: RoutineTimeOfDay;
   stepNumber: number;
+  // Optional localized fields populated by Gemini in live mode. Mock keeps these
+  // undefined and the screen falls back to the locale dictionary.
+  title_en?: string;
+  title_ar?: string;
+  why_en?: string;
+  why_ar?: string;
 };
 
 export type RoutinePlan = {
@@ -46,16 +53,30 @@ const MOCK_ROUTINE_PLAN: RoutinePlan = {
   pmSteps: MOCK_PM_STEPS,
 };
 
-// Returns a local mock plan so routine UI can ship before Gemini and RevenueCat are connected.
+// Returns a routine plan. Tries Supabase first; falls back to the mock plan whenever
+// the backend is unavailable so the screen never blocks.
 export async function getRoutinePlan(): Promise<RoutineServiceResult> {
-  try {
+  if (!supabase) {
     return { data: MOCK_ROUTINE_PLAN, error: null };
+  }
+  try {
+    const { data, error } = await supabase.functions.invoke('routine-generate', {
+      body: {},
+    });
+    if (error) {
+      console.warn('routine-generate invoke failed', error.message);
+      return { data: MOCK_ROUTINE_PLAN, error: null };
+    }
+    if (!data?.ok) {
+      // No scan yet, or backend error: fall back to mock so the UI stays usable.
+      return { data: MOCK_ROUTINE_PLAN, error: null };
+    }
+    return { data: data.data as RoutinePlan, error: null };
   } catch (error) {
     const message =
       error instanceof Error
         ? error.message
         : 'Routine plan could not be prepared. Please try again.';
-
-    return { data: null, error: message };
+    return { data: MOCK_ROUTINE_PLAN, error: message };
   }
 }

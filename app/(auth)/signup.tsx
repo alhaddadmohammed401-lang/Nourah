@@ -1,7 +1,7 @@
 // TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
 // dictionary on the next touch. Signup is shown once per lifetime, so leaving it English
 // for now is acceptable while Profile carries the language toggle.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
   KeyboardAvoidingView,
@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 
 import { signUp, signInWithGoogle } from '../../services/auth';
+import { useAuth } from '../../hooks/useAuth';
+import { saveOnboardingAnswers } from '../../services/profileService';
 import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
 import { PhoneField } from '../../components/auth/PhoneField';
@@ -53,6 +55,15 @@ export default function SignupScreen() {
   const [info, setInfo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const { user } = useAuth();
+
+  // Belt-and-suspenders forward-redirect — see login.tsx for the same pattern. Catches
+  // the case where a Google OAuth round-trip lands the session on this screen.
+  useEffect(() => {
+    if (user) {
+      router.replace('/(tabs)');
+    }
+  }, [user, router]);
 
   async function handleCreateAccount() {
     setServerError(null);
@@ -63,7 +74,7 @@ export default function SignupScreen() {
 
     setSubmitting(true);
     const fullPhone = `+971${phone.replace(/\D/g, '')}`;
-    const { error } = await signUp(email.trim(), password, name.trim(), fullPhone);
+    const { data, error } = await signUp(email.trim(), password, name.trim(), fullPhone);
     setSubmitting(false);
 
     if (error) {
@@ -71,13 +82,14 @@ export default function SignupScreen() {
       return;
     }
 
-    // Onboarding answers carried in via params land here. Persisting them to a
-    // Supabase profiles row is deferred to a later craft run; for now they live in
-    // user_metadata via signUp() and the Home tab is reachable immediately.
-    if (params.concerns || params.skinType) {
-      console.log('Onboarding payload:', {
-        concerns: params.concerns,
+    // Onboarding answers carried in via params land here. Persist them to the
+    // profiles row created by the on_auth_user_created trigger. The save is best-effort:
+    // if Supabase is unreachable (mock mode), the user still proceeds to the home tab.
+    const newUserId = data?.user?.id;
+    if (newUserId && (params.concerns || params.skinType)) {
+      await saveOnboardingAnswers(newUserId, {
         skinType: params.skinType,
+        concerns: params.concerns ? params.concerns.split(',').filter(Boolean) : undefined,
       });
     }
     router.replace('/(tabs)');
@@ -85,11 +97,18 @@ export default function SignupScreen() {
 
   async function handleGoogle() {
     setServerError(null);
+    setInfo(null);
     setGoogleLoading(true);
     const { error } = await signInWithGoogle();
     setGoogleLoading(false);
     if (error) {
-      setInfo('Google sign-in is enabled in production builds.');
+      setServerError(error.message);
+      return;
+    }
+    // On web, signInWithOAuth has already redirected; this code path won't run until
+    // after the round-trip. On native, openAuthSessionAsync resolved and we can route.
+    if (Platform.OS !== 'web') {
+      router.replace('/(tabs)');
     }
   }
 
