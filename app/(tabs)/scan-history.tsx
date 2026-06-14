@@ -16,18 +16,22 @@ import { useRouter } from 'expo-router';
 import { colors } from '../../constants/colors';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
 import { listScans, type ScanResult, type ScoreBand } from '../../services/scanService';
 
-function dotColorForBand(band: ScoreBand | null): string {
+function dotColorForBand(
+  band: ScoreBand | null,
+  themeColors: ReturnType<typeof useTheme>['colors'],
+): string {
   switch (band) {
     case 'green':
-      return colors.success;
+      return themeColors.success;
     case 'amber':
-      return colors.warning;
+      return themeColors.warning;
     case 'red':
-      return colors.error;
+      return themeColors.error;
     default:
-      return colors.lightGray;
+      return themeColors.hairline;
   }
 }
 
@@ -57,6 +61,7 @@ export default function ScanHistoryScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t, lang } = useLanguage();
+  const { theme, colors: themeColors } = useTheme();
   const [scans, setScans] = useState<ScanResult[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -77,12 +82,15 @@ export default function ScanHistoryScreen() {
   }, [router]);
 
   return (
-    <View className="flex-1 bg-softBlush">
-      <SafeAreaView className="flex-1 bg-softBlush">
-        <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+        <StatusBar
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors.surface}
+        />
 
         <ScrollView
-          style={{ flex: 1 }}
+          style={{ flex: 1, backgroundColor: themeColors.surface }}
           contentContainerStyle={{ paddingBottom: 96 }}
           showsVerticalScrollIndicator={false}
         >
@@ -117,7 +125,7 @@ export default function ScanHistoryScreen() {
             <View className="mt-7">
               {loading ? (
                 <View className="items-center py-12">
-                  <ActivityIndicator color={colors.brandRose} />
+                  <ActivityIndicator color={themeColors.brandRose} />
                 </View>
               ) : !scans || scans.length === 0 ? (
                 <View className="py-10">
@@ -156,7 +164,7 @@ export default function ScanHistoryScreen() {
                         alignItems: 'center',
                         paddingVertical: 16,
                         borderBottomWidth: idx < scans.length - 1 ? 1 : 0,
-                        borderBottomColor: 'rgba(212, 160, 167, 0.25)',
+                        borderBottomColor: themeColors.hairlineSoft,
                       }}
                     >
                       <View
@@ -168,7 +176,7 @@ export default function ScanHistoryScreen() {
                             ? colors.error
                             : isPending
                             ? colors.warning
-                            : dotColorForBand(band),
+                            : dotColorForBand(band, themeColors),
                           marginRight: 14,
                         }}
                       />
@@ -184,7 +192,7 @@ export default function ScanHistoryScreen() {
                             fontFamily: 'DMSerifDisplay-Regular',
                             fontSize: 28,
                             lineHeight: 32,
-                            color: colors.brandRose,
+                            color: themeColors.brandRose,
                             letterSpacing: 0.3,
                           }}
                         >

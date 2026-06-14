@@ -1,0 +1,4874 @@
+=== SYSTEM INSTRUCTIONS ===
+You are ChatGPT/Codex helping me vibe code our React Native Expo app (Nourah).
+Below is the project context, including the current AGENTS.md checklist and the files I am working on.
+Please help me implement the next task, keeping in mind the styling guidelines (NativeWind only, colors/fonts from constants), and the Supabase/Supabase Auth setup.
+
+=== AGENTS.md ===
+# AGENTS.md — Skincare App Master Context
+# READ THIS ENTIRE FILE BEFORE TOUCHING ANY CODE
+# Last updated: 2026-04-25
+
+---
+
+## ⚠️ AGENT RULES — NON-NEGOTIABLE
+
+1. Read this entire file before writing a single line of code
+2. Run `git pull origin main` before starting any task
+3. Do ONE task at a time — never start the next until the current is committed
+4. After completing a task: update the checklist below + commit with a descriptive message
+5. Never hardcode API keys — all keys live in `.env` and are accessed via `process.env`
+6. Never use inline styles — use NativeWind utility classes only
+7. Every reusable component goes in `/components` — never duplicate UI logic
+8. Test on a real physical device after every screen build, not on simulator
+9. If you are unsure about something, stop and ask rather than guessing
+10. Always commit with this format: `feat: [screen/feature name] — [what was done]`
+
+---
+
+## PROJECT IDENTITY
+
+**App Name:** Nourah (placeholder — confirm before App Store submission)
+**Tagline:** Your skin, understood.
+**Platform:** iOS + Android (React Native / Expo)
+**Target Market:** GCC region, primarily UAE. Arabic + English speakers.
+**Primary Users:** Women aged 18–45 dealing with acne, oily skin, pigmentation, sun damage, or damaged skin barrier in a hot/humid climate.
+**Core Problem We Solve:** No AI skincare app exists that is Arabic-first, halal-ingredient-aware, and calibrated for GCC skin concerns (melasma, extreme UV, high humidity).
+
+**Three things that make this app different:**
+1. Halal ingredient flagging — no competitor does this
+2. GCC-climate-specific skin scoring (UV, humidity, melasma)
+3. Dermatologist-backed content (mom is a licensed dermatologist in Dubai)
+
+---
+
+## TECH STACK — COMPLETE
+
+### Mobile Framework
+- **React Native** via **Expo SDK 52** (managed workflow)
+- **TypeScript** — strict mode enabled, no `any` types allowed
+- **Expo Router v3** — file-based routing
+
+### Styling
+- **NativeWind v4** — Tailwind utility classes for React Native
+- Do NOT use StyleSheet.create() — use className props only
+- Custom theme configured in `tailwind.config.js`
+
+### Backend & Database
+- **Supabase** — PostgreSQL database, Auth, Storage, Edge Functions
+- Client: `@supabase/supabase-js`
+- Auth: Email/password + Google OAuth
+- Database: PostgreSQL with Row Level Security (RLS) enabled on all tables
+- Storage: For user scan photos (processed, never raw face images stored)
+
+### AI / Scan APIs
+- **Perfect Corp Beauty Tech API** — face scan and skin analysis
+  - Free tier: 1,000 scans/month
+  - Detects: hydration, pores, pigmentation, acne severity, wrinkles
+  - SDK: `@perfectcorp/react-native-sdk`
+- **Open Food Facts API** — barcode scanning for ingredient lookup
+  - Endpoint: `https://world.openfoodfacts.org/api/v2/product/{barcode}.json`
+  - Completely free, no key required
+  - Fallback: manual INCI ingredient input if barcode not found
+
+### Monetization
+- **RevenueCat** — subscription management
+  - SDK: `react-native-purchases`
+  - Free tier: up to $2,500 MRR
+  - Products: monthly (AED 29 / $7.99) + annual (AED 199 / $54.99)
+  - Free trial: 5 days
+
+### In-App AI (recommendations engine)
+- **Google Gemini Flash 2.0** via Google AI Studio API
+  - Free tier: 1M tokens/day
+  - Used for: routine recommendations, ingredient explanations, skin advice
+  - Endpoint: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
+
+### Notifications
+- **Expo Notifications** — push notifications
+  - Daily PM routine reminder: 8:00 PM
+  - Weekly skin check: Sunday 10:00 AM
+
+### Internationalization
+- **react-i18next** + **i18next**
+- Supported languages: English (`en`), Arabic (`ar`)
+- RTL support: `I18nManager.allowRTL(true)` for Arabic
+- Translation files: `/locales/en.json` and `/locales/ar.json`
+- Font switches automatically: DM Sans → Tajawal when Arabic active
+
+### Navigation
+- **Expo Router** file-based navigation
+- Bottom tab navigator: Home, Scan, Products, Profile
+- Stack navigator: wraps Scan flow (Scan → Results → Routine)
+
+### Other Libraries
+- `react-native-reanimated` — animations (scanning ring pulse, screen transitions)
+- `expo-camera` — camera access for face scan + barcode
+- `expo-barcode-scanner` — barcode detection
+- `@gorhom/bottom-sheet` — ingredient result slide-up panel
+- `victory-native` — line charts for progress tracking
+- `expo-haptics` — haptic feedback on scan complete
+- `expo-sharing` — share app button in profile
+- `expo-notifications` — push notifications
+- `react-native-purchases` — RevenueCat SDK
+
+---
+
+## FILE STRUCTURE — EXACT
+
+```
+/app                          ← Expo Router screens (file = route)
+  /(auth)
+    login.tsx                 ← Login screen
+    signup.tsx                ← Sign up screen
+  /(onboarding)
+    index.tsx                 ← Welcome screen
+    concerns.tsx              ← Pick skin concerns
+    skintype.tsx              ← Pick skin type
+  /(tabs)
+    index.tsx                 ← Home screen
+    scan.tsx                  ← Face scan screen
+    products.tsx              ← Products + affiliate screen
+    profile.tsx               ← Profile screen
+  /scan-results.tsx           ← Results screen (post-scan)
+  /routine.tsx                ← Routine screen
+  /ingredient-scanner.tsx     ← Barcode ingredient scanner
+  /progress.tsx               ← Progress tracking (premium)
+  /paywall.tsx                ← Subscription paywall
+
+/components
+  /ui
+    Button.tsx                ← Primary/secondary/ghost variants
+    Card.tsx                  ← Standard card wrapper
+    ScoreCard.tsx             ← Skin metric score card
+    HalalBadge.tsx            ← Green halal status badge
+    SkincareStep.tsx          ← Single routine step item
+    ProductCard.tsx           ← Affiliate product card
+    ProgressRing.tsx          ← Animated circular progress
+    LanguageToggle.tsx        ← EN/AR switcher
+  /scan
+    FaceGuide.tsx             ← Oval overlay on camera
+    ScanningRing.tsx          ← Pulsing animation ring
+    GCCBadge.tsx              ← Climate/melasma warning badge
+
+/services
+  supabase.ts                 ← Supabase client init
+  auth.ts                     ← Login, signup, logout, session
+  scanService.ts              ← Perfect Corp API calls
+  ingredientService.ts        ← Open Food Facts API + halal logic
+  routineService.ts           ← Routine generation logic
+  geminiService.ts            ← Gemini Flash API calls
+  affiliateService.ts         ← Product data + affiliate link builder
+  revenueCatService.ts        ← Subscription status checks
+
+/constants
+  colors.ts                   ← Full design token color palette
+  fonts.ts                    ← Font family names
+  spacing.ts                  ← Spacing scale (4, 8, 12, 16, 24, 32px)
+  halalFlags.ts               ← Array of haram/questionable ingredients
+  irritants.ts                ← Array of known skin irritants
+  routines.ts                 ← Routine templates (oily/dry/combination)
+  products.ts                 ← Curated product list with affiliate links
+
+/hooks
+  useAuth.ts                  ← Auth state + user session
+  useScan.ts                  ← Face scan flow state
+  useSubscription.ts          ← RevenueCat premium status
+  useLanguage.ts              ← i18n language switching
+
+/locales
+  en.json                     ← English translations
+  ar.json                     ← Arabic translations
+
+/types
+  index.ts                    ← All TypeScript interfaces + types
+
+/.env                         ← API keys (NEVER commit this)
+/AGENTS.md                    ← This file
+/tailwind.config.js           ← NativeWind theme
+```
+
+---
+
+## DESIGN SYSTEM — EXACT VALUES
+
+### Color Palette (use these exact hex values, no others)
+```typescript
+// /constants/colors.ts
+export const colors = {
+  brandRose:    '#E8637A',  // Primary CTA, active states
+  deepMauve:    '#2D1B2E',  // All headings and primary text
+  softBlush:    '#F9E8E8',  // Screen backgrounds, card fills
+  dustyPink:    '#D4A0A7',  // Secondary accents, press states
+  softLavender: '#F0E6F6',  // Feature highlights, progress
+  gold:         '#C9A84C',  // Premium badges only
+  success:      '#7BA892',  // Halal badges, good scores
+  warning:      '#D9A76A',  // Caution indicators
+  error:        '#C74A60',  // Error messages
+  charcoal:     '#2D2D2D',  // Body text
+  darkGray:     '#5A5A5A',  // Secondary text
+  lightGray:    '#E0E0E0',  // Borders, dividers
+  white:        '#FFFFFF',  // Cards, modals
+  scanBg:       '#0D0D0D',  // Scan screen ONLY
+  scoreGreen:   '#7DB87A',  // Score 70-100%
+  scoreAmber:   '#E8A838',  // Score 40-70%
+  scoreRed:     '#E07070',  // Score 0-40%
+}
+```
+
+### Typography
+```typescript
+// /constants/fonts.ts
+export const fonts = {
+  heading:  'DMSerifDisplay-Regular',  // Screen titles, large numbers
+  body:     'DMSans-Regular',          // Body text, buttons, labels
+  bodyBold: 'DMSans-Medium',           // Emphasized body text
+  arabic:   'Tajawal-Regular',         // All Arabic text
+  arabicBold: 'Tajawal-Medium',        // Arabic headings
+}
+
+// Font sizes (use these exact sizes, no others)
+export const fontSize = {
+  xs:   11,   // Timestamps, fine print
+  sm:   13,   // Secondary labels, captions
+  base: 15,   // Body text default
+  md:   17,   // Section headers
+  lg:   20,   // Card titles
+  xl:   24,   // Screen titles
+  xxl:  32,   // Score numbers, big display
+  hero: 40,   // Onboarding hero text
+}
+```
+
+### Spacing Scale
+```typescript
+// Always use multiples of 4
+export const spacing = {
+  xs:  4,
+  sm:  8,
+  md:  12,
+  lg:  16,
+  xl:  24,
+  xxl: 32,
+  screen: 20,  // Default horizontal screen padding
+}
+```
+
+### Border Radius
+- Cards: `rounded-2xl` (16px)
+- Buttons: `rounded-xl` (12px)
+- Badges/pills: `rounded-full`
+- Input fields: `rounded-xl` (12px)
+- Bottom sheets: top corners only, 24px
+
+### Shadows
+- Cards: `shadow-sm` with `shadowColor: '#1A1A1A', opacity: 0.06`
+- No harsh shadows anywhere — keep it soft and premium
+
+### Component Patterns
+- All buttons: minimum height 52px, full width unless specified
+- All cards: white background, 16px padding, 16px border radius
+- Score cards: colored background based on score range (green/amber/red)
+- Scan screen: ONLY screen with dark (#0D0D0D) background
+- Bottom navigation: 4 tabs only — Home, Scan, Products, Profile
+
+---
+
+## DATABASE SCHEMA (Supabase PostgreSQL)
+
+```sql
+-- Users table (extends Supabase Auth)
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users PRIMARY KEY,
+  name TEXT,
+  skin_type TEXT CHECK (skin_type IN ('oily', 'dry', 'combination', 'sensitive')),
+  skin_concerns TEXT[],           -- ['acne', 'pigmentation', 'dryness', 'aging']
+  language TEXT DEFAULT 'en',
+  is_premium BOOLEAN DEFAULT FALSE,
+  revenuecat_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Scan results table
+CREATE TABLE scans (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  hydration_score INTEGER,        -- 0-100
+  pores_score TEXT,               -- 'small', 'medium', 'large'
+  pigmentation_score INTEGER,     -- 0-100
+  acne_count INTEGER,
+  overall_score INTEGER,          -- computed average
+  gcc_flags TEXT[],               -- ['melasma_risk', 'high_uv', 'humidity_warning']
+  routine_type TEXT,              -- 'oily', 'dry', 'combination'
+  raw_api_response JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Ingredient scans table
+CREATE TABLE ingredient_scans (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  product_name TEXT,
+  barcode TEXT,
+  halal_status TEXT CHECK (halal_status IN ('halal_friendly', 'check_required', 'not_scanned')),
+  ingredients JSONB,              -- [{name, status, concern}]
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Row Level Security (enable on all tables)
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ingredient_scans ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies (users can only see their own data)
+CREATE POLICY "Users own their profile"
+  ON profiles FOR ALL USING (auth.uid() = id);
+CREATE POLICY "Users own their scans"
+  ON scans FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Users own their ingredient scans"
+  ON ingredient_scans FOR ALL USING (auth.uid() = user_id);
+```
+
+---
+
+## API INTEGRATIONS — DETAILED
+
+### Perfect Corp Face Scan
+```typescript
+// /services/scanService.ts pattern
+// Input: base64 image string
+// Output: skin analysis object
+// Rate limit: 1,000 scans/month on free tier
+// On rate limit: show "Daily scan limit reached" — do NOT crash
+
+const analyzeSkin = async (imageBase64: string) => {
+  // Call Perfect Corp SDK
+  // Map response to our ScanResult type
+  // Save to Supabase scans table
+  // Return typed ScanResult
+}
+```
+
+### Open Food Facts Ingredient Lookup
+```typescript
+// /services/ingredientService.ts pattern
+// Input: barcode string (EAN-13)
+// Output: product name + ingredient list
+// No API key required
+// If product not found: prompt user to enter ingredients manually
+
+const lookupBarcode = async (barcode: string) => {
+  const res = await fetch(
+    `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`
+  )
+  // Extract ingredients_text_en or ingredients_text_ar
+  // Run through halalCheck() and irritantCheck()
+  // Return IngredientResult type
+}
+```
+
+### Halal Flagging Logic
+```typescript
+// /constants/halalFlags.ts — these ingredients trigger a "check required" badge
+const HARAM_UNCERTAIN = [
+  'carmine', 'cochineal', 'e120',           // Red dye from insects
+  'lard', 'tallow',                          // Pig/animal fat
+  'porcine collagen', 'porcine gelatin',     // Pig-derived
+  'animal-derived glycerin',                 // Could be pork
+  'alcohol denat',                           // Denatured alcohol
+  'ethanol',                                 // If used as solvent
+  'sodium stearate',                         // Could be animal-derived
+  'cetyl alcohol',                           // If animal-derived
+  'stearic acid',                            // Could be animal-derived
+  'oleic acid',                              // Could be animal-derived
+]
+// Check: lowercase the ingredient name, check if it includes any flag
+// Result: 'halal_friendly' if none found, 'check_required' if any found
+```
+
+### Gemini Flash Recommendation
+```typescript
+// /services/geminiService.ts pattern
+// Used for: generating personalized routine text + ingredient explanations
+
+const getRoutineRecommendation = async (scanResult: ScanResult) => {
+  const prompt = `
+    You are a dermatologist assistant for a GCC skincare app.
+    User skin type: ${scanResult.routineType}
+    Skin concerns: ${scanResult.gcc_flags.join(', ')}
+    Hydration: ${scanResult.hydration_score}%
+    Acne count: ${scanResult.acne_count}
+    
+    Suggest a 5-step AM routine. Format as JSON array:
+    [{step: number, category: string, instruction: string, key_ingredient: string}]
+    Keep each instruction under 20 words. Return ONLY valid JSON.
+  `
+  // Call Gemini Flash API
+  // Parse JSON response
+  // Return RoutineStep[]
+}
+```
+
+---
+
+## BUSINESS LOGIC RULES
+
+### Skin Type Determination
+```
+IF hydration_score < 35 AND pores_score = 'small' → 'dry'
+IF hydration_score > 65 AND pores_score = 'large' → 'oily'
+IF acne_count > 5 AND pores_score = 'medium' → 'combination'
+ELSE → use skin_type from user onboarding profile
+```
+
+### GCC Climate Flags
+```
+IF pigmentation_score > 55 → add 'melasma_risk' flag
+IF current month IN [May, Jun, Jul, Aug, Sep] → add 'high_uv' flag
+IF skin_type = 'oily' AND pores_score = 'large' → add 'humidity_warning' flag
+```
+
+### Premium Paywall Gates
+```
+FREE users get:
+- 1 face scan per day
+- AM routine only (5 steps)
+- Basic ingredient halal check
+- 10 product recommendations
+
+PREMIUM users get:
+- Unlimited face scans
+- AM + PM full routines
+- Full ingredient analysis with irritant flagging
+- All product recommendations
+- Progress tracking with charts
+- Priority recommendations
+```
+
+### Overall Skin Score Calculation
+```typescript
+const overallScore = Math.round(
+  (hydration_score * 0.3) +
+  (pigmentation_score * 0.3) +
+  ((5 - acne_count) / 5 * 100 * 0.2) +  // normalize acne count
+  (pores_score === 'small' ? 100 : pores_score === 'medium' ? 60 : 30) * 0.2
+)
+```
+
+---
+
+## ENVIRONMENT VARIABLES
+
+```bash
+# /.env — NEVER commit this file
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+EXPO_PUBLIC_PERFECT_CORP_KEY=your_perfect_corp_api_key
+EXPO_PUBLIC_GEMINI_KEY=your_google_ai_studio_key
+EXPO_PUBLIC_REVENUECAT_IOS_KEY=your_revenuecat_ios_key
+EXPO_PUBLIC_REVENUECAT_ANDROID_KEY=your_revenuecat_android_key
+```
+
+Note: `EXPO_PUBLIC_` prefix makes variables available in the React Native bundle.
+Never use variables without this prefix for client-side keys.
+
+---
+
+## CURRENT PROGRESS TRACKER
+# UPDATE THIS CHECKLIST AT THE END OF EVERY SESSION
+
+### Phase 1 — Structure (Weeks 1–2)
+- [ ] Apple Developer Account created (mom's account)
+- [ ] Google Play Console created (mom's account)
+- [x] GitHub repo created and initialized
+- [x] Expo project created (`npx create-expo-app@latest nourah --template blank-typescript`)
+- [ ] Supabase project created at supabase.com
+- [ ] Perfect Corp developer account created
+- [ ] RevenueCat account created
+- [ ] Google AI Studio account + Gemini key generated
+- [ ] Domain registered (Namecheap)
+- [ ] Privacy policy hosted at domain
+- [ ] Terms of service hosted at domain
+
+### Phase 2 — Craft (Weeks 2–3)
+- [ ] Figma design file created with brand page
+- [ ] Color palette + fonts set up in Figma
+- [ ] App icon designed (1024×1024px)
+- [ ] Onboarding screens wireframed (3 screens)
+- [ ] Home screen wireframed
+- [ ] Scan screen wireframed
+- [ ] Results screen wireframed
+- [ ] Products screen wireframed
+- [ ] Ingredient scanner wireframed
+- [ ] Profile screen wireframed
+- [ ] All wireframes converted to high fidelity
+- [ ] Mom reviewed and approved all designs
+
+### Phase 3 — Assemble (Weeks 3–7)
+#### Project Setup
+- [x] NativeWind v4 installed and configured
+  Note: NativeWind Metro/Babel config re-enabled for className support on 2026-04-25.
+- [x] tailwind.config.js configured with design tokens
+- [x] /constants/colors.ts created
+- [x] /constants/fonts.ts created
+- [ ] Google Fonts loaded (DMSerifDisplay, DMSans, Tajawal)
+- [x] Expo Router navigation structure created
+- [ ] All placeholder screens created
+
+#### Authentication
+- [x] Supabase client initialized (`/services/supabase.ts`)
+- [ ] Supabase database schema applied (SQL above)
+- [ ] RLS policies applied
+- [x] Login screen built
+- [x] Sign up screen built
+- [x] Auth service built (`/services/auth.ts`)
+- [x] useAuth hook built
+
+#### Onboarding
+- [x] Welcome screen (Screen 1)
+- [x] Skin concerns picker (Screen 2)
+- [x] Skin type selector (Screen 3)
+- [ ] Onboarding data saved to Supabase profiles table
+
+#### Core Screens
+- [x] Home screen built (mock scan service; flip EXPO_PUBLIC_SCAN_MODE=live for Perfect Corp)
+- [x] Face scan screen built (camera + oval guide) (mock canvas; expo-camera deferred)
+- [ ] Perfect Corp API integrated
+- [x] Scan results screen built (inline result sheet on Scan screen; standalone /scan-results deferred)
+- [ ] GCC badge overlays added to results
+- [x] Routine screen built (AM/PM toggle)
+- [ ] Gemini Flash API integrated for routine text
+
+#### Ingredient Scanner
+- [ ] Barcode scanner screen built
+- [ ] Open Food Facts API integrated
+- [ ] Halal flagging logic built (`/constants/halalFlags.ts`)
+- [ ] Irritant detection logic built (`/constants/irritants.ts`)
+- [ ] Ingredient result bottom sheet built
+
+#### Commerce
+- [x] Products screen built
+- [ ] Affiliate product data created (`/constants/products.ts`)
+- [ ] Amazon.ae affiliate links integrated
+- [ ] iHerb affiliate links integrated
+- [ ] YesStyle affiliate links integrated
+- [ ] RevenueCat SDK installed
+- [ ] Subscription products created in App Store Connect
+- [ ] Paywall screen built
+- [ ] Premium gates implemented
+
+#### Polish
+- [ ] Progress tracking screen built (premium)
+- [ ] Push notifications set up
+- [x] Profile screen built
+- [ ] Settings screen built (language, notifications)
+- [ ] Arabic translations complete (`/locales/ar.json`)
+- [ ] English translations complete (`/locales/en.json`)
+- [ ] RTL layout working for Arabic
+- [ ] Micro-animations added (scan ring, transitions)
+- [ ] Haptic feedback on scan complete
+- [ ] App icon + splash screen finalized
+
+### Phase 4 — Network (Weeks 7–8)
+- [ ] EAS Build configured
+- [ ] iOS build generated
+- [ ] TestFlight beta submitted
+- [ ] Beta feedback collected (Google Form)
+- [ ] Bugs fixed from beta
+- [ ] App Store screenshots created (all sizes)
+- [ ] App Store listing written (EN + AR)
+- [ ] Google Play listing written (EN + AR)
+- [ ] App Store submitted for review
+- [ ] Google Play submitted for review
+- [ ] Launch content filmed with mom
+- [ ] App approved — LIVE 🚀
+
+---
+
+## AGENT-SPECIFIC INSTRUCTIONS
+
+### For Antigravity
+- Use as your primary planning and multi-agent orchestration tool
+- Ideal for: scaffolding new screens, setting up Firebase services, large refactors
+- Always tell Antigravity to read AGENTS.md first using: "Read the AGENTS.md file in the project root before you begin"
+- When Antigravity hits rate limits → switch to Claude Code
+
+### For Claude Code (in terminal)
+- Best for: precise single-file edits, debugging complex logic, TypeScript types
+- Run from the project root directory: `claude`
+- First message in every session: "Read AGENTS.md then tell me the next unchecked task"
+- When Claude Code hits limits → switch to Codex/ChatGPT
+
+### For Codex / ChatGPT
+- Best for: isolated problems, writing specific functions, debugging errors
+- Paste the relevant file content + the error/task into ChatGPT
+- Tell it: "This is a React Native Expo app using NativeWind and Supabase. Here is the context from AGENTS.md: [paste relevant sections]"
+- Copy solution back into your project manually
+
+### Switching Between Agents (Rate Limit Protocol)
+```
+When any agent hits a rate limit:
+1. Ask it to commit what it has: "commit what you have with a descriptive message"
+2. Update this file's checklist
+3. Switch to the next agent
+4. Give the new agent: "Read AGENTS.md, run git pull, then continue from where we left off"
+```
+
+---
+
+## GIT WORKFLOW
+
+```bash
+# Commit format — always follow this exactly
+feat: login screen — Firebase Auth connected, Google OAuth added
+feat: scan screen — camera permissions + face guide oval
+fix: results screen — pigmentation score calculation corrected
+style: home screen — spacing adjusted to match Figma
+refactor: auth service — split into separate auth + session files
+
+# Branch naming (if you create branches)
+main           ← production-ready code only
+dev            ← active development
+feature/[name] ← specific feature work
+
+# Daily commit rule
+# Never end a session without committing. Even incomplete work.
+# Use: git commit -m "wip: [screen name] — [what's done, what's left"
+```
+
+---
+
+## CURRENT TASK
+# ⬇️ AGENT: READ AND DO ONLY THIS SECTION ⬇️
+
+**Status:** Onboarding welcome screen refactored to NativeWind and TypeScript check passed
+
+**Next task:** Build onboarding welcome screen
+
+**Steps:**
+1. Create `/app/(onboarding)/index.tsx`
+2. Match DESIGN.md visual style
+3. Add app name, tagline, intro copy, and CTA
+4. Link CTA to concerns screen placeholder
+5. Test in Expo Go
+6. Commit changes
+
+
+=== FILE CONTENTS ===
+
+--- File: app/(auth)/login.tsx ---
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch. Login is shown to returning users only.
+import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StatusBar,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { signIn, signInWithGoogle } from '../../services/auth';
+import { useAuth } from '../../hooks/useAuth';
+import { GoogleButton } from '../../components/auth/GoogleButton';
+import { type ThemeColors } from '../../constants/colors';
+import { useTheme } from '../../hooks/useTheme';
+
+// Polished login screen. Replaces the previous bold-sans "Welcome back" title with a
+// DM Serif Display headline that matches the rest of the app, lighter input borders
+// (Dusty-Pink hairline rather than mid-gray), and a quieter footer pairing the sign-up
+// link with the primary button below. All colors source from constants/colors so brand
+// changes propagate from one place.
+export default function LoginScreen() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { user } = useAuth();
+  const { theme, colors } = useTheme();
+
+  // Belt-and-suspenders forward-redirect: if a session lands on this screen (e.g. from
+  // a Google OAuth round-trip where Supabase redirected us back here so the auth guard
+  // could pick up the URL-fragment tokens), bail out to the tabs immediately. The root
+  // _layout guard does this too, but having a local effect makes the OAuth handoff
+  // resilient to race conditions between fragment parsing and segment-based routing.
+  useEffect(() => {
+    if (user) {
+      router.replace('/(tabs)');
+    }
+  }, [user, router]);
+
+  const handleGoogle = async () => {
+    setError('');
+    setGoogleLoading(true);
+    const { error: oauthError } = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (oauthError) {
+      setError(oauthError.message);
+      return;
+    }
+    // On web, signInWithOAuth triggers a full-page redirect to Google — code after this
+    // point doesn't run until after the round-trip lands back at our origin. On native,
+    // openAuthSessionAsync resolved successfully, so we can navigate forward immediately.
+    if (Platform.OS !== 'web') {
+      router.replace('/(tabs)');
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Please fill in all fields.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    const { error } = await signIn(email, password);
+
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      router.replace('/(tabs)');
+    }
+  };
+
+  const disabled = loading || !email || !password;
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 56 }}>
+          <Text
+            style={{
+              color: colors.inkSecondary,
+              fontSize: 11,
+              fontWeight: '600',
+              letterSpacing: 2,
+              textTransform: 'uppercase',
+            }}
+          >
+            Welcome back
+          </Text>
+          <Text
+            style={{
+              marginTop: 6,
+              color: colors.ink,
+              fontFamily: 'DMSerifDisplay-Regular',
+              fontSize: 36,
+              lineHeight: 42,
+              letterSpacing: -0.3,
+            }}
+          >
+            Pick up where you{'\n'}left off.
+          </Text>
+          <Text style={{ marginTop: 10, color: colors.inkSecondary, fontSize: 14, lineHeight: 22 }}>
+            Sign in to continue your skincare reading.
+          </Text>
+
+          {error ? (
+            <View
+              style={{
+                marginTop: 24,
+                padding: 12,
+                borderRadius: 12,
+                backgroundColor: 'rgba(199, 74, 96, 0.08)',
+                borderWidth: 1,
+                borderColor: 'rgba(199, 74, 96, 0.35)',
+              }}
+            >
+              <Text style={{ color: colors.error, fontSize: 14, lineHeight: 20 }}>{error}</Text>
+            </View>
+          ) : null}
+
+          <View style={{ marginTop: 28 }}>
+            <Field label="Email" colors={colors}>
+              <TextInput
+                placeholder="hello@example.com"
+                placeholderTextColor={colors.inkMuted}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                value={email}
+                onChangeText={setEmail}
+                style={inputStyle(colors)}
+              />
+            </Field>
+          </View>
+
+          <View style={{ marginTop: 16 }}>
+            <Field label="Password" colors={colors}>
+              <TextInput
+                placeholder="••••••••"
+                placeholderTextColor={colors.inkMuted}
+                secureTextEntry
+                autoComplete="current-password"
+                value={password}
+                onChangeText={setPassword}
+                style={inputStyle(colors)}
+              />
+            </Field>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => ({
+              marginTop: 32,
+              height: 54,
+              backgroundColor: disabled
+                ? 'rgba(232, 99, 122, 0.45)'
+                : pressed
+                ? '#D4547A'
+                : colors.brandRose,
+              borderRadius: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+            })}
+            onPress={handleLogin}
+            disabled={disabled}
+          >
+            <Text
+              style={{
+                color: colors.inkOnAccent,
+                fontSize: 16,
+                fontWeight: '600',
+                letterSpacing: 0.4,
+              }}
+            >
+              {loading ? 'Signing in…' : 'Sign in'}
+            </Text>
+          </Pressable>
+
+          {/* Divider + Google CTA mirrors the signup screen so the auth pair feels
+              symmetric. Loading state is wired separately from the email-password flow so
+              tapping Google doesn't dim the primary button. */}
+          <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.hairline }} />
+            <Text
+              style={{
+                marginHorizontal: 12,
+                fontSize: 12,
+                color: colors.inkSecondary,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              or
+            </Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.hairline }} />
+          </View>
+
+          <View style={{ marginTop: 16 }}>
+            <GoogleButton onPress={handleGoogle} loading={googleLoading} />
+          </View>
+
+          <View style={{ marginTop: 24, flexDirection: 'row', justifyContent: 'center' }}>
+            <Text style={{ color: colors.inkSecondary, fontSize: 13 }}>New here? </Text>
+            <Pressable onPress={() => router.push('/(auth)/signup')}>
+              <Text style={{ color: colors.brandRose, fontSize: 13, fontWeight: '600' }}>
+                Create an account
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+function Field({
+  label,
+  children,
+  colors,
+}: {
+  label: string;
+  children: React.ReactNode;
+  colors: ThemeColors;
+}) {
+  return (
+    <View>
+      <Text
+        style={{
+          color: colors.ink,
+          fontSize: 12,
+          fontWeight: '600',
+          letterSpacing: 1.4,
+          textTransform: 'uppercase',
+          marginBottom: 8,
+        }}
+      >
+        {label}
+      </Text>
+      {children}
+    </View>
+  );
+}
+
+function inputStyle(colors: ThemeColors) {
+  return {
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.hairline,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: colors.ink,
+  } as const;
+}
+
+
+--- File: app/(auth)/signup.tsx ---
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch. Signup is shown once per lifetime, so leaving it English
+// for now is acceptable while Profile carries the language toggle.
+import { useEffect, useState } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
+
+import { signUp, signInWithGoogle } from '../../services/auth';
+import { useAuth } from '../../hooks/useAuth';
+import { saveOnboardingAnswers } from '../../services/profileService';
+import { Button } from '../../components/ui/Button';
+import { TextField } from '../../components/ui/TextField';
+import { PhoneField } from '../../components/auth/PhoneField';
+import { GoogleButton } from '../../components/auth/GoogleButton';
+import { useTheme } from '../../hooks/useTheme';
+
+type FieldErrors = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+};
+
+function validate(name: string, email: string, phone: string, password: string): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!name.trim()) errors.name = 'Tell us what to call you.';
+  if (!email.trim()) errors.email = 'Email is required.';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'That email looks off.';
+  const phoneDigits = phone.replace(/\D/g, '');
+  if (!phoneDigits) errors.phone = 'Phone number is required.';
+  else if (phoneDigits.length < 7) errors.phone = 'Phone looks too short.';
+  if (!password) errors.password = 'Password is required.';
+  else if (password.length < 8) errors.password = 'At least 8 characters.';
+  return errors;
+}
+
+export default function SignupScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams<{ concerns?: string; skinType?: string }>();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { user } = useAuth();
+  const { theme, colors } = useTheme();
+
+  // Belt-and-suspenders forward-redirect — see login.tsx for the same pattern. Catches
+  // the case where a Google OAuth round-trip lands the session on this screen.
+  useEffect(() => {
+    if (user) {
+      router.replace('/(tabs)');
+    }
+  }, [user, router]);
+
+  async function handleCreateAccount() {
+    setServerError(null);
+    setInfo(null);
+    const next = validate(name, email, phone, password);
+    setErrors(next);
+    if (Object.keys(next).length > 0) return;
+
+    setSubmitting(true);
+    const fullPhone = `+971${phone.replace(/\D/g, '')}`;
+    const { data, error } = await signUp(email.trim(), password, name.trim(), fullPhone);
+    setSubmitting(false);
+
+    if (error) {
+      setServerError(error.message ?? 'Something went wrong. Try again.');
+      return;
+    }
+
+    // Onboarding answers carried in via params land here. Persist them to the
+    // profiles row created by the on_auth_user_created trigger. The save is best-effort:
+    // if Supabase is unreachable (mock mode), the user still proceeds to the home tab.
+    const newUserId = data?.user?.id;
+    if (newUserId && (params.concerns || params.skinType)) {
+      await saveOnboardingAnswers(newUserId, {
+        skinType: params.skinType,
+        concerns: params.concerns ? params.concerns.split(',').filter(Boolean) : undefined,
+      });
+    }
+    router.replace('/(tabs)');
+  }
+
+  async function handleGoogle() {
+    setServerError(null);
+    setInfo(null);
+    setGoogleLoading(true);
+    const { error } = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (error) {
+      setServerError(error.message);
+      return;
+    }
+    // On web, signInWithOAuth has already redirected; this code path won't run until
+    // after the round-trip. On native, openAuthSessionAsync resolved and we can route.
+    if (Platform.OS !== 'web') {
+      router.replace('/(tabs)');
+    }
+  }
+
+  const cardShadow = {
+    shadowColor: '#1A1A1A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+  } as const;
+
+  return (
+    <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: colors.surface }}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back">
+            <Text className="text-[15px] font-medium text-brandRose">← Back</Text>
+          </Pressable>
+
+          <Text className="mt-6 text-[12px] font-medium uppercase tracking-[2px] text-darkGray">
+            Welcome
+          </Text>
+          <Text
+            className="mt-1 text-deepMauve"
+            style={{
+              fontFamily: 'DMSerifDisplay-Regular',
+              fontSize: 28,
+              fontWeight: '400',
+              lineHeight: 34,
+              letterSpacing: -0.2,
+            }}
+          >
+            A few details, then{'\n'}we read your skin.
+          </Text>
+          <Text className="mt-2 text-[15px] leading-6 text-darkGray">
+            Stays private. Your scans never leave your account.
+          </Text>
+
+          <View
+            className="mt-6 rounded-2xl bg-white p-5"
+            style={cardShadow}
+          >
+            {serverError ? (
+              <View className="mb-4 rounded-xl bg-error/10 p-3">
+                <Text className="text-[14px] text-error">{serverError}</Text>
+              </View>
+            ) : null}
+
+            <View className="mb-4">
+              <TextField
+                label="Name"
+                placeholder="Nourah"
+                autoCapitalize="words"
+                autoComplete="name"
+                value={name}
+                onChangeText={setName}
+                error={errors.name ?? null}
+              />
+            </View>
+
+            <View className="mb-4">
+              <TextField
+                label="Email"
+                placeholder="hello@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                value={email}
+                onChangeText={setEmail}
+                error={errors.email ?? null}
+              />
+            </View>
+
+            <View className="mb-4">
+              <PhoneField
+                value={phone}
+                onChangeText={setPhone}
+                error={errors.phone ?? null}
+              />
+            </View>
+
+            <View className="mb-5">
+              <TextField
+                label="Password"
+                placeholder="At least 8 characters"
+                secureTextEntry
+                autoComplete="new-password"
+                value={password}
+                onChangeText={setPassword}
+                error={errors.password ?? null}
+              />
+            </View>
+
+            <Button
+              label={submitting ? 'Creating account…' : 'Create account'}
+              loading={submitting}
+              onPress={handleCreateAccount}
+            />
+
+            <View className="my-5 flex-row items-center">
+              <View className="h-px flex-1 bg-lightGray" />
+              <Text className="mx-3 text-[12px] uppercase tracking-[2px] text-darkGray">or</Text>
+              <View className="h-px flex-1 bg-lightGray" />
+            </View>
+
+            <GoogleButton onPress={handleGoogle} loading={googleLoading} />
+
+            {info ? (
+              <Text className="mt-3 text-center text-[13px] text-darkGray">{info}</Text>
+            ) : null}
+          </View>
+
+          <View className="mt-5 flex-row justify-center">
+            <Text className="text-[14px] text-darkGray">Already have an account? </Text>
+            <Pressable onPress={() => router.push('/(auth)/login')} accessibilityRole="link">
+              <Text className="text-[14px] font-medium text-brandRose">Sign in</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+
+--- File: app/(onboarding)/concerns.tsx ---
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch.
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
+
+const CONCERNS = [
+  { id: 'acne', label: 'Acne', emoji: '🔴' },
+  { id: 'pigmentation', label: 'Pigmentation', emoji: '🟤' },
+  { id: 'oily_skin', label: 'Oily skin', emoji: '💧' },
+  { id: 'dryness', label: 'Dryness', emoji: '🏜️' },
+  { id: 'damaged_barrier', label: 'Damaged barrier', emoji: '🛡️' },
+  { id: 'sun_damage', label: 'Sun damage', emoji: '☀️' },
+  { id: 'large_pores', label: 'Large pores', emoji: '🔍' },
+  { id: 'sensitivity', label: 'Sensitivity', emoji: '🌸' },
+];
+
+export default function SkinConcernsScreen() {
+  const router = useRouter();
+  const { theme, colors } = useTheme();
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const toggleConcern = (id: string) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.ink }]}>What are your main{'\n'}skin concerns?</Text>
+          <Text style={[styles.subtitle, { color: colors.inkSecondary }]}>
+            Choose all that apply so Nourah can personalize your routine.
+          </Text>
+        </View>
+
+        {/* Concern cards grid */}
+        <View style={styles.grid}>
+          {CONCERNS.map((concern) => {
+            const isSelected = selected.includes(concern.id);
+            return (
+              <Pressable
+                key={concern.id}
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: isSelected ? colors.accentStrong : colors.surfaceElevated,
+                    borderColor: isSelected ? colors.brandRose : colors.hairline,
+                  },
+                ]}
+                onPress={() => toggleConcern(concern.id)}
+              >
+                <Text style={styles.cardEmoji}>{concern.emoji}</Text>
+                <Text
+                  style={[
+                    styles.cardLabel,
+                    { color: colors.ink },
+                  ]}
+                >
+                  {concern.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* Continue button */}
+      <View style={[styles.footer, { backgroundColor: colors.surface }]}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.continueButton,
+            selected.length === 0 && styles.continueButtonDisabled,
+            pressed && selected.length > 0 && styles.continueButtonPressed,
+          ]}
+          onPress={() => {
+            if (selected.length > 0) {
+              router.push({
+                pathname: '/(onboarding)/skintype',
+                params: { concerns: selected.join(',') },
+              });
+            }
+          }}
+          disabled={selected.length === 0}
+        >
+          <Text style={styles.continueText}>Continue</Text>
+        </Pressable>
+
+        <Text style={[styles.selectedCount, { color: colors.inkSecondary }]}>
+          {selected.length === 0
+            ? 'Select at least one concern'
+            : `${selected.length} selected`}
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 16,
+  },
+
+  // Header
+  header: {
+    marginBottom: 28,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#2D1B2E',
+    marginBottom: 10,
+    lineHeight: 34,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#5A5A5A',
+    lineHeight: 22,
+  },
+
+  // Grid
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+
+  // Cards. Selected state uses a soft Brand-Rose tint with a 1.5px Brand-Rose hairline,
+  // not a full Brand-Rose fill. Per the impeccable polish pass: keeps the screen quiet
+  // while still signaling "this is selected" clearly. Unselected cards now use a
+  // Dusty-Pink 30% hairline, the same border treatment used across product/routine cards.
+  card: {
+    width: '47%',
+    paddingVertical: 20,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+    borderWidth: 1.5,
+  },
+  cardSelected: {
+    backgroundColor: '#F4D7DC',
+    borderColor: '#E8637A',
+  },
+  cardUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(212, 160, 167, 0.45)',
+  },
+  cardEmoji: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  cardLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  cardLabelSelected: {
+    color: '#2D1B2E',
+  },
+  cardLabelUnselected: {
+    color: '#2D1B2E',
+  },
+
+  // Footer
+  footer: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    paddingTop: 12,
+    alignItems: 'center',
+  },
+  continueButton: {
+    width: '100%',
+    height: 54,
+    backgroundColor: '#E8637A',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#E8637A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  continueButtonDisabled: {
+    backgroundColor: '#D4A0A7',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  continueButtonPressed: {
+    backgroundColor: '#D4556C',
+    transform: [{ scale: 0.98 }],
+  },
+  continueText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+  selectedCount: {
+    marginTop: 12,
+    fontSize: 13,
+    color: '#5A5A5A',
+  },
+});
+
+
+--- File: app/(onboarding)/index.tsx ---
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch. Onboarding is shown once per lifetime, so leaving it
+// English for now is acceptable while Profile carries the language toggle.
+import { useRouter } from 'expo-router';
+import { Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { colors } from '../../constants/colors';
+import { useTheme } from '../../hooks/useTheme';
+
+const PROMISE_TAGS = ['Halal-aware', 'GCC climate', 'AI-powered'];
+
+// First moment of the app. PRODUCT.md positions Nourah's identity as warm, confident,
+// modern — "Flo crossed with Glossier." Polish theme: bilingual logotype + calm promise.
+// The previous gold-rule-with-eyebrow ornament and the white features card both read as
+// chrome on top of the serif logotype; this version puts the logotype first, surrounds
+// it with breathing room, and lets the promise tags sit as quiet inline chips on the
+// Blush ground instead of inside a card surface.
+export default function OnboardingWelcomeScreen() {
+  const router = useRouter();
+  const { theme, colors: themeColors } = useTheme();
+
+  function handleGetStartedPress() {
+    router.push('/(onboarding)/concerns');
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.surface}
+      />
+
+      <View className="flex-1 px-7 pt-16">
+        <Text
+          className="text-darkGray"
+          style={{
+            fontSize: 11,
+            fontWeight: '600',
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+          }}
+        >
+          Skincare intelligence
+        </Text>
+
+        <Text
+          className="mt-5 text-brandRose"
+          style={{
+            fontFamily: 'DMSerifDisplay-Regular',
+            fontSize: 56,
+            lineHeight: 60,
+            letterSpacing: -1,
+          }}
+        >
+          Nourah
+        </Text>
+        <Text
+          className="mt-1 text-gold"
+          style={{
+            fontFamily: 'DMSerifDisplay-Regular',
+            fontSize: 26,
+            lineHeight: 30,
+            letterSpacing: 0.2,
+          }}
+        >
+          نورة
+        </Text>
+
+        <View
+          style={{
+            width: 36,
+            height: 2,
+            backgroundColor: colors.brandRose,
+            opacity: 0.6,
+            marginTop: 20,
+            borderRadius: 1,
+          }}
+        />
+
+        <Text
+          className="mt-6 text-deepMauve"
+          style={{
+            fontFamily: 'DMSerifDisplay-Regular',
+            fontSize: 28,
+            lineHeight: 34,
+            letterSpacing: -0.2,
+          }}
+        >
+          Your skin, understood.
+        </Text>
+        <Text className="mt-3 text-[15px] leading-[24px] text-darkGray" style={{ maxWidth: 320 }}>
+          AI-powered skincare for GCC skin: halal-aware ingredients, climate-smart
+          routines, and a reading you can trust.
+        </Text>
+
+        <View className="mt-6 flex-row flex-wrap">
+          {PROMISE_TAGS.map((label) => (
+            <View
+              key={label}
+              className="mr-2 mt-2 rounded-full px-3 py-1.5"
+              style={{
+                borderWidth: 1,
+                borderColor: themeColors.hairline,
+              }}
+            >
+              <Text className="text-[12px] font-medium text-deepMauve" style={{ letterSpacing: 0.2 }}>
+                {label}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View className="px-7 pb-8">
+        <Pressable
+          className="h-14 w-full items-center justify-center rounded-2xl bg-brandRose active:bg-dustyPink active:opacity-90"
+          onPress={handleGetStartedPress}
+          accessibilityRole="button"
+        >
+          <Text className="text-[17px] font-semibold text-white" style={{ letterSpacing: 0.4 }}>
+            Get started
+          </Text>
+        </Pressable>
+
+        <View className="mt-5 flex-row items-center justify-center">
+          <Text className="text-[13px] text-darkGray">Already have an account? </Text>
+          <Pressable
+            onPress={() => router.push('/(auth)/login')}
+            accessibilityRole="link"
+            accessibilityLabel="Sign in"
+          >
+            <Text className="text-[13px] font-semibold text-brandRose">Sign in</Text>
+          </Pressable>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+
+--- File: app/(onboarding)/skintype.tsx ---
+// TODO(i18n): Pre-auth surface. Migrate strings to useLanguage().t() and the locales
+// dictionary on the next touch.
+import { useState } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
+
+const SKIN_TYPES = [
+  { id: 'oily', label: 'Oily', description: 'Shiny all over, visible pores', emoji: '💧' },
+  { id: 'dry', label: 'Dry', description: 'Flaky, tight, or rough texture', emoji: '🏜️' },
+  { id: 'combination', label: 'Combination', description: 'Oily T-zone, dry or normal cheeks', emoji: '⚖️' },
+  { id: 'sensitive', label: 'Sensitive', description: 'Prone to redness and irritation', emoji: '🌸' },
+];
+
+export default function SkinTypeScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { theme, colors } = useTheme();
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  const handleComplete = async () => {
+    if (!selectedType) return;
+
+    // The user has finished the unauthenticated onboarding interview. Carry their
+    // answers into signup so the account creation step can persist them. Going
+    // straight to /(tabs) here would bounce back through the auth guard since no
+    // session exists yet.
+    router.push({
+      pathname: '/(auth)/signup',
+      params: {
+        concerns: (params.concerns as string) ?? '',
+        skinType: selectedType,
+      },
+    });
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.ink }]}>What is your{'\n'}skin type?</Text>
+          <Text style={[styles.subtitle, { color: colors.inkSecondary }]}>
+            This helps us build a base routine perfectly suited for your skin.
+          </Text>
+        </View>
+
+        {/* Options List */}
+        <View style={styles.list}>
+          {SKIN_TYPES.map((type) => {
+            const isSelected = selectedType === type.id;
+            return (
+              <Pressable
+                key={type.id}
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: isSelected ? colors.accentStrong : colors.surfaceElevated,
+                    borderColor: isSelected ? colors.brandRose : colors.hairline,
+                  },
+                ]}
+                onPress={() => setSelectedType(type.id)}
+              >
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardEmoji}>{type.emoji}</Text>
+                  <Text
+                    style={[
+                      styles.cardLabel,
+                      { color: colors.ink },
+                    ]}
+                  >
+                    {type.label}
+                  </Text>
+                </View>
+                <Text
+                  style={[
+                    styles.cardDescription,
+                    { color: colors.inkSecondary },
+                  ]}
+                >
+                  {type.description}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* Complete Onboarding Button */}
+      <View style={[styles.footer, { backgroundColor: colors.surface }]}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.continueButton,
+            !selectedType && styles.continueButtonDisabled,
+            pressed && selectedType && styles.continueButtonPressed,
+          ]}
+          onPress={handleComplete}
+          disabled={!selectedType}
+        >
+          <Text style={styles.continueText}>Complete Setup</Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 16,
+  },
+
+  // Header
+  header: {
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#2D1B2E',
+    marginBottom: 12,
+    lineHeight: 36,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#5A5A5A',
+    lineHeight: 24,
+  },
+
+  // List
+  list: {
+    gap: 16,
+  },
+
+  // Cards. Same calmer selected-state pattern as concerns.tsx: soft Brand-Rose tint with
+  // a Brand-Rose hairline border, not a full fill. Keeps the page quiet, stays on-brand.
+  card: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
+  cardSelected: {
+    backgroundColor: '#F4D7DC',
+    borderColor: '#E8637A',
+  },
+  cardUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(212, 160, 167, 0.45)',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cardEmoji: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  cardLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  cardLabelSelected: {
+    color: '#2D1B2E',
+  },
+  cardLabelUnselected: {
+    color: '#2D1B2E',
+  },
+  cardDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    paddingLeft: 36, // align with text, indent past emoji
+  },
+  cardDescriptionSelected: {
+    color: '#5A5A5A',
+  },
+  cardDescriptionUnselected: {
+    color: '#5A5A5A',
+  },
+
+  // Footer
+  footer: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    paddingTop: 12,
+  },
+  continueButton: {
+    width: '100%',
+    height: 54,
+    backgroundColor: '#E8637A',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#E8637A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  continueButtonDisabled: {
+    backgroundColor: '#D4A0A7',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  continueButtonPressed: {
+    backgroundColor: '#D4556C',
+    transform: [{ scale: 0.98 }],
+  },
+  continueText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+});
+
+
+--- File: app/(tabs)/_layout.tsx ---
+import { Tabs } from 'expo-router';
+import { Text, View } from 'react-native';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
+
+type IconKind = 'home' | 'scan' | 'products' | 'profile';
+
+const GLYPH: Record<IconKind, string> = {
+  home: '⌂',
+  scan: '◎',
+  products: '◇',
+  profile: '◔',
+};
+
+// Renders a tab icon as a soft glyph. Brand Rose when active, Slate Gray otherwise.
+// Scan tab is rendered slightly larger per DESIGN.md §5 (first-among-equals).
+function TabGlyph({
+  kind,
+  color,
+  size,
+}: {
+  kind: IconKind;
+  color: string;
+  size: number;
+}) {
+  return (
+    <View style={{ height: size + 4, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{ fontSize: size, color, lineHeight: size + 2 }}>{GLYPH[kind]}</Text>
+    </View>
+  );
+}
+
+export default function TabsLayout() {
+  const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: themeColors.brandRose,
+        tabBarInactiveTintColor: themeColors.inkSecondary,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
+          letterSpacing: 0.2,
+          marginBottom: 4,
+        },
+        tabBarStyle: {
+          backgroundColor: themeColors.surfaceElevated,
+          borderTopColor: themeColors.hairline,
+          borderTopWidth: 1,
+          height: 64,
+          paddingTop: 6,
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: t('tabs.home'),
+          tabBarIcon: ({ color }) => <TabGlyph kind="home" color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="scan"
+        options={{
+          title: t('tabs.scan'),
+          tabBarIcon: ({ color }) => <TabGlyph kind="scan" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen name="routine" options={{ href: null }} />
+      <Tabs.Screen name="scan-product" options={{ href: null }} />
+      <Tabs.Screen name="scan-history" options={{ href: null }} />
+      <Tabs.Screen
+        name="products"
+        options={{
+          title: t('tabs.products'),
+          tabBarIcon: ({ color }) => <TabGlyph kind="products" color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t('tabs.profile'),
+          tabBarIcon: ({ color }) => <TabGlyph kind="profile" color={color} size={22} />,
+        }}
+      />
+    </Tabs>
+  );
+}
+
+
+--- File: app/(tabs)/products.tsx ---
+import { Pressable, SafeAreaView, ScrollView, StatusBar, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { colors } from '../../constants/colors';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
+
+const PRODUCT_IDS = ['cleanser', 'serum', 'sunscreen'] as const;
+
+// Maps the locale's free-form halal verdict string to a UI tone. The English copy currently
+// only ships two states ("Halal-friendly" and "Check fragrance"); we keep the mapping
+// resilient so when the live product-lookup edge function returns 'halal' / 'haram' /
+// 'doubtful' / 'unknown' the same tag UI flexes without rework.
+function verdictTone(text: string, themeColors: ReturnType<typeof useTheme>['colors']): {
+  color: string;
+  bg: string;
+} {
+  const t = text.toLowerCase();
+  if (t.includes('halal') && !t.includes('check')) {
+    return { color: themeColors.success, bg: 'rgba(123, 168, 146, 0.12)' };
+  }
+  if (t.includes('check') || t.includes('doubt')) {
+    return { color: themeColors.warning, bg: 'rgba(217, 167, 106, 0.14)' };
+  }
+  if (t.includes('haram')) {
+    return { color: themeColors.error, bg: 'rgba(199, 74, 96, 0.12)' };
+  }
+  return { color: themeColors.inkSecondary, bg: themeColors.hairlineSoft };
+}
+
+// Shows a quiet product surface that previews halal-aware recommendations without
+// commerce clutter. PRODUCT.md positions this as "a recommendation from someone who
+// knows your skin, not a marketplace," so the page leans on type and quiet hierarchy
+// rather than icon-cards and chips.
+export default function ProductsScreen() {
+  const { t } = useLanguage();
+  const router = useRouter();
+  const { theme, colors: themeColors } = useTheme();
+
+  return (
+    <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+        <StatusBar
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors.surface}
+        />
+
+        <ScrollView
+          style={{ flex: 1, backgroundColor: themeColors.surface }}
+          contentContainerStyle={{ paddingBottom: 96 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="px-5 pb-10 pt-6">
+            <Text
+              className="text-deepMauve"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 32,
+                fontWeight: '400',
+                lineHeight: 38,
+                letterSpacing: -0.3,
+              }}
+            >
+              {t('products.title')}
+            </Text>
+            <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+              {t('products.intro')}
+            </Text>
+
+            {/* "Scan a product" CTA — primary action of this tab now that the barcode
+              scanner is wired. Brand-Rose pill button + a one-line hint below. Sits
+              above the day's shelf so it's the first action a user sees. */}
+            <Pressable
+              onPress={() => router.push('/(tabs)/scan-product')}
+              accessibilityRole="button"
+              style={({ pressed }) => ({
+                marginTop: 24,
+                paddingVertical: 14,
+                paddingHorizontal: 20,
+                borderRadius: 16,
+                backgroundColor: pressed ? '#D4547A' : colors.brandRose,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              })}
+            >
+              <Text
+                style={{
+                  color: themeColors.inkOnAccent,
+                  fontSize: 15,
+                  fontWeight: '600',
+                  letterSpacing: 0.4,
+                }}
+              >
+                {t('products.scan.cta')}
+              </Text>
+              <Text
+                style={{ color: themeColors.inkOnAccent, fontSize: 15, marginLeft: 8, opacity: 0.9 }}
+              >
+                →
+              </Text>
+            </Pressable>
+            <Text className="mt-2 text-center text-[12px] text-darkGray">
+              {t('products.scan.ctaHint')}
+            </Text>
+
+            {/* Inline section eyebrow + mood tag on the Blush ground (no card). Frames
+              the list below without competing with the product surfaces themselves. */}
+            <View
+              className="mt-8 flex-row items-center"
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: themeColors.hairline,
+                paddingBottom: 10,
+              }}
+            >
+              <Text
+                className="text-darkGray"
+                style={{
+                  fontSize: 12,
+                  fontWeight: '600',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {t('products.todayShelfEyebrow')}
+              </Text>
+              <View
+                className="ml-auto px-2.5 py-1 rounded-full"
+                style={{
+                  backgroundColor: themeColors.accent,
+                }}
+              >
+                <Text
+                  className="text-deepMauve"
+                  style={{
+                    fontSize: 11,
+                    fontWeight: '600',
+                    letterSpacing: 0.4,
+                  }}
+                >
+                  {t('products.calmShelf')}
+                </Text>
+              </View>
+            </View>
+
+            <View className="mt-4">
+              {PRODUCT_IDS.map((id, idx) => {
+                const name = t(`products.catalog.${id}.name`);
+                const category = t(`products.catalog.${id}.category`);
+                const halal = t(`products.catalog.${id}.halal`);
+                const reason = t(`products.catalog.${id}.reason`);
+                const tone = verdictTone(halal, themeColors);
+
+                return (
+                  <View
+                    key={id}
+                    className={`${idx === 0 ? '' : 'mt-3'} rounded-2xl bg-white p-5`}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: themeColors.hairlineSoft,
+                    }}
+                  >
+                    <View className="flex-row items-start justify-between">
+                      <View className="flex-1 pr-3">
+                        <Text
+                          className="text-brandRose"
+                          style={{
+                            fontSize: 11,
+                            fontWeight: '600',
+                            letterSpacing: 1.6,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {category}
+                        </Text>
+                        <Text
+                          className="mt-2 text-deepMauve"
+                          style={{
+                            fontFamily: 'DMSerifDisplay-Regular',
+                            fontSize: 22,
+                            lineHeight: 28,
+                            letterSpacing: -0.1,
+                          }}
+                        >
+                          {name}
+                        </Text>
+                      </View>
+
+                      <View
+                        className="rounded-full px-2.5 py-1.5"
+                        style={{ backgroundColor: tone.bg }}
+                      >
+                        <Text
+                          style={{
+                            color: tone.color,
+                            fontSize: 11,
+                            fontWeight: '600',
+                            letterSpacing: 0.6,
+                          }}
+                        >
+                          {halal}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text className="mt-3 text-[14px] leading-[22px] text-darkGray">
+                      {reason}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+
+--- File: app/(tabs)/profile.tsx ---
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
+import { colors, type ThemeColors } from '../../constants/colors';
+import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme, type ThemeMode } from '../../hooks/useTheme';
+import type { Lang } from '../../constants/locales';
+import { signOut } from '../../services/auth';
+
+// Settings + identity surface. Headlines the language toggle so the bilingual promise is
+// always within reach. Sign-out lives at the bottom because it's the destructive path.
+// Polish theme: identity first, settings beneath — DM Serif Display title (drift fix
+// from font-semibold), section eyebrows that match Home and Routine, ghost sign-out so
+// it doesn't compete with the rest of the page.
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { t, lang, setLang } = useLanguage();
+  const { theme, colors: themeColors, mode, setMode } = useTheme();
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
+  const [showRestartHint, setShowRestartHint] = useState(false);
+
+  const displayName =
+    typeof user?.user_metadata?.name === 'string'
+      ? user.user_metadata.name
+      : t('profile.memberFallback');
+
+  const email = user?.email ?? t('profile.previewAccount');
+  const initial = (displayName ?? 'N').trim().charAt(0).toUpperCase() || 'N';
+
+  const stats: { id: string; labelKey: string; value: string }[] = [
+    { id: 'scans', labelKey: 'profile.statScans', value: '1' },
+    { id: 'routine', labelKey: 'profile.statRoutineDays', value: '3' },
+    { id: 'products', labelKey: 'profile.statCheckedProducts', value: '0' },
+  ];
+
+  async function handleLanguagePress(next: Lang) {
+    if (next === lang) return;
+    await setLang(next);
+    setShowRestartHint(next === 'ar');
+  }
+
+  async function handleThemePress(next: ThemeMode) {
+    if (next === mode) return;
+    await setMode(next);
+  }
+
+  async function handleSignOutPress() {
+    setSigningOut(true);
+    setSignOutError('');
+
+    const { error } = await signOut();
+
+    if (error) {
+      setSignOutError(error.message);
+      setSigningOut(false);
+      return;
+    }
+
+    setSigningOut(false);
+    router.replace('/(onboarding)');
+  }
+
+  return (
+    <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+        <StatusBar
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors.surface}
+        />
+
+        <ScrollView
+          style={{ flex: 1, backgroundColor: themeColors.surface }}
+          contentContainerStyle={{ paddingBottom: 96 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="px-5 pb-10 pt-6">
+            <Text
+              className="text-deepMauve"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 32,
+                fontWeight: '400',
+                lineHeight: 38,
+                letterSpacing: -0.3,
+              }}
+            >
+              {t('profile.title')}
+            </Text>
+            <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+              {t('profile.subtitle')}
+            </Text>
+
+            {/* Identity block sits on the Blush ground, no card — the serif initial does
+              the visual work. Quieter than the previous white-card surface and frees the
+              vertical rhythm for the settings section to feel like its own area. */}
+            <View className="mt-7 flex-row items-center">
+              <View
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: themeColors.surfaceElevated,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: themeColors.hairline,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: 'DMSerifDisplay-Regular',
+                    fontSize: 28,
+                    color: colors.brandRose,
+                    lineHeight: 32,
+                  }}
+                >
+                  {initial}
+                </Text>
+              </View>
+              <View className="ml-4 flex-1">
+                <Text
+                  className="text-deepMauve"
+                  style={{
+                    fontFamily: 'DMSerifDisplay-Regular',
+                    fontSize: 22,
+                    lineHeight: 28,
+                  }}
+                >
+                  {displayName}
+                </Text>
+                <Text className="mt-1 text-[13px] text-darkGray">{email}</Text>
+                <Text
+                  className="mt-2 text-brandRose"
+                  style={{
+                    fontSize: 11,
+                    fontWeight: '600',
+                    letterSpacing: 1.4,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {t('profile.freePlan')}
+                </Text>
+              </View>
+            </View>
+
+            {/* Settings section: eyebrow + language inline-underline tabs (matches the
+              Routine AM/PM pattern), so the same control vocabulary is used everywhere. */}
+            <Text
+              className="mt-8 mb-1 text-darkGray"
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('profile.settingsTitle')}
+            </Text>
+
+            <Text className="mt-4 text-[15px] font-semibold text-deepMauve">
+              {t('profile.languageLabel')}
+            </Text>
+
+            <View
+              className="mt-2 flex-row"
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: themeColors.hairline,
+              }}
+            >
+              <ChoiceTab
+                active={lang === 'en'}
+                label={t('profile.languageEnglish')}
+                onPress={() => handleLanguagePress('en')}
+                themeColors={themeColors}
+              />
+              <ChoiceTab
+                active={lang === 'ar'}
+                label={t('profile.languageArabic')}
+                onPress={() => handleLanguagePress('ar')}
+                themeColors={themeColors}
+              />
+            </View>
+
+            {showRestartHint ? (
+              <Text className="mt-3 text-[13px] leading-5 text-darkGray">
+                {t('profile.restartHint')}
+              </Text>
+            ) : null}
+
+            <Text className="mt-6 text-[15px] font-semibold text-deepMauve">
+              {t('profile.appearanceLabel')}
+            </Text>
+
+            <View
+              className="mt-2 flex-row"
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: themeColors.hairline,
+              }}
+            >
+              <ChoiceTab
+                active={mode === 'light'}
+                label={t('profile.appearanceLight')}
+                onPress={() => handleThemePress('light')}
+                themeColors={themeColors}
+              />
+              <ChoiceTab
+                active={mode === 'dark'}
+                label={t('profile.appearanceDark')}
+                onPress={() => handleThemePress('dark')}
+                themeColors={themeColors}
+              />
+              <ChoiceTab
+                active={mode === 'system'}
+                label={t('profile.appearanceSystem')}
+                onPress={() => handleThemePress('system')}
+                themeColors={themeColors}
+              />
+            </View>
+
+            <Text className="mt-3 text-[13px] leading-5 text-darkGray">
+              {t('profile.appearanceHint')}
+            </Text>
+
+            {/* Stats block: serif numerals replace the bold sans figures — same typographic
+              voice as the Routine step ordinals (01 / 02 / 03), giving numbers a consistent
+              identity across the app. */}
+            <Text
+              className="mt-8 mb-3 text-deepMauve"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 20,
+                lineHeight: 26,
+              }}
+            >
+              {t('profile.statsTitle')}
+            </Text>
+            <View>
+              {stats.map((stat, idx) => (
+                <View
+                  key={stat.id}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    paddingVertical: 14,
+                    borderBottomWidth: idx < stats.length - 1 ? 1 : 0,
+                    borderBottomColor: themeColors.hairlineSoft,
+                  }}
+                >
+                  <Text className="text-[14px] text-darkGray">{t(stat.labelKey)}</Text>
+                  <Text
+                    style={{
+                      fontFamily: 'DMSerifDisplay-Regular',
+                      fontSize: 22,
+                      color: colors.brandRose,
+                      lineHeight: 26,
+                      letterSpacing: 0.3,
+                    }}
+                  >
+                    {stat.value}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Entry point into the scan history sub-route. Sits directly beneath the
+              stats block so "Scans: 1" → "View all scans →" reads as one thought. */}
+            <Pressable
+              onPress={() => router.push('/(tabs)/scan-history')}
+              accessibilityRole="button"
+              className="mt-3 self-start active:opacity-60"
+              style={{ paddingVertical: 8, paddingRight: 8 }}
+            >
+              <Text className="text-[14px] font-medium text-brandRose">
+                {t('profile.viewAllScans')} →
+              </Text>
+            </Pressable>
+
+            {/* Derm reassurance: gold tracked eyebrow + small body. Replaces the white
+              card with a quieter inline treatment so the page doesn't end on a chrome note. */}
+            <View
+              className="mt-7 p-4 rounded-2xl"
+              style={{
+                backgroundColor: 'rgba(201, 168, 76, 0.08)',
+                borderWidth: 1,
+                borderColor: 'rgba(201, 168, 76, 0.35)',
+              }}
+            >
+              <Text
+                style={{
+                  color: colors.gold,
+                  fontSize: 11,
+                  fontWeight: '600',
+                  letterSpacing: 1.8,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {t('profile.dermEyebrow')}
+              </Text>
+              <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+                {t('profile.dermBody')}
+              </Text>
+            </View>
+
+            {signOutError ? (
+              <View
+                className="mt-5 rounded-2xl p-4"
+                style={{
+                  backgroundColor: 'rgba(199, 74, 96, 0.08)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(199, 74, 96, 0.35)',
+                }}
+              >
+                <Text style={{ color: colors.error, fontSize: 14, lineHeight: 20 }}>
+                  {signOutError}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Sign-out is destructive but rare — render as a quiet ghost link so it
+              doesn't visually fight with the main page content. */}
+            <Pressable
+              className="mt-8 self-center px-4 py-2 active:opacity-60"
+              onPress={handleSignOutPress}
+              disabled={signingOut}
+              accessibilityRole="button"
+            >
+              {signingOut ? (
+                <ActivityIndicator color={colors.brandRose} />
+              ) : (
+                <Text className="text-[14px] font-medium text-brandRose">
+                  {t('profile.signOut')}
+                </Text>
+              )}
+            </Pressable>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+// Inline-underline language tab — same control vocabulary as the Routine AM/PM tabs.
+function ChoiceTab({
+  active,
+  label,
+  onPress,
+  themeColors,
+}: {
+  active: boolean;
+  label: string;
+  onPress: () => void;
+  themeColors: ThemeColors;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      style={{
+        marginRight: 24,
+        paddingBottom: 10,
+        marginBottom: -1,
+        borderBottomWidth: active ? 2 : 0,
+        borderBottomColor: themeColors.brandRose,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: active ? '600' : '500',
+          color: active ? themeColors.brandRose : themeColors.ink,
+          letterSpacing: 0.3,
+        }}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+
+--- File: app/(tabs)/scan-history.tsx ---
+// Scan History — reads every past scan for the signed-in user (newest first) and
+// renders them as a quiet typographic list. Reached from Profile via "View all scans →".
+// Hidden from the tab bar via `href: null` in (tabs)/_layout.tsx.
+
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { colors } from '../../constants/colors';
+import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
+import { listScans, type ScanResult, type ScoreBand } from '../../services/scanService';
+
+function dotColorForBand(
+  band: ScoreBand | null,
+  themeColors: ReturnType<typeof useTheme>['colors'],
+): string {
+  switch (band) {
+    case 'green':
+      return themeColors.success;
+    case 'amber':
+      return themeColors.warning;
+    case 'red':
+      return themeColors.error;
+    default:
+      return themeColors.hairline;
+  }
+}
+
+function bandReassureKey(band: ScoreBand | null): string {
+  switch (band) {
+    case 'green':
+      return 'profile.history.bandGreen';
+    case 'amber':
+      return 'profile.history.bandAmber';
+    case 'red':
+      return 'profile.history.bandRed';
+    default:
+      return 'profile.history.bandAmber';
+  }
+}
+
+function formatDate(iso: string, lang: 'en' | 'ar'): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString(lang === 'ar' ? 'ar-AE' : 'en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+export default function ScanHistoryScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { t, lang } = useLanguage();
+  const { theme, colors: themeColors } = useTheme();
+  const [scans, setScans] = useState<ScanResult[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const list = await listScans(user?.id ?? null);
+    setScans(list);
+    setLoading(false);
+  }, [user?.id]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const close = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/profile');
+  }, [router]);
+
+  return (
+    <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+        <StatusBar
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors.surface}
+        />
+
+        <ScrollView
+          style={{ flex: 1, backgroundColor: themeColors.surface }}
+          contentContainerStyle={{ paddingBottom: 96 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="px-5 pb-10 pt-6">
+            {/* Back affordance — quiet ghost link, top-left, matches Routine "back to home". */}
+            <Pressable
+              onPress={close}
+              accessibilityRole="button"
+              hitSlop={8}
+              className="self-start active:opacity-60"
+              style={{ paddingVertical: 6, paddingRight: 8 }}
+            >
+              <Text className="text-[14px] font-medium text-brandRose">← {t('routine.back')}</Text>
+            </Pressable>
+
+            <Text
+              className="mt-4 text-deepMauve"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 32,
+                fontWeight: '400',
+                lineHeight: 38,
+                letterSpacing: -0.3,
+              }}
+            >
+              {t('profile.history.title')}
+            </Text>
+            <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+              {t('profile.history.subtitle')}
+            </Text>
+
+            <View className="mt-7">
+              {loading ? (
+                <View className="items-center py-12">
+                  <ActivityIndicator color={themeColors.brandRose} />
+                </View>
+              ) : !scans || scans.length === 0 ? (
+                <View className="py-10">
+                  <Text
+                    className="text-deepMauve"
+                    style={{
+                      fontFamily: 'DMSerifDisplay-Regular',
+                      fontSize: 22,
+                      lineHeight: 28,
+                    }}
+                  >
+                    {t('profile.history.emptyTitle')}
+                  </Text>
+                  <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+                    {t('profile.history.emptyBody')}
+                  </Text>
+                </View>
+              ) : (
+                scans.map((scan, idx) => {
+                  const isPending = scan.status === 'pending';
+                  const isFailed = scan.status === 'failed';
+                  const date = formatDate(scan.created_at, lang);
+                  const score = scan.overall_score;
+                  const band = scan.band;
+                  const reassure = isPending
+                    ? t('profile.history.pendingLabel')
+                    : isFailed
+                    ? t('profile.history.failedLabel')
+                    : t(bandReassureKey(band));
+
+                  return (
+                    <View
+                      key={scan.id}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingVertical: 16,
+                        borderBottomWidth: idx < scans.length - 1 ? 1 : 0,
+                        borderBottomColor: themeColors.hairlineSoft,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: isFailed
+                            ? colors.error
+                            : isPending
+                            ? colors.warning
+                            : dotColorForBand(band, themeColors),
+                          marginRight: 14,
+                        }}
+                      />
+                      <View className="flex-1">
+                        <Text className="text-[14px] text-darkGray">{date}</Text>
+                        <Text className="mt-0.5 text-[15px] font-semibold text-deepMauve">
+                          {reassure}
+                        </Text>
+                      </View>
+                      {!isFailed && !isPending && typeof score === 'number' ? (
+                        <Text
+                          style={{
+                            fontFamily: 'DMSerifDisplay-Regular',
+                            fontSize: 28,
+                            lineHeight: 32,
+                            color: themeColors.brandRose,
+                            letterSpacing: 0.3,
+                          }}
+                        >
+                          {score}
+                        </Text>
+                      ) : null}
+                    </View>
+                  );
+                })
+              )}
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+
+--- File: app/(tabs)/scan-product.tsx ---
+// Barcode scanner sub-route inside the Products flow. Lives in (tabs)/ so the tab bar
+// stays visible (matches the face Scan tab's pattern). Hidden from the tab bar itself
+// via `href: null` in (tabs)/_layout.tsx — reachable only by push from products.tsx.
+
+import { useCallback, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { CameraView, useCameraPermissions, type BarcodeType } from 'expo-camera';
+import { colors } from '../../constants/colors';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useProfile } from '../../hooks/useProfile';
+import { useTheme } from '../../hooks/useTheme';
+import {
+  lookupProduct,
+  type ProductLookupResult,
+  type HalalVerdict,
+} from '../../services/productService';
+import {
+  personalizeIngredients,
+  type PersonalizedMatch,
+} from '../../lib/personalize';
+
+type Phase = 'permission' | 'scanning' | 'looking-up' | 'result' | 'not-found' | 'error';
+
+const SUPPORTED_BARCODES: BarcodeType[] = ['ean13', 'ean8', 'upc_a', 'upc_e'];
+
+// Web laptops only have a front-facing webcam, and that's what `facing="front"` selects.
+// Native phones default to the back camera which is what you'd actually point at a
+// product. Either way expo-camera falls back gracefully if the requested camera doesn't
+// exist on the device.
+const DEFAULT_FACING: 'front' | 'back' = Platform.OS === 'web' ? 'front' : 'back';
+
+// Two demo barcodes wired through productService's mock + real paths. Tapping them
+// simulates a successful scan without needing a physical product in frame — useful for
+// testing the result / not-found UI on a laptop. Real users will scan real barcodes.
+const DEMO_BARCODES = [
+  { label: 'Demo · halal product', value: '5901234123457' },
+  { label: 'Demo · doubtful product', value: '0123456789012' },
+];
+
+// Maps a YouCam-style halal verdict to a (color, copy-key) pair. Color paired with
+// label per the Score-Triplet Rule — color is never the only carrier of meaning.
+function verdictTone(
+  verdict: HalalVerdict,
+  themeColors: ReturnType<typeof useTheme>['colors'],
+): { color: string; bg: string; key: string } {
+  switch (verdict) {
+    case 'halal':
+      return { color: themeColors.success, bg: 'rgba(123, 168, 146, 0.12)', key: 'products.scan.verdictHalal' };
+    case 'haram':
+      return { color: themeColors.error, bg: 'rgba(199, 74, 96, 0.12)', key: 'products.scan.verdictHaram' };
+    case 'doubtful':
+      return { color: themeColors.warning, bg: 'rgba(217, 167, 106, 0.14)', key: 'products.scan.verdictDoubtful' };
+    default:
+      return { color: themeColors.inkSecondary, bg: themeColors.hairlineSoft, key: 'products.scan.verdictUnknown' };
+  }
+}
+
+export default function ScanProductScreen() {
+  const router = useRouter();
+  const { t } = useLanguage();
+  const [permission, requestPermission] = useCameraPermissions();
+  const [phase, setPhase] = useState<Phase>('scanning');
+  const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
+  const [product, setProduct] = useState<ProductLookupResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // The barcode scanner can fire many events per second. Once we've captured one and
+  // started the lookup, gate subsequent fires so we don't spam Open Food Facts.
+  const handlingRef = useRef(false);
+
+  const cameraReady = !!permission?.granted;
+  const permissionResolved = permission !== null;
+
+  const close = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/products');
+  }, [router]);
+
+  const handleBarcode = useCallback(
+    async ({ data }: { data: string }) => {
+      if (handlingRef.current) return;
+      if (phase !== 'scanning') return;
+      handlingRef.current = true;
+
+      setScannedBarcode(data);
+      setPhase('looking-up');
+
+      const result = await lookupProduct(data);
+
+      if (result.data) {
+        setProduct(result.data);
+        setPhase('result');
+      } else if (result.code === 'NOT_FOUND') {
+        setPhase('not-found');
+      } else {
+        setErrorMessage(result.error ?? null);
+        setPhase('error');
+      }
+    },
+    [phase],
+  );
+
+  const tryAgain = useCallback(() => {
+    handlingRef.current = false;
+    setProduct(null);
+    setScannedBarcode(null);
+    setErrorMessage(null);
+    setPhase('scanning');
+  }, []);
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.scanBg }}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.scanBg} />
+
+      <View style={{ flex: 1 }}>
+        {cameraReady ? (
+          <CameraView
+            style={StyleSheet.absoluteFillObject}
+            facing={DEFAULT_FACING}
+            onBarcodeScanned={phase === 'scanning' ? handleBarcode : undefined}
+            barcodeScannerSettings={{ barcodeTypes: SUPPORTED_BARCODES }}
+          />
+        ) : (
+          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.scanBg }]} />
+        )}
+
+        {/* Warm Deep-Mauve tinted overlay, matching the face Scan tab. */}
+        <View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(45, 27, 46, 0.45)' }]}
+        />
+
+        {/* Close button — top-right, 44pt touch target, matches face Scan tab. */}
+        <Pressable
+          onPress={close}
+          accessibilityRole="button"
+          accessibilityLabel={t('products.scan.closeA11y')}
+          hitSlop={8}
+          style={({ pressed }) => ({
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 30,
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 22,
+            backgroundColor: pressed ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
+          })}
+        >
+          <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '300' }}>×</Text>
+        </Pressable>
+
+        {/* Barcode guide frame + eyebrow + body, centered. Matches the face-scan
+            language: tracked-uppercase eyebrow above, serif headline below, body small.
+            Below the guide: demo-barcode buttons so the lookup flow can be exercised
+            without a physical product in frame (essential on a laptop webcam pointed at
+            your face). Real users with a real barcode will get a hit before tapping. */}
+        {phase === 'scanning' && cameraReady ? (
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 32,
+            }}
+          >
+            <BarcodeGuide />
+            <Text
+              style={{
+                marginTop: 28,
+                color: '#FFFFFF',
+                opacity: 0.7,
+                fontSize: 12,
+                fontWeight: '500',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('products.scan.aimEyebrow')}
+            </Text>
+            <Text className="mt-2 text-center text-[14px] leading-[22px] text-white opacity-80">
+              {t('products.scan.aimBody')}
+            </Text>
+
+            <View
+              style={{
+                marginTop: 28,
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              {DEMO_BARCODES.map((demo) => (
+                <Pressable
+                  key={demo.value}
+                  onPress={() => handleBarcode({ data: demo.value })}
+                  accessibilityRole="button"
+                  style={({ pressed }) => ({
+                    marginHorizontal: 4,
+                    marginVertical: 4,
+                    paddingHorizontal: 14,
+                    paddingVertical: 8,
+                    borderRadius: 999,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.45)',
+                    backgroundColor: pressed
+                      ? 'rgba(255,255,255,0.18)'
+                      : 'rgba(255,255,255,0.08)',
+                  })}
+                >
+                  <Text
+                    style={{
+                      color: '#FFFFFF',
+                      fontSize: 12,
+                      fontWeight: '500',
+                      letterSpacing: 0.3,
+                    }}
+                  >
+                    {demo.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {/* Permission denied — same warm pattern as the face Scan permission card. */}
+        {permissionResolved && !cameraReady ? (
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 32,
+            }}
+          >
+            <Text
+              style={{
+                color: '#FFFFFF',
+                opacity: 0.7,
+                fontSize: 12,
+                fontWeight: '500',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('scan.permission.eyebrow')}
+            </Text>
+            <Text
+              className="mt-2 mb-3 text-center text-white"
+              style={{
+                fontFamily: 'DMSerifDisplay-Regular',
+                fontSize: 24,
+                lineHeight: 30,
+                letterSpacing: -0.1,
+              }}
+            >
+              {t('scan.permission.title')}
+            </Text>
+            <Text className="mb-5 text-center text-[14px] leading-[22px] text-white opacity-80">
+              {t('scan.permission.body')}
+            </Text>
+            <Pressable
+              onPress={() => void requestPermission()}
+              style={({ pressed }) => ({
+                paddingHorizontal: 24,
+                paddingVertical: 12,
+                borderRadius: 14,
+                backgroundColor: pressed ? '#D4547A' : colors.brandRose,
+              })}
+            >
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '600', letterSpacing: 0.4 }}>
+                {t('scan.permission.allow')}
+              </Text>
+            </Pressable>
+
+            {/* Demo buttons mirror those shown once the camera is granted — let users
+              poke the lookup flow without granting camera (useful on a laptop where
+              barcode detection is awkward). */}
+            <View
+              style={{
+                marginTop: 32,
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              {DEMO_BARCODES.map((demo) => (
+                <Pressable
+                  key={demo.value}
+                  onPress={() => handleBarcode({ data: demo.value })}
+                  accessibilityRole="button"
+                  style={({ pressed }) => ({
+                    marginHorizontal: 4,
+                    marginVertical: 4,
+                    paddingHorizontal: 14,
+                    paddingVertical: 8,
+                    borderRadius: 999,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.45)',
+                    backgroundColor: pressed
+                      ? 'rgba(255,255,255,0.18)'
+                      : 'rgba(255,255,255,0.08)',
+                  })}
+                >
+                  <Text
+                    style={{
+                      color: '#FFFFFF',
+                      fontSize: 12,
+                      fontWeight: '500',
+                      letterSpacing: 0.3,
+                    }}
+                  >
+                    {demo.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {/* Looking-up — small spinner over the live camera preview. */}
+        {phase === 'looking-up' ? (
+          <View
+            style={{
+              position: 'absolute',
+              left: 24,
+              right: 24,
+              bottom: 56,
+              alignItems: 'center',
+            }}
+          >
+            <ActivityIndicator color="#FFFFFF" />
+            <Text
+              style={{
+                marginTop: 12,
+                color: '#FFFFFF',
+                opacity: 0.8,
+                fontSize: 12,
+                fontWeight: '500',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('products.scan.lookingUp')}
+            </Text>
+            {scannedBarcode ? (
+              <Text className="mt-1 text-[13px] text-white opacity-60">{scannedBarcode}</Text>
+            ) : null}
+          </View>
+        ) : null}
+
+        {/* Result bottom sheet (success). */}
+        {phase === 'result' && product ? (
+          <ResultSheet product={product} onTryAnother={tryAgain} onClose={close} />
+        ) : null}
+
+        {/* Result bottom sheet (not found). */}
+        {phase === 'not-found' ? (
+          <NotFoundSheet barcode={scannedBarcode} onTryAnother={tryAgain} onClose={close} />
+        ) : null}
+
+        {/* Result bottom sheet (lookup error). */}
+        {phase === 'error' ? (
+          <ErrorSheet message={errorMessage} onTryAnother={tryAgain} onClose={close} />
+        ) : null}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+// Rounded-rectangle barcode guide. Wider than tall to match a real barcode's aspect.
+// Brand-Rose border, with two short serif tick marks on the long sides to suggest the
+// scan line. Quieter than animated overlays; intentionally still.
+function BarcodeGuide() {
+  return (
+    <View
+      style={{
+        width: 280,
+        height: 140,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: colors.brandRose,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <View
+        style={{
+          width: 240,
+          height: 1,
+          backgroundColor: 'rgba(212, 160, 167, 0.6)',
+        }}
+      />
+    </View>
+  );
+}
+
+// Shared sheet base — Soft-Blush surface, rounded-top, generous padding. Used by all
+// three result states (found / not-found / error) for visual consistency.
+function SheetBase({ children }: { children: React.ReactNode }) {
+  const { colors: themeColors } = useTheme();
+
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: themeColors.surface,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 32,
+      }}
+    >
+      <View
+        style={{
+          alignSelf: 'center',
+          height: 4,
+          width: 36,
+          borderRadius: 2,
+          backgroundColor: themeColors.hairline,
+          marginBottom: 16,
+        }}
+      />
+      {children}
+    </View>
+  );
+}
+
+function ResultSheet({
+  product,
+  onTryAnother,
+  onClose,
+}: {
+  product: ProductLookupResult;
+  onTryAnother: () => void;
+  onClose: () => void;
+}) {
+  const { t, lang } = useLanguage();
+  const { profile } = useProfile();
+  const { colors: themeColors } = useTheme();
+  const tone = verdictTone(product.halal_verdict, themeColors);
+
+  // Personalize against the signed-in user's skin_type + concerns. The matcher returns
+  // empty arrays when there's no profile (mock-auth dev) or when no ingredient matched
+  // either direction — in that case the sections are simply hidden.
+  const personalization = personalizeIngredients(product.ingredients, profile);
+  const hasPersonalization =
+    personalization.recommended.length > 0 || personalization.avoid.length > 0;
+  // Profile completion check — used to surface a quiet onboarding nudge when the lookup
+  // is otherwise empty (no halal flags AND no personalization possible because the
+  // profile is sparse). We don't show this when there are flags or matches, since the
+  // user is already getting value from the sheet.
+  const profileIncomplete =
+    !profile ||
+    (!profile.skin_type && (!profile.concerns || profile.concerns.length === 0));
+
+  return (
+    <SheetBase>
+      <View className="flex-row items-start justify-between">
+        <View className="flex-1 pr-3">
+          {product.brand ? (
+            <Text
+              style={{
+              color: themeColors.brandRose,
+                fontSize: 11,
+                fontWeight: '600',
+                letterSpacing: 1.6,
+                textTransform: 'uppercase',
+              }}
+            >
+              {product.brand}
+            </Text>
+          ) : null}
+          <Text
+            className="mt-1 text-deepMauve"
+            style={{
+              fontFamily: 'DMSerifDisplay-Regular',
+              fontSize: 22,
+              lineHeight: 28,
+              letterSpacing: -0.1,
+            }}
+          >
+            {product.name ?? product.barcode}
+          </Text>
+        </View>
+
+        <View className="rounded-full px-2.5 py-1.5" style={{ backgroundColor: tone.bg }}>
+          <Text
+            style={{ color: tone.color, fontSize: 11, fontWeight: '600', letterSpacing: 0.6 }}
+          >
+            {t(tone.key)}
+          </Text>
+        </View>
+      </View>
+
+      {product.flagged_ingredients.length > 0 ? (
+        <View className="mt-4">
+          <Text
+            style={{
+              color: themeColors.inkSecondary,
+              fontSize: 11,
+              fontWeight: '600',
+              letterSpacing: 1.6,
+              textTransform: 'uppercase',
+            }}
+          >
+            {t('products.scan.flaggedHeader')}
+          </Text>
+          <View className="mt-2 flex-row flex-wrap">
+            {product.flagged_ingredients.map((flag) => (
+              <View
+                key={flag}
+                className="mr-2 mt-2 rounded-full px-2.5 py-1"
+                style={{ backgroundColor: tone.bg }}
+              >
+                <Text
+                  style={{ color: tone.color, fontSize: 12, fontWeight: '500' }}
+                >
+                  {flag}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      {product.ingredients.length === 0 ? (
+        <Text className="mt-4 text-[13px] leading-5 text-darkGray">
+          {t('products.scan.noIngredients')}
+        </Text>
+      ) : null}
+
+      {personalization.recommended.length > 0 ? (
+        <PersonalizedSection
+          tone="good"
+          header={t('products.scan.recommendedHeader')}
+          matches={personalization.recommended}
+          lang={lang}
+        />
+      ) : null}
+
+      {personalization.avoid.length > 0 ? (
+        <PersonalizedSection
+          tone="watch"
+          header={t('products.scan.avoidHeader')}
+          matches={personalization.avoid}
+          lang={lang}
+        />
+      ) : null}
+
+      {/* Nudge — only shown when there's nothing else useful on the sheet. Prevents the
+          result from feeling empty when both the halal rules and personalization came up
+          dry. Quiet copy, no CTA — onboarding is reachable from Profile if they want. */}
+      {!hasPersonalization &&
+      product.flagged_ingredients.length === 0 &&
+      product.ingredients.length > 0 ? (
+        <Text className="mt-5 text-[13px] leading-5 text-darkGray">
+          {profileIncomplete
+            ? t('products.scan.noPersonalization')
+            : t('products.scan.noMatches')}
+        </Text>
+      ) : null}
+
+      <View className="mt-6 flex-row">
+        <Pressable
+          onPress={onTryAnother}
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 48,
+            borderRadius: 14,
+            backgroundColor: pressed ? '#D4547A' : colors.brandRose,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 8,
+          })}
+        >
+          <Text style={{ color: themeColors.inkOnAccent, fontWeight: '600', fontSize: 15 }}>
+            {t('products.scan.tryAnother')}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={onClose}
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 48,
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: themeColors.brandRose,
+            backgroundColor: pressed ? themeColors.accent : 'transparent',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: 8,
+          })}
+        >
+          <Text style={{ color: themeColors.brandRose, fontWeight: '600', fontSize: 15 }}>
+            {t('scan.done')}
+          </Text>
+        </Pressable>
+      </View>
+    </SheetBase>
+  );
+}
+
+// PersonalizedSection — renders one of the two new lists on the result sheet. Direct,
+// clinical voice per the design brief: tracked-uppercase header, then one row per
+// matched ingredient with a quiet marker (✓ or !) + ingredient name + reason + a
+// micro-line saying which of the user's concerns/skin type this ties to.
+function PersonalizedSection({
+  tone,
+  header,
+  matches,
+  lang,
+}: {
+  tone: 'good' | 'watch';
+  header: string;
+  matches: PersonalizedMatch[];
+  lang: 'en' | 'ar';
+}) {
+  const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
+  const accent = tone === 'good' ? themeColors.success : themeColors.warning;
+  const marker = tone === 'good' ? '✓' : '!';
+
+  return (
+    <View className="mt-5">
+      <Text
+        style={{
+          color: accent,
+          fontSize: 11,
+          fontWeight: '600',
+          letterSpacing: 1.6,
+          textTransform: 'uppercase',
+        }}
+      >
+        {header}
+      </Text>
+      <View className="mt-2">
+        {matches.map((m) => {
+          const reason = lang === 'ar' ? m.reason_ar : m.reason_en;
+          const tieIn = buildTieInLabel(m, t);
+          return (
+            <View
+              key={m.name}
+              className="flex-row"
+              style={{ marginTop: 10, alignItems: 'flex-start' }}
+            >
+              <View
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 11,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor:
+                    tone === 'good'
+                      ? 'rgba(123, 168, 146, 0.16)'
+                      : 'rgba(217, 167, 106, 0.18)',
+                  marginRight: 10,
+                  marginTop: 1,
+                }}
+              >
+                <Text style={{ color: accent, fontSize: 12, fontWeight: '700' }}>
+                  {marker}
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Text style={{ color: themeColors.ink, fontSize: 14, fontWeight: '600' }}>
+                  {m.name}
+                </Text>
+                <Text
+                  className="mt-0.5"
+                  style={{ color: themeColors.inkSecondary, fontSize: 13, lineHeight: 18 }}
+                >
+                  {reason}
+                </Text>
+                {tieIn ? (
+                  <Text
+                    className="mt-0.5"
+                    style={{
+                      color: themeColors.ink,
+                      opacity: 0.55,
+                      fontSize: 11,
+                      fontWeight: '500',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    {tieIn}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+// "for acne", "for acne and dryness", or "for your oily skin" — picked by which slots
+// the matcher populated. Concerns beat skin type since they're the higher-signal match.
+function buildTieInLabel(
+  m: PersonalizedMatch,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+): string | null {
+  if (m.matchedConcerns.length >= 2) {
+    const a = t(`products.scan.concernLabels.${m.matchedConcerns[0]}`);
+    const b = t(`products.scan.concernLabels.${m.matchedConcerns[1]}`);
+    return t('products.scan.forConcerns', { a, b });
+  }
+  if (m.matchedConcerns.length === 1) {
+    const concern = t(`products.scan.concernLabels.${m.matchedConcerns[0]}`);
+    return t('products.scan.forConcern', { concern });
+  }
+  if (m.matchedSkinType) {
+    const skin = t(`products.scan.skinLabels.${m.matchedSkinType}`);
+    return t('products.scan.forSkin', { skin });
+  }
+  return null;
+}
+
+function NotFoundSheet({
+  barcode,
+  onTryAnother,
+  onClose,
+}: {
+  barcode: string | null;
+  onTryAnother: () => void;
+  onClose: () => void;
+}) {
+  const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
+  return (
+    <SheetBase>
+      <Text
+        style={{
+          color: themeColors.ink,
+          opacity: 0.6,
+          fontSize: 11,
+          fontWeight: '600',
+          letterSpacing: 1.6,
+          textTransform: 'uppercase',
+        }}
+      >
+        {t('products.scan.notFoundEyebrow')}
+      </Text>
+      <Text
+        className="mt-2 text-deepMauve"
+        style={{
+          fontFamily: 'DMSerifDisplay-Regular',
+          fontSize: 22,
+          lineHeight: 28,
+          letterSpacing: -0.1,
+        }}
+      >
+        {t('products.scan.notFoundTitle')}
+      </Text>
+      <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
+        {t('products.scan.notFoundBody')}
+      </Text>
+      {barcode ? (
+        <Text
+          className="mt-3 text-darkGray"
+          style={{
+            fontSize: 12,
+            fontWeight: '600',
+            letterSpacing: 1.4,
+            textTransform: 'uppercase',
+          }}
+        >
+          {barcode}
+        </Text>
+      ) : null}
+
+      <View className="mt-6 flex-row">
+        <Pressable
+          onPress={onTryAnother}
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 48,
+            borderRadius: 14,
+            backgroundColor: pressed ? '#D4547A' : colors.brandRose,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 8,
+          })}
+        >
+          <Text style={{ color: themeColors.inkOnAccent, fontWeight: '600', fontSize: 15 }}>
+            {t('products.scan.tryAnother')}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={onClose}
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 48,
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: themeColors.brandRose,
+            backgroundColor: pressed ? themeColors.accent : 'transparent',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: 8,
+          })}
+        >
+          <Text style={{ color: themeColors.brandRose, fontWeight: '600', fontSize: 15 }}>
+            {t('scan.done')}
+          </Text>
+        </Pressable>
+      </View>
+    </SheetBase>
+  );
+}
+
+function ErrorSheet({
+  message,
+  onTryAnother,
+  onClose,
+}: {
+  message: string | null;
+  onTryAnother: () => void;
+  onClose: () => void;
+}) {
+  const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
+  return (
+    <SheetBase>
+      <Text
+        style={{
+          color: themeColors.error,
+          fontSize: 11,
+          fontWeight: '600',
+          letterSpacing: 1.6,
+          textTransform: 'uppercase',
+        }}
+      >
+        {t('products.scan.errorTitle')}
+      </Text>
+      {message ? (
+        <Text className="mt-3 text-[14px] leading-[22px] text-darkGray">{message}</Text>
+      ) : null}
+
+      <View className="mt-6 flex-row">
+        <Pressable
+          onPress={onTryAnother}
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 48,
+            borderRadius: 14,
+            backgroundColor: pressed ? '#D4547A' : colors.brandRose,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 8,
+          })}
+        >
+          <Text style={{ color: themeColors.inkOnAccent, fontWeight: '600', fontSize: 15 }}>
+            {t('products.scan.tryAnother')}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={onClose}
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 48,
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: themeColors.brandRose,
+            backgroundColor: pressed ? themeColors.accent : 'transparent',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: 8,
+          })}
+        >
+          <Text style={{ color: themeColors.brandRose, fontWeight: '600', fontSize: 15 }}>
+            {t('scan.done')}
+          </Text>
+        </Pressable>
+      </View>
+    </SheetBase>
+  );
+}
+
+
+--- File: app/(tabs)/scan.tsx ---
+import { useCallback, useRef, useState } from 'react';
+import { Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { CameraView, useCameraPermissions, type CameraView as CameraViewType } from 'expo-camera';
+
+import { FaceGuide } from '../../components/scan/FaceGuide';
+import { Countdown } from '../../components/scan/Countdown';
+import { ScoreCard } from '../../components/ui/ScoreCard';
+import { Button } from '../../components/ui/Button';
+import {
+  analyzeSkin,
+  bandFromScore,
+  type ScanResult,
+} from '../../services/scanService';
+import { colors } from '../../constants/colors';
+import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
+
+type Phase = 'idle' | 'counting' | 'analyzing' | 'result' | 'error';
+
+function completeScore(scan: ScanResult): number | null {
+  return scan.status === 'complete' && scan.overall_score !== null ? scan.overall_score : null;
+}
+
+export default function ScanScreen() {
+  const router = useRouter();
+  const { t } = useLanguage();
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [scan, setScan] = useState<ScanResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraViewType | null>(null);
+
+  const startCountdown = useCallback(() => {
+    setErrorMessage(null);
+    setScan(null);
+    setPhase('counting');
+  }, []);
+
+  const onCountdownComplete = useCallback(async () => {
+    setPhase('analyzing');
+    try {
+      // Capture the current frame from the live camera and base64-encode it. quality:0.6
+      // keeps the payload under ~300 KB so the edge function isn't oversized.
+      const photo = await cameraRef.current?.takePictureAsync({
+        base64: true,
+        quality: 0.6,
+        skipProcessing: true,
+      });
+      const base64 = photo?.base64;
+      if (!base64) {
+        throw new Error(t('scan.errorFallback'));
+      }
+      const result = await analyzeSkin(base64);
+      setScan(result);
+      // Live scans return a 'pending' row from the async kick-off — there are no scores
+      // yet, so show the in-progress UI on Home instead of the ResultSheet here.
+      if (result.status === 'pending') {
+        router.replace('/(tabs)');
+      } else {
+        setPhase('result');
+      }
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : t('scan.errorFallback'));
+      setPhase('error');
+    }
+  }, [router, t]);
+
+  const close = useCallback(() => {
+    router.replace('/(tabs)');
+  }, [router]);
+
+  const reassurance = (s: ScanResult) => {
+    const score = completeScore(s);
+    if (score === null) return t('home.pending.title');
+
+    const band = bandFromScore(score);
+    if (band === 'green') return t('home.score.reassureGreen');
+    if (band === 'amber') return t('home.score.reassureAmber');
+    return t('home.score.reassureRed');
+  };
+
+  // Permission state branches:
+  //   undefined → hook still initialising; render the scaffold with a dim backdrop.
+  //   granted=false → ask the user; show an Allow button.
+  //   granted=true → render the live CameraView behind the face guide.
+  const permissionResolved = permission !== null;
+  const cameraReady = !!permission?.granted;
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.scanBg }}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.scanBg} />
+
+      <View style={{ flex: 1 }}>
+        {/* Live camera fills the entire scan area behind every overlay. */}
+        {cameraReady ? (
+          <CameraView
+            ref={cameraRef}
+            style={StyleSheet.absoluteFillObject}
+            facing="front"
+            mirror
+          />
+        ) : (
+          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.scanBg }]} />
+        )}
+
+        {/* Deep-Mauve-tinted overlay (warmer than pure black) keeps the camera readable
+            without flattening it. The brand hue makes the face glow against the backdrop
+            instead of being washed gray. */}
+        <View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(45, 27, 46, 0.35)' }]}
+        />
+
+        <Pressable
+          onPress={close}
+          accessibilityRole="button"
+          accessibilityLabel={t('scan.closeA11y')}
+          hitSlop={8}
+          style={({ pressed }) => ({
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 20,
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 22,
+            backgroundColor: pressed ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
+          })}
+        >
+          <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '300', lineHeight: 22 }}>×</Text>
+        </Pressable>
+
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          {phase !== 'result' ? (
+            <ScanCanvas phase={phase} onCountdownComplete={onCountdownComplete} />
+          ) : null}
+
+          {phase === 'idle' && cameraReady ? (
+            <View
+              style={{ position: 'absolute', bottom: 56, left: 24, right: 24, alignItems: 'center' }}
+            >
+              <Text className="mb-5 text-center text-[14px] leading-[22px] text-white opacity-80">
+                {t('scan.instructions')}
+              </Text>
+              <Button label={t('scan.start')} onPress={startCountdown} />
+            </View>
+          ) : null}
+
+          {phase === 'idle' && permissionResolved && !cameraReady ? (
+            <View
+              style={{
+                position: 'absolute',
+                bottom: 48,
+                left: 24,
+                right: 24,
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                className="text-white opacity-70"
+                style={{
+                  fontSize: 12,
+                  fontWeight: '500',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {t('scan.permission.eyebrow')}
+              </Text>
+              <Text
+                className="mt-2 mb-3 text-center text-white"
+                style={{
+                  fontFamily: 'DMSerifDisplay-Regular',
+                  fontSize: 24,
+                  lineHeight: 30,
+                  letterSpacing: -0.1,
+                }}
+              >
+                {t('scan.permission.title')}
+              </Text>
+              <Text className="mb-5 text-center text-[14px] leading-[22px] text-white opacity-80">
+                {t('scan.permission.body')}
+              </Text>
+              <Button
+                label={t('scan.permission.allow')}
+                onPress={() => {
+                  void requestPermission();
+                }}
+              />
+            </View>
+          ) : null}
+
+          {phase === 'analyzing' ? (
+            <Text
+              style={{
+                position: 'absolute',
+                bottom: 88,
+                alignSelf: 'center',
+                color: '#FFFFFF',
+                opacity: 0.7,
+                fontSize: 12,
+                fontWeight: '500',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('scan.analyzing')}
+            </Text>
+          ) : null}
+
+          {phase === 'error' ? (
+            <View
+              style={{ position: 'absolute', bottom: 56, left: 24, right: 24, alignItems: 'center' }}
+            >
+              <Text className="mb-4 text-center text-[14px] leading-[22px] text-white opacity-85">
+                {errorMessage ?? t('scan.errorFallback')}
+              </Text>
+              <Button label={t('common.tryAgain')} onPress={startCountdown} />
+            </View>
+          ) : null}
+        </View>
+
+        {phase === 'result' && scan ? (
+          <ResultSheet scan={scan} reassurance={reassurance(scan)} onDone={close} />
+        ) : null}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function ScanCanvas({
+  phase,
+  onCountdownComplete,
+}: {
+  phase: Phase;
+  onCountdownComplete: () => void;
+}) {
+  const { t } = useLanguage();
+
+  return (
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      {phase === 'idle' ? (
+        <Text
+          style={{
+            position: 'absolute',
+            top: -56,
+            alignSelf: 'center',
+            color: '#FFFFFF',
+            opacity: 0.7,
+            fontSize: 12,
+            fontWeight: '500',
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+          }}
+        >
+          {t('scan.holdStill')}
+        </Text>
+      ) : null}
+
+      <FaceGuide pulsing={phase === 'analyzing'} />
+
+      {phase === 'counting' ? (
+        <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>
+          <Countdown from={3} onComplete={onCountdownComplete} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function ResultSheet({
+  scan,
+  reassurance,
+  onDone,
+}: {
+  scan: ScanResult;
+  reassurance: string;
+  onDone: () => void;
+}) {
+  const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
+  const score = completeScore(scan);
+
+  if (score === null) return null;
+
+  const band = bandFromScore(score);
+  const label =
+    band === 'green'
+      ? t('home.score.categoryGreen')
+      : band === 'amber'
+      ? t('home.score.categoryAmber')
+      : t('home.score.categoryRed');
+
+  const flagLabels = scan.gcc_flags.map((f) => t(`home.flags.${f}`));
+
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: themeColors.surface,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 20,
+        paddingBottom: 32,
+      }}
+    >
+      <View
+        style={{
+          alignSelf: 'center',
+          height: 4,
+          width: 36,
+          borderRadius: 2,
+          backgroundColor: themeColors.hairline,
+          marginBottom: 16,
+        }}
+      />
+
+      <Text className="text-[12px] font-medium uppercase tracking-[2px] text-darkGray">
+        {t('scan.yourReading')}
+      </Text>
+      <Text
+        className="mt-1 mb-4 text-deepMauve"
+        style={{
+          fontFamily: 'DMSerifDisplay-Regular',
+          fontSize: 24,
+          fontWeight: '400',
+          lineHeight: 30,
+        }}
+      >
+        {reassurance}
+      </Text>
+
+      <ScoreCard
+        score={score}
+        band={band}
+        label={label}
+        reassurance={reassurance}
+        flags={flagLabels}
+      />
+
+      <View style={{ marginTop: 16 }}>
+        <Button label={t('scan.done')} onPress={onDone} />
+      </View>
+    </View>
+  );
+}
+
+
+--- File: components/auth/GoogleButton.tsx ---
+import { Pressable, Text, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+import { useTheme } from '../../hooks/useTheme';
+
+type GoogleButtonProps = {
+  onPress: () => void;
+  loading?: boolean;
+};
+
+// Official Google "G" mark, rendered with react-native-svg so the result is identical
+// on web and native — no <img> data-URI tricks, no flex-stretch artifacts. Path data
+// is the canonical Material-style four-color G from Google's brand assets.
+function GoogleG({ size = 18 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        fill="#FFC107"
+        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+      />
+      <Path
+        fill="#FF3D00"
+        d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+      />
+      <Path
+        fill="#4CAF50"
+        d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+      />
+      <Path
+        fill="#1976D2"
+        d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+      />
+    </Svg>
+  );
+}
+
+// "Continue with Google" CTA. Hairline-bordered white pill that matches the sign-in
+// surface treatment elsewhere — no shadow, no fill change on press beyond a quiet
+// opacity tick.
+export function GoogleButton({ onPress, loading = false }: GoogleButtonProps) {
+  const { colors } = useTheme();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={loading}
+      accessibilityRole="button"
+      accessibilityLabel="Continue with Google"
+    >
+      {({ pressed }) => (
+        <View
+          style={{
+            height: 52,
+            width: '100%',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: colors.hairline,
+            backgroundColor: colors.surfaceElevated,
+            paddingHorizontal: 24,
+            opacity: loading ? 0.6 : pressed ? 0.92 : 1,
+          }}
+        >
+          <View style={{ marginRight: 12 }}>
+            <GoogleG size={18} />
+          </View>
+          <Text style={{ color: colors.ink, fontSize: 16, fontWeight: '500' }}>
+            {loading ? 'Opening Google…' : 'Continue with Google'}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+
+--- File: components/ui/Button.tsx ---
+import { ActivityIndicator, Pressable, Text, View, type PressableProps } from 'react-native';
+import { type ReactNode } from 'react';
+import { useTheme } from '../../hooks/useTheme';
+
+type Variant = 'primary' | 'secondary' | 'ghost';
+
+type ButtonProps = Omit<PressableProps, 'children'> & {
+  label: string;
+  variant?: Variant;
+  loading?: boolean;
+  fullWidth?: boolean;
+  trailing?: ReactNode;
+};
+
+const VARIANT = {
+  primary: {
+    rest: 'bg-brandRose',
+    pressed: 'bg-dustyPink',
+    label: 'text-white',
+    spinner: '#FFFFFF',
+  },
+  secondary: {
+    rest: 'bg-softBlush',
+    pressed: 'bg-softLavender',
+    label: 'text-deepMauve',
+    spinner: '#2D1B2E',
+  },
+  ghost: {
+    rest: 'bg-transparent',
+    pressed: 'bg-softLavender',
+    label: 'text-deepMauve',
+    spinner: '#2D1B2E',
+  },
+} as const;
+
+// Primary call-to-action surface. Sized to DESIGN.md button-primary token: 52px tall, 12px radius,
+// 17px Body Large label. The One-Voice Rule keeps brandRose on primary only.
+export function Button({
+  label,
+  variant = 'primary',
+  loading = false,
+  disabled = false,
+  fullWidth = true,
+  trailing,
+  ...rest
+}: ButtonProps) {
+  const { colors } = useTheme();
+  const inactive = disabled || loading;
+  const v = VARIANT[variant];
+  const spinnerColor = variant === 'primary' ? v.spinner : colors.ink;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: inactive, busy: loading }}
+      disabled={inactive}
+      {...rest}
+    >
+      {({ pressed }) => {
+        const bg = inactive ? 'bg-lightGray' : pressed ? v.pressed : v.rest;
+        const labelColor = inactive ? 'text-darkGray' : v.label;
+        const width = fullWidth ? 'w-full' : 'self-start';
+        return (
+          <View
+            className={`h-[52px] flex-row items-center justify-center rounded-xl px-6 ${bg} ${width}`}
+          >
+            {loading ? (
+              <ActivityIndicator color={spinnerColor} />
+            ) : (
+              <>
+                <Text className={`text-[17px] font-medium ${labelColor}`}>{label}</Text>
+                {trailing ? <View className="ml-2">{trailing}</View> : null}
+              </>
+            )}
+          </View>
+        );
+      }}
+    </Pressable>
+  );
+}
+
+
+--- File: components/ui/TextField.tsx ---
+import { useState, type ReactNode } from 'react';
+import { Text, TextInput, View, type TextInputProps } from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
+
+type TextFieldProps = Omit<TextInputProps, 'style'> & {
+  label: string;
+  error?: string | null;
+  leading?: ReactNode;
+};
+
+// Form input per DESIGN.md input token: white fill, 12px radius, 52px tall, mauve text.
+// Border shifts to brand-rose on focus, garnet on error. Label sits above in 13px Slate.
+export function TextField({ label, error, leading, onFocus, onBlur, ...rest }: TextFieldProps) {
+  const [focused, setFocused] = useState(false);
+  const { colors } = useTheme();
+
+  const borderClass = error
+    ? 'border-error'
+    : focused
+    ? 'border-brandRose'
+    : 'border-lightGray';
+  const borderWidth = focused || error ? 1.5 : 1;
+
+  return (
+    <View>
+      <Text className="mb-1.5 text-[13px] font-medium tracking-wide text-darkGray">
+        {label}
+      </Text>
+      <View
+        className={`flex-row items-center rounded-xl bg-white px-4 ${borderClass}`}
+        style={{ borderWidth, height: 52 }}
+      >
+        {leading ? <View className="mr-2">{leading}</View> : null}
+        <TextInput
+          className="flex-1 text-[17px] text-deepMauve"
+          placeholderTextColor={colors.inkMuted}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
+          {...rest}
+        />
+      </View>
+      {error ? (
+        <Text className="mt-1.5 text-[13px] text-error">{error}</Text>
+      ) : null}
+    </View>
+  );
+}
+
+
+--- File: constants/locales.ts ---
+// All user-facing strings for the post-auth surface. Pre-auth flows (login, signup,
+// onboarding) are seen once per lifetime and currently retain their bilingual stacked
+// copy; they migrate here when next touched. Keep en and ar shape-identical so t()
+// never returns a missing key.
+
+export type Lang = 'en' | 'ar';
+
+const en = {
+  tabs: {
+    home: 'Home',
+    scan: 'Scan',
+    products: 'Products',
+    profile: 'Profile',
+  },
+  common: {
+    back: 'Back',
+    done: 'Done',
+    tryAgain: 'Try again',
+    cancel: 'Cancel',
+  },
+  home: {
+    greeting: {
+      morning: 'Good morning',
+      afternoon: 'Good afternoon',
+      evening: 'Good evening',
+      night: 'Still up',
+    },
+    cta: {
+      firstScan: 'Start your first scan',
+      scanNow: 'Scan now',
+      scanAgain: 'Scan again',
+      staleHint: "It's been a while. Quick check?",
+    },
+    score: {
+      categoryGreen: 'Overall, looking good',
+      categoryAmber: 'Overall, keep an eye out',
+      categoryRed: 'Overall, take it easy',
+      reassureGreen: 'Your skin is doing well today.',
+      reassureAmber: 'A few things to watch. Nothing urgent.',
+      reassureRed: "Let's take it gentle today.",
+      lastScanFmt: 'Last scan {days} days ago',
+      loadingLabel: 'Loading your latest scan',
+    },
+    firstScan: {
+      eyebrow: 'First step',
+      title: "Let's read your skin.",
+      body: 'A quick scan tells us where you are today. Everything we suggest after this is built on what we find.',
+      cta: 'Start your first scan',
+    },
+    pending: {
+      eyebrow: 'Reading your skin',
+      title: "We're taking a careful look.",
+      body: 'This usually takes thirty to ninety seconds. Your reading lands here automatically, no need to wait on this screen.',
+    },
+    failed: {
+      eyebrow: "Let's try once more",
+      title: "We couldn't read that scan.",
+      retake: 'Retake scan',
+      hintFaceTooSmall: 'Hold the camera closer so your face fills the pink oval. Eyes, nose, and mouth all inside.',
+      hintLowLight: 'Find softer, front-facing light. Avoid backlight and direct overhead glare.',
+      hintFallback: 'A fresh scan with steady light and a centered face usually does it.',
+    },
+    tip: {
+      eyebrow: "Today's tip",
+    },
+    error: {
+      title: "Can't reach your data right now.",
+      retry: 'Pull down to retry',
+    },
+    routinePreview: {
+      eyebrowAm: 'Today, AM',
+      eyebrowPm: 'Today, PM',
+      stepsSuffixFmt: '{count} steps →',
+      unlockPm: 'Unlock PM with Premium',
+      stepCleanse: 'Cleanse',
+      stepTreat: 'Treat',
+      stepProtect: 'Protect',
+      ingredientCleanse: 'Gentle gel cleanser',
+      ingredientTreat: 'Niacinamide 5%',
+      ingredientProtect: 'SPF 50 mineral filter',
+    },
+    climate: {
+      uvShort: 'UV',
+      humiditySuffix: 'humidity',
+      uvLabel: { Low: 'Low', Moderate: 'Moderate', High: 'High', 'Very High': 'Very High', Extreme: 'Extreme' },
+      humidityLabel: { Dry: 'Dry', Moderate: 'Moderate', High: 'High', 'Very High': 'Very High' },
+      a11yFmt: "Today's climate. UV {uv}, humidity {humidity}.",
+    },
+    flags: {
+      high_uv: 'High UV',
+      humidity_warning: 'High humidity',
+      melasma_risk: 'Melasma watch',
+    },
+  },
+  scan: {
+    closeA11y: 'Close scan',
+    holdStill: 'Hold still',
+    instructions: 'Center your face in the oval. Soft front light works best.',
+    start: 'Start scan',
+    analyzing: 'Reading your skin',
+    errorFallback: 'Could not read your skin. Try again.',
+    yourReading: 'Your reading',
+    done: 'Done',
+    permission: {
+      eyebrow: 'One thing first',
+      title: "We'll need your camera.",
+      body: 'Just for the scan. The image stays on your device until you start.',
+      allow: 'Allow camera',
+    },
+  },
+  routine: {
+    titleAm: 'Your morning.',
+    titlePm: 'Your evening.',
+    intro: 'Three calm steps for GCC heat, sunscreen days, and steady skin.',
+    tabAm: 'AM',
+    tabPm: 'PM',
+    premiumChip: 'Premium',
+    tunedForFmt: 'Tuned for your {band} skin today.',
+    bandLabelGreen: 'green-band',
+    bandLabelAmber: 'amber-band',
+    bandLabelRed: 'red-band',
+    reassureGreen: 'Your skin looks steady today. Keep the routine calm and consistent.',
+    reassureAmber: 'A few things to watch. Stay gentle.',
+    reassureRed: "Let's take it easy today.",
+    streakFmt: '{count}-day streak',
+    streakSingular: '1-day streak',
+    streakNone: 'Start your streak today',
+    weekStrip: 'Past 7 days',
+    stepsToday: 'Steps today',
+    completedFmt: 'Completed: {done} of {total}',
+    premiumEyebrow: 'Premium PM routine',
+    premiumTitle: 'Evening care, tuned for repair.',
+    premiumBody: 'Unlock the evening routine for repair-focused PM care.',
+    back: 'Back to home',
+    loadingTitle: 'Preparing your routine',
+    loadingBody: 'A calm moment while we tune today.',
+    needsRefresh: 'Routine needs a refresh.',
+    retry: 'Try again',
+    stepSaveError: 'This step could not be saved. Please try again.',
+    progressLoadError: 'Saved routine progress could not be loaded. You can still use the routine.',
+    a11yStepFmt: '{title}, {state}',
+    a11yStateCompleted: 'completed',
+    a11yStateNotCompleted: 'not completed',
+    step: {
+      'am-cleanse': { title: 'Cleanse', body: 'Use a gentle low-foam cleanser, then pat dry without rubbing.', ingredient: 'Barrier-friendly surfactants' },
+      'am-treat': { title: 'Treat', body: 'Apply a light niacinamide serum to calm shine and support tone.', ingredient: 'Niacinamide' },
+      'am-protect': { title: 'Protect', body: 'Finish with SPF 50, especially before UAE midday sun.', ingredient: 'Broad spectrum SPF' },
+      'pm-cleanse': { title: 'Cleanse', body: 'Remove sunscreen fully with a soft cleanse before treatment.', ingredient: 'Gentle cleanser' },
+      'pm-treat': { title: 'Treat', body: 'Use a calm barrier serum on warm, humid nights.', ingredient: 'Panthenol' },
+      'pm-restore': { title: 'Restore', body: 'Seal with a light moisturizer that will not feel heavy.', ingredient: 'Ceramides' },
+    },
+  },
+  profile: {
+    title: 'Profile',
+    subtitle: 'Your skin record, settings, and subscription status in one calm place.',
+    memberFallback: 'Nourah member',
+    previewAccount: 'Preview account',
+    freePlan: 'Free plan',
+    premiumPlan: 'Premium',
+    statsTitle: 'Your skin record',
+    statScans: 'Scans',
+    statRoutineDays: 'Routine days',
+    statCheckedProducts: 'Checked products',
+    viewAllScans: 'View all scans',
+    history: {
+      title: 'Your scans',
+      subtitle: 'Every reading we have on file, newest first.',
+      emptyTitle: 'No scans yet.',
+      emptyBody: 'Take your first scan from Home to start building a record.',
+      pendingLabel: 'Reading…',
+      failedLabel: 'Could not read',
+      bandGreen: 'Looking good',
+      bandAmber: 'A few things to watch',
+      bandRed: 'Take it easy',
+    },
+    settingsTitle: 'Settings',
+    languageLabel: 'Language',
+    languageEnglish: 'English',
+    languageArabic: 'العربية',
+    restartHint: 'Restart the app to fully apply right-to-left layout.',
+    appearanceLabel: 'Appearance',
+    appearanceLight: 'Light',
+    appearanceDark: 'Dark',
+    appearanceSystem: 'System',
+    appearanceHint: 'System follows your device setting.',
+    dermEyebrow: 'Dermatologist-backed',
+    dermBody: 'Nourah is guided by quiet expertise from a licensed dermatologist in Dubai.',
+    signOut: 'Sign out',
+  },
+  products: {
+    title: 'Products',
+    intro: 'Soft recommendations first. Shopping links come later, after halal and irritant checks are ready.',
+    todayShelfEyebrow: "Today's shelf",
+    todayShelfTitle: 'Match products to your routine, not trends.',
+    todayShelfBody: 'Pick the step you need, then check the ingredient list before buying.',
+    calmShelf: 'Calm shelf',
+    catalog: {
+      cleanser: { name: 'Gentle Gel Cleanser', category: 'Cleanse', halal: 'Halal-friendly', reason: 'Low-foam texture for humid mornings and barrier comfort.' },
+      serum: { name: 'Niacinamide Serum', category: 'Treat', halal: 'Check fragrance', reason: 'Helps reduce shine while keeping the routine light.' },
+      sunscreen: { name: 'SPF 50 Fluid', category: 'Protect', halal: 'Halal-friendly', reason: 'A practical daily finish for UAE UV and pigmentation risk.' },
+    },
+    scan: {
+      cta: 'Scan a product',
+      ctaHint: 'Check the ingredient list before you buy.',
+      closeA11y: 'Close scanner',
+      aimEyebrow: 'Aim at the barcode',
+      aimBody: 'Hold steady. The frame turns rose when it finds one.',
+      lookingUp: 'Looking up',
+      notFoundEyebrow: 'No match yet',
+      notFoundTitle: "We couldn't find this product.",
+      notFoundBody: "It isn't in the open ingredients database we check. Try another, or scan it again with a clearer angle.",
+      tryAnother: 'Try another',
+      errorTitle: 'Something blocked the lookup.',
+      verdictHalal: 'Halal-friendly',
+      verdictDoubtful: 'Check ingredients',
+      verdictHaram: 'Not halal',
+      verdictUnknown: 'No flags',
+      flaggedHeader: 'Flagged for you',
+      recommendedHeader: 'Recommended for you',
+      avoidHeader: 'Avoid',
+      noPersonalization: 'Complete onboarding to see personalized notes.',
+      noMatches: 'Nothing in this product matches your profile, in either direction.',
+      forSkin: 'for your {skin} skin',
+      forConcern: 'for {concern}',
+      forConcerns: 'for {a} and {b}',
+      concernLabels: {
+        acne: 'acne',
+        pigmentation: 'pigmentation',
+        oily_skin: 'oiliness',
+        dryness: 'dryness',
+        damaged_barrier: 'a damaged barrier',
+        sun_damage: 'sun damage',
+        large_pores: 'large pores',
+        sensitivity: 'sensitivity',
+      },
+      skinLabels: {
+        oily: 'oily',
+        dry: 'dry',
+        combination: 'combination',
+        normal: 'normal',
+        sensitive: 'sensitive',
+      },
+      noIngredients: 'No ingredient list available.',
+    },
+  },
+} as const;
+
+type LocaleShape<T> = {
+  readonly [K in keyof T]: T[K] extends string ? string : LocaleShape<T[K]>;
+};
+
+type LocaleDictionary = LocaleShape<typeof en>;
+
+const ar: LocaleDictionary = {
+  tabs: {
+    home: 'الرئيسية',
+    scan: 'فحص',
+    products: 'المنتجات',
+    profile: 'الملف',
+  },
+  common: {
+    back: 'رجوع',
+    done: 'تم',
+    tryAgain: 'حاولي مرة أخرى',
+    cancel: 'إلغاء',
+  },
+  home: {
+    greeting: {
+      morning: 'صباح الخير',
+      afternoon: 'مساء جميل',
+      evening: 'مساء الخير',
+      night: 'لا تزالين مستيقظة',
+    },
+    cta: {
+      firstScan: 'ابدئي فحصك الأول',
+      scanNow: 'افحصي الآن',
+      scanAgain: 'افحصي مرة أخرى',
+      staleHint: 'مرّ وقت. فحص سريع؟',
+    },
+    score: {
+      categoryGreen: 'بشكل عام، تبدين بخير',
+      categoryAmber: 'بشكل عام، انتبهي قليلا',
+      categoryRed: 'بشكل عام، خذي يومك بهدوء',
+      reassureGreen: 'بشرتك بخير اليوم.',
+      reassureAmber: 'بعض الأمور تستدعي الانتباه. لا شيء عاجل.',
+      reassureRed: 'لنأخذ اليوم بلطف.',
+      lastScanFmt: 'آخر فحص قبل {days} يوم',
+      loadingLabel: 'جاري تحميل آخر فحص',
+    },
+    firstScan: {
+      eyebrow: 'الخطوة الأولى',
+      title: 'لنقرأ بشرتك.',
+      body: 'فحص سريع يخبرنا أين أنت اليوم. كل ما نقترحه بعد ذلك مبني على ما نجده.',
+      cta: 'ابدئي فحصك الأول',
+    },
+    pending: {
+      eyebrow: 'جاري قراءة بشرتك',
+      title: 'نحن ننظر بعناية.',
+      body: 'تستغرق العملية عادة بين ٣٠ و٩٠ ثانية. ستظهر القراءة هنا تلقائيا، لا حاجة للانتظار في هذه الشاشة.',
+    },
+    failed: {
+      eyebrow: 'لنحاول مرة أخرى',
+      title: 'لم نتمكن من قراءة الفحص.',
+      retake: 'أعيدي الفحص',
+      hintFaceTooSmall: 'قرّبي الكاميرا حتى يملأ وجهك البيضاوي الوردي. العينان والأنف والفم داخل الإطار.',
+      hintLowLight: 'اختاري ضوءا أماميا لطيفا. تجنّبي الإضاءة الخلفية والوهج المباشر من الأعلى.',
+      hintFallback: 'فحص جديد بإضاءة هادئة ووجه في المنتصف يحلّها عادة.',
+    },
+    tip: {
+      eyebrow: 'نصيحة اليوم',
+    },
+    error: {
+      title: 'لا يمكننا الوصول إلى بياناتك الآن.',
+      retry: 'اسحبي للأسفل للمحاولة',
+    },
+    routinePreview: {
+      eyebrowAm: 'اليوم، صباحا',
+      eyebrowPm: 'اليوم، مساء',
+      stepsSuffixFmt: '{count} خطوات ←',
+      unlockPm: 'افتحي روتين المساء مع Premium',
+      stepCleanse: 'تنظيف',
+      stepTreat: 'عناية',
+      stepProtect: 'حماية',
+      ingredientCleanse: 'منظف جل لطيف',
+      ingredientTreat: 'نياسيناميد ٥٪',
+      ingredientProtect: 'واقي شمس SPF 50 معدني',
+    },
+    climate: {
+      uvShort: 'الأشعة',
+      humiditySuffix: 'رطوبة',
+      uvLabel: { Low: 'منخفضة', Moderate: 'معتدلة', High: 'عالية', 'Very High': 'مرتفعة جدا', Extreme: 'قصوى' },
+      humidityLabel: { Dry: 'جافة', Moderate: 'معتدلة', High: 'عالية', 'Very High': 'مرتفعة جدا' },
+      a11yFmt: 'مناخ اليوم. الأشعة {uv}، الرطوبة {humidity}.',
+    },
+    flags: {
+      high_uv: 'أشعة قوية',
+      humidity_warning: 'رطوبة عالية',
+      melasma_risk: 'احتمال كلف',
+    },
+  },
+  scan: {
+    closeA11y: 'إغلاق الفحص',
+    holdStill: 'ابقي ثابتة',
+    instructions: 'ضعي وجهك داخل البيضاوي. الإضاءة الأمامية اللطيفة تعطي أفضل نتيجة.',
+    start: 'ابدئي الفحص',
+    analyzing: 'نقرأ بشرتك',
+    errorFallback: 'لم نتمكن من قراءة بشرتك. حاولي مرة أخرى.',
+    yourReading: 'قراءتك',
+    done: 'تم',
+    permission: {
+      eyebrow: 'شيء واحد قبل أن نبدأ',
+      title: 'سنحتاج إلى الكاميرا.',
+      body: 'فقط من أجل الفحص. الصورة تبقى على جهازك حتى تبدئي.',
+      allow: 'السماح بالكاميرا',
+    },
+  },
+  routine: {
+    titleAm: 'صباحك.',
+    titlePm: 'مساؤك.',
+    intro: 'ثلاث خطوات هادئة تناسب حرارة الخليج وأيام واقي الشمس.',
+    tabAm: 'صباح',
+    tabPm: 'مساء',
+    premiumChip: 'بريميوم',
+    tunedForFmt: 'مهيأ لبشرتك في {band} اليوم.',
+    bandLabelGreen: 'النطاق الأخضر',
+    bandLabelAmber: 'النطاق البرتقالي',
+    bandLabelRed: 'النطاق الأحمر',
+    reassureGreen: 'بشرتك تبدو مستقرة اليوم. حافظي على روتين هادئ وثابت.',
+    reassureAmber: 'بعض الأمور تستدعي الانتباه. ابقي لطيفة.',
+    reassureRed: 'لنأخذ اليوم بهدوء.',
+    streakFmt: 'سلسلة {count} أيام',
+    streakSingular: 'سلسلة يوم واحد',
+    streakNone: 'ابدئي سلسلتك اليوم',
+    weekStrip: 'آخر ٧ أيام',
+    stepsToday: 'خطوات اليوم',
+    completedFmt: 'أنجزت: {done} من {total}',
+    premiumEyebrow: 'روتين بريميوم المسائي',
+    premiumTitle: 'عناية مسائية مهيأة للترميم.',
+    premiumBody: 'افتحي روتين المساء لعناية ليلية تركز على الترميم.',
+    back: 'العودة للرئيسية',
+    loadingTitle: 'نجهز روتينك',
+    loadingBody: 'لحظة هادئة بينما نهيّئ يومك.',
+    needsRefresh: 'الروتين بحاجة إلى تحديث.',
+    retry: 'حاولي مرة أخرى',
+    stepSaveError: 'تعذر حفظ هذه الخطوة. حاولي مرة أخرى.',
+    progressLoadError: 'تعذر تحميل تقدمك المحفوظ. لا يزال بإمكانك متابعة الروتين.',
+    a11yStepFmt: '{title}، {state}',
+    a11yStateCompleted: 'مكتملة',
+    a11yStateNotCompleted: 'غير مكتملة',
+    step: {
+      'am-cleanse': { title: 'تنظيف', body: 'استخدمي منظفا لطيفا قليل الرغوة، ثم جففي البشرة بلطف.', ingredient: 'منظفات لطيفة على الحاجز' },
+      'am-treat': { title: 'عناية', body: 'ضعي سيروم نياسيناميد خفيفا لتهدئة اللمعان وتوحيد المظهر.', ingredient: 'نياسيناميد' },
+      'am-protect': { title: 'حماية', body: 'اختمي بواقي شمس SPF 50، خصوصا قبل شمس الظهيرة في الإمارات.', ingredient: 'حماية واسعة الطيف' },
+      'pm-cleanse': { title: 'تنظيف', body: 'أزيلي واقي الشمس بالكامل بتنظيف لطيف قبل خطوة العناية.', ingredient: 'منظف لطيف' },
+      'pm-treat': { title: 'عناية', body: 'استخدمي سيروم داعم للحاجز في الليالي الدافئة والرطبة.', ingredient: 'بانثينول' },
+      'pm-restore': { title: 'ترميم', body: 'اختمي بمرطب خفيف لا يترك شعورا ثقيلا.', ingredient: 'سيراميدات' },
+    },
+  },
+  profile: {
+    title: 'الملف الشخصي',
+    subtitle: 'سجل بشرتك، إعداداتك، واشتراكك في مكان هادئ واحد.',
+    memberFallback: 'عضوة في نورة',
+    previewAccount: 'حساب تجريبي',
+    freePlan: 'الخطة المجانية',
+    premiumPlan: 'بريميوم',
+    statsTitle: 'سجل بشرتك',
+    viewAllScans: 'عرض كل الفحوصات',
+    history: {
+      title: 'فحوصاتك',
+      subtitle: 'كل قراءة لدينا، الأحدث أولا.',
+      emptyTitle: 'لا توجد فحوصات بعد.',
+      emptyBody: 'ابدئي فحصك الأول من الرئيسية لتكوين سجل.',
+      pendingLabel: 'جاري القراءة…',
+      failedLabel: 'تعذرت القراءة',
+      bandGreen: 'تبدين بخير',
+      bandAmber: 'بعض الأمور للانتباه',
+      bandRed: 'خذي يومك بهدوء',
+    },
+    statScans: 'الفحوصات',
+    statRoutineDays: 'أيام الروتين',
+    statCheckedProducts: 'منتجات مفحوصة',
+    settingsTitle: 'الإعدادات',
+    languageLabel: 'اللغة',
+    languageEnglish: 'English',
+    languageArabic: 'العربية',
+    restartHint: 'أعيدي تشغيل التطبيق لتفعيل الاتجاه من اليمين إلى اليسار بالكامل.',
+    appearanceLabel: 'المظهر',
+    appearanceLight: 'فاتح',
+    appearanceDark: 'داكن',
+    appearanceSystem: 'النظام',
+    appearanceHint: 'وضع النظام يتبع إعدادات جهازك.',
+    dermEyebrow: 'مدعومة من طبيبة جلدية',
+    dermBody: 'نورة مبنية على خبرة هادئة من طبيبة جلدية مرخصة في دبي.',
+    signOut: 'تسجيل الخروج',
+  },
+  products: {
+    title: 'المنتجات',
+    intro: 'توصيات هادئة أولا. روابط الشراء تأتي لاحقا بعد فحص الحلال والمهيجات.',
+    scan: {
+      cta: 'افحصي منتجا',
+      ctaHint: 'تحققي من المكونات قبل الشراء.',
+      closeA11y: 'إغلاق الماسح',
+      aimEyebrow: 'وجهي نحو الباركود',
+      aimBody: 'ابقي ثابتة. يتحول الإطار إلى الوردي عند الإمساك.',
+      lookingUp: 'جاري البحث',
+      notFoundEyebrow: 'لا يوجد تطابق بعد',
+      notFoundTitle: 'لم نتمكن من إيجاد هذا المنتج.',
+      notFoundBody: 'غير متوفر في قاعدة بيانات المكونات المفتوحة التي نستخدمها. جربي منتجا آخر أو أعيدي المسح بزاوية أوضح.',
+      tryAnother: 'جربي منتجا آخر',
+      errorTitle: 'حدث خطأ أثناء البحث.',
+      verdictHalal: 'صديق للحلال',
+      verdictDoubtful: 'تحققي من المكونات',
+      verdictHaram: 'غير حلال',
+      verdictUnknown: 'خالٍ من المعلّمات',
+      flaggedHeader: 'مكونات للانتباه',
+      recommendedHeader: 'موصى بها لك',
+      avoidHeader: 'تجنبي',
+      noPersonalization: 'أكملي خطوات التعريف لتظهر لك ملاحظات مخصصة.',
+      noMatches: 'لا يوجد في هذا المنتج ما يطابق ملفك، إيجابا أو سلبا.',
+      forSkin: 'لبشرتك {skin}',
+      forConcern: 'لـ{concern}',
+      forConcerns: 'لـ{a} و{b}',
+      concernLabels: {
+        acne: 'حب الشباب',
+        pigmentation: 'التصبغات',
+        oily_skin: 'البشرة الدهنية',
+        dryness: 'الجفاف',
+        damaged_barrier: 'تضرر الحاجز',
+        sun_damage: 'تلف الشمس',
+        large_pores: 'المسام الواسعة',
+        sensitivity: 'الحساسية',
+      },
+      skinLabels: {
+        oily: 'الدهنية',
+        dry: 'الجافة',
+        combination: 'المختلطة',
+        normal: 'العادية',
+        sensitive: 'الحساسة',
+      },
+      noIngredients: 'قائمة المكونات غير متوفرة.',
+    },
+    todayShelfEyebrow: 'رف اليوم',
+    todayShelfTitle: 'اختاري المنتجات بحسب روتينك، لا الموضة.',
+    todayShelfBody: 'حددي الخطوة التي تحتاجين، ثم راجعي قائمة المكونات قبل الشراء.',
+    calmShelf: 'رف هادئ',
+    catalog: {
+      cleanser: { name: 'منظف جل لطيف', category: 'تنظيف', halal: 'حلال', reason: 'قوام قليل الرغوة لصباح رطب وراحة حاجز البشرة.' },
+      serum: { name: 'سيروم نياسيناميد', category: 'عناية', halal: 'راجعي العطر', reason: 'يساعد على تقليل اللمعان مع الحفاظ على روتين خفيف.' },
+      sunscreen: { name: 'واقي شمس SPF 50', category: 'حماية', halal: 'حلال', reason: 'خطوة يومية مناسبة لأشعة الإمارات وخطر التصبغ.' },
+    },
+  },
+};
+
+export const LOCALES = { en, ar } satisfies Record<Lang, LocaleDictionary>;
+
+// Resolves a dotted key path against a locale dictionary; returns the key as fallback so a
+// missing translation never crashes the screen, only shows debug-shaped text.
+export function resolve(
+  lang: Lang,
+  key: string,
+  vars?: Record<string, string | number>
+): string {
+  const parts = key.split('.');
+  let cursor: unknown = LOCALES[lang];
+
+  for (const part of parts) {
+    if (cursor && typeof cursor === 'object' && part in (cursor as Record<string, unknown>)) {
+      cursor = (cursor as Record<string, unknown>)[part];
+    } else {
+      return key;
+    }
+  }
+
+  if (typeof cursor !== 'string') return key;
+  if (!vars) return cursor;
+
+  return cursor.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
+}
+
+
+--- File: package.json ---
+{
+  "name": "nourah",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked > types/database.ts",
+    "functions:serve": "supabase functions serve",
+    "functions:deploy": "supabase functions deploy",
+    "bundle-context": "node scripts/bundle-context.js"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@supabase/supabase-js": "^2.104.1",
+    "babel-preset-expo": "~54.0.10",
+    "expo": "~54.0.33",
+    "expo-camera": "~17.0.10",
+    "expo-constants": "~18.0.13",
+    "expo-linking": "~8.0.11",
+    "expo-router": "~6.0.23",
+    "expo-status-bar": "~3.0.9",
+    "expo-web-browser": "~15.0.11",
+    "nativewind": "^4.2.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "react-native-url-polyfill": "^3.0.0",
+    "react-native-web": "^0.21.0",
+    "react-native-worklets": "^0.5.1",
+    "tailwindcss": "^3.4.19"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "supabase": "^2.98.2",
+    "typescript": "~5.9.2"
+  },
+  "private": true
+}
+
+
+--- File: .env ---
+EXPO_PUBLIC_SUPABASE_URL=https://jalyxxjgvolxyrsqpyuk.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbHl4eGpndm9seHlyc3FweXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTk3NTQsImV4cCI6MjA5MjYzNTc1NH0.uwFQ2Q5IhzmleVYgvXgHcJL3Rw95bymY_iPzFvmLqqw
+EXPO_PUBLIC_SCAN_MODE=live
+
+
+--- File: scripts/bundle-context.js ---
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const rootDir = path.resolve(__dirname, '..');
+const scratchDir = path.join(rootDir, 'scratch');
+const outputFile = path.join(scratchDir, 'chatgpt_context.txt');
+
+// Ensure scratch directory exists
+if (!fs.existsSync(scratchDir)) {
+  fs.mkdirSync(scratchDir, { recursive: true });
+}
+
+// 1. Get files to bundle
+let files = process.argv.slice(2);
+
+if (files.length === 0) {
+  try {
+    // Try to get unstaged and staged modified files via Git
+    const gitDiff = execSync('git diff --name-only', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    const gitUntracked = execSync('git ls-files --others --exclude-standard', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    
+    const excludePatterns = [
+      /node_modules/,
+      /\.expo/,
+      /\.git/,
+      /graphify-out/,
+      /scratch/,
+      /\.vscode/,
+      /\.claude/,
+      /\.codex/,
+      /package-lock\.json/,
+      /\.(png|jpe?g|gif|webp|pdf|mp[34]|zip|tar|gz)$/i
+    ];
+
+    const gitFiles = [
+      ...gitDiff.split('\n'),
+      ...gitUntracked.split('\n')
+    ]
+      .map(f => f.trim())
+      .filter(f => {
+        if (!f) return false;
+        if (excludePatterns.some(pattern => pattern.test(f))) return false;
+        const fullPath = path.join(rootDir, f);
+        return fs.existsSync(fullPath) && fs.statSync(fullPath).isFile();
+      });
+    
+    files = [...new Set(gitFiles)];
+  } catch (error) {
+    // If not a git repo or git is missing, files remains empty
+  }
+}
+
+let output = '';
+
+// Add a system system instruction for ChatGPT/Codex
+output += `=== SYSTEM INSTRUCTIONS ===\n`;
+output += `You are ChatGPT/Codex helping me vibe code our React Native Expo app (Nourah).\n`;
+output += `Below is the project context, including the current AGENTS.md checklist and the files I am working on.\n`;
+output += `Please help me implement the next task, keeping in mind the styling guidelines (NativeWind only, colors/fonts from constants), and the Supabase/Supabase Auth setup.\n\n`;
+
+// 2. Add AGENTS.md content
+const agentsPath = path.join(rootDir, 'AGENTS.md');
+if (fs.existsSync(agentsPath)) {
+  output += `=== AGENTS.md ===\n`;
+  output += fs.readFileSync(agentsPath, 'utf8');
+  output += `\n\n`;
+}
+
+// 3. Add file contents
+output += `=== FILE CONTENTS ===\n`;
+if (files.length === 0) {
+  output += `No active files specified or changed in Git. Pass file paths as arguments to include them: node scripts/bundle-context.js path/to/file.tsx\n`;
+} else {
+  files.forEach(file => {
+    const fullPath = path.join(rootDir, file);
+    if (fs.existsSync(fullPath)) {
+      output += `\n--- File: ${file} ---\n`;
+      output += fs.readFileSync(fullPath, 'utf8');
+      output += `\n`;
+    }
+  });
+}
+
+// Write to scratch output file
+fs.writeFileSync(outputFile, output, 'utf8');
+
+console.log(`\n======================================================`);
+console.log(`🎉 Context successfully bundled!`);
+console.log(`📁 Output saved to: scratch/chatgpt_context.txt`);
+console.log(`👉 Copy the contents of this file and paste it into Codex / ChatGPT.`);
+console.log(`======================================================\n`);
+if (files.length > 0) {
+  console.log(`Bundled ${files.length} active files:`);
+  files.forEach(f => console.log(` - ${f}`));
+} else {
+  console.log(`No active files bundled. Run with: npm run bundle-context [file1] [file2]`);
+}
+

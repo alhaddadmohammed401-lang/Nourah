@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Text, View } from 'react-native';
-import { colors } from '../../constants/colors';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
 
 type IconKind = 'home' | 'scan' | 'products' | 'profile';
 
@@ -32,13 +32,14 @@ function TabGlyph({
 
 export default function TabsLayout() {
   const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.brandRose,
-        tabBarInactiveTintColor: colors.darkGray,
+        tabBarActiveTintColor: themeColors.brandRose,
+        tabBarInactiveTintColor: themeColors.inkSecondary,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '500',
@@ -46,8 +47,8 @@ export default function TabsLayout() {
           marginBottom: 4,
         },
         tabBarStyle: {
-          backgroundColor: colors.white,
-          borderTopColor: colors.lightGray,
+          backgroundColor: themeColors.surfaceElevated,
+          borderTopColor: themeColors.hairline,
           borderTopWidth: 1,
           height: 64,
           paddingTop: 6,

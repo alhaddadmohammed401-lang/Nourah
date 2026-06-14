@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { useTheme } from '../../hooks/useTheme';
 
 type GoogleButtonProps = {
   onPress: () => void;
@@ -36,6 +37,8 @@ function GoogleG({ size = 18 }: { size?: number }) {
 // surface treatment elsewhere — no shadow, no fill change on press beyond a quiet
 // opacity tick.
 export function GoogleButton({ onPress, loading = false }: GoogleButtonProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       onPress={onPress}
@@ -53,8 +56,8 @@ export function GoogleButton({ onPress, loading = false }: GoogleButtonProps) {
             justifyContent: 'center',
             borderRadius: 14,
             borderWidth: 1,
-            borderColor: 'rgba(212, 160, 167, 0.45)',
-            backgroundColor: '#FFFFFF',
+            borderColor: colors.hairline,
+            backgroundColor: colors.surfaceElevated,
             paddingHorizontal: 24,
             opacity: loading ? 0.6 : pressed ? 0.92 : 1,
           }}
@@ -62,7 +65,7 @@ export function GoogleButton({ onPress, loading = false }: GoogleButtonProps) {
           <View style={{ marginRight: 12 }}>
             <GoogleG size={18} />
           </View>
-          <Text style={{ color: '#2D1B2E', fontSize: 16, fontWeight: '500' }}>
+          <Text style={{ color: colors.ink, fontSize: 16, fontWeight: '500' }}>
             {loading ? 'Opening Google…' : 'Continue with Google'}
           </Text>
         </View>

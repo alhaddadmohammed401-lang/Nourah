@@ -21,7 +21,7 @@ import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
 import { PhoneField } from '../../components/auth/PhoneField';
 import { GoogleButton } from '../../components/auth/GoogleButton';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../hooks/useTheme';
 
 type FieldErrors = {
   name?: string;
@@ -56,6 +56,7 @@ export default function SignupScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const { user } = useAuth();
+  const { theme, colors } = useTheme();
 
   // Belt-and-suspenders forward-redirect — see login.tsx for the same pattern. Catches
   // the case where a Google OAuth round-trip lands the session on this screen.
@@ -121,8 +122,11 @@ export default function SignupScreen() {
   } as const;
 
   return (
-    <SafeAreaView className="flex-1 bg-softBlush">
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: colors.surface }}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}

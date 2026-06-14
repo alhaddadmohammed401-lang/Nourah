@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Text, TextInput, View, type TextInputProps } from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
 
 type TextFieldProps = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -11,6 +12,7 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
 // Border shifts to brand-rose on focus, garnet on error. Label sits above in 13px Slate.
 export function TextField({ label, error, leading, onFocus, onBlur, ...rest }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
+  const { colors } = useTheme();
 
   const borderClass = error
     ? 'border-error'
@@ -31,7 +33,7 @@ export function TextField({ label, error, leading, onFocus, onBlur, ...rest }: T
         {leading ? <View className="mr-2">{leading}</View> : null}
         <TextInput
           className="flex-1 text-[17px] text-deepMauve"
-          placeholderTextColor="#5A5A5A"
+          placeholderTextColor={colors.inkMuted}
           onFocus={(e) => {
             setFocused(true);
             onFocus?.(e);

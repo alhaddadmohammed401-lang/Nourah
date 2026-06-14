@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
 
 const CONCERNS = [
   { id: 'acne', label: 'Acne', emoji: '🔴' },
@@ -25,6 +26,7 @@ const CONCERNS = [
 
 export default function SkinConcernsScreen() {
   const router = useRouter();
+  const { theme, colors } = useTheme();
   const [selected, setSelected] = useState<string[]>([]);
 
   const toggleConcern = (id: string) => {
@@ -34,8 +36,11 @@ export default function SkinConcernsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F9E8E8" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -43,8 +48,8 @@ export default function SkinConcernsScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>What are your main{'\n'}skin concerns?</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.ink }]}>What are your main{'\n'}skin concerns?</Text>
+          <Text style={[styles.subtitle, { color: colors.inkSecondary }]}>
             Choose all that apply so Nourah can personalize your routine.
           </Text>
         </View>
@@ -58,7 +63,10 @@ export default function SkinConcernsScreen() {
                 key={concern.id}
                 style={[
                   styles.card,
-                  isSelected ? styles.cardSelected : styles.cardUnselected,
+                  {
+                    backgroundColor: isSelected ? colors.accentStrong : colors.surfaceElevated,
+                    borderColor: isSelected ? colors.brandRose : colors.hairline,
+                  },
                 ]}
                 onPress={() => toggleConcern(concern.id)}
               >
@@ -66,7 +74,7 @@ export default function SkinConcernsScreen() {
                 <Text
                   style={[
                     styles.cardLabel,
-                    isSelected ? styles.cardLabelSelected : styles.cardLabelUnselected,
+                    { color: colors.ink },
                   ]}
                 >
                   {concern.label}
@@ -78,7 +86,7 @@ export default function SkinConcernsScreen() {
       </ScrollView>
 
       {/* Continue button */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.surface }]}>
         <Pressable
           style={({ pressed }) => [
             styles.continueButton,
@@ -98,7 +106,7 @@ export default function SkinConcernsScreen() {
           <Text style={styles.continueText}>Continue</Text>
         </Pressable>
 
-        <Text style={styles.selectedCount}>
+        <Text style={[styles.selectedCount, { color: colors.inkSecondary }]}>
           {selected.length === 0
             ? 'Select at least one concern'
             : `${selected.length} selected`}
@@ -111,7 +119,7 @@ export default function SkinConcernsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9E8E8',
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     paddingHorizontal: 24,

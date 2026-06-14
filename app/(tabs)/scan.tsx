@@ -14,6 +14,7 @@ import {
 } from '../../services/scanService';
 import { colors } from '../../constants/colors';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
 
 type Phase = 'idle' | 'counting' | 'analyzing' | 'result' | 'error';
 
@@ -280,6 +281,7 @@ function ResultSheet({
   onDone: () => void;
 }) {
   const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
   const score = completeScore(scan);
 
   if (score === null) return null;
@@ -301,7 +303,7 @@ function ResultSheet({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: colors.softBlush,
+        backgroundColor: themeColors.surface,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         padding: 20,
@@ -314,7 +316,7 @@ function ResultSheet({
           height: 4,
           width: 36,
           borderRadius: 2,
-          backgroundColor: colors.lightGray,
+          backgroundColor: themeColors.hairline,
           marginBottom: 16,
         }}
       />

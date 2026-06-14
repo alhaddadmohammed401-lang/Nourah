@@ -1,0 +1,502 @@
+{
+  "C:\\Users\\hp\\Nourah\\app.json": {
+    "mtime": 1779116529.392841,
+    "ast_hash": "a726474dfa56c880137c476af07d6fb8",
+    "semantic_hash": "a726474dfa56c880137c476af07d6fb8"
+  },
+  "C:\\Users\\hp\\Nourah\\App.tsx": {
+    "mtime": 1777109654.774279,
+    "ast_hash": "31c193188a5b9e2dda8756b4f4ee42c0",
+    "semantic_hash": "31c193188a5b9e2dda8756b4f4ee42c0"
+  },
+  "C:\\Users\\hp\\Nourah\\babel.config.js": {
+    "mtime": 1778435521.1729548,
+    "ast_hash": "89a7604b52b27ca57e647c6cc7252e1d",
+    "semantic_hash": "89a7604b52b27ca57e647c6cc7252e1d"
+  },
+  "C:\\Users\\hp\\Nourah\\DESIGN.json": {
+    "mtime": 1778435521.1217337,
+    "ast_hash": "a5c44cfae876fb5a645e4e5d57421807",
+    "semantic_hash": "a5c44cfae876fb5a645e4e5d57421807"
+  },
+  "C:\\Users\\hp\\Nourah\\index.ts": {
+    "mtime": 499162500.0,
+    "ast_hash": "33caa6d28d87fc7e637c033d0d7124b1",
+    "semantic_hash": "33caa6d28d87fc7e637c033d0d7124b1"
+  },
+  "C:\\Users\\hp\\Nourah\\metro.config.js": {
+    "mtime": 1777123289.7291932,
+    "ast_hash": "86b93003eadb52195d2bb913e0e21082",
+    "semantic_hash": "86b93003eadb52195d2bb913e0e21082"
+  },
+  "C:\\Users\\hp\\Nourah\\nativewind-env.d.ts": {
+    "mtime": 1777102516.522452,
+    "ast_hash": "b02bcf4fde15f746f6e5248537d0b156",
+    "semantic_hash": "b02bcf4fde15f746f6e5248537d0b156"
+  },
+  "C:\\Users\\hp\\Nourah\\package.json": {
+    "mtime": 1779116521.676175,
+    "ast_hash": "e9519760140b0805790d6d7c62e59040",
+    "semantic_hash": "e9519760140b0805790d6d7c62e59040"
+  },
+  "C:\\Users\\hp\\Nourah\\tailwind.config.js": {
+    "mtime": 1779120833.6206493,
+    "ast_hash": "9e462eaef9185e5fa73127aa0ec5d16b",
+    "semantic_hash": "9e462eaef9185e5fa73127aa0ec5d16b"
+  },
+  "C:\\Users\\hp\\Nourah\\tsconfig.json": {
+    "mtime": 499162500.0,
+    "ast_hash": "a5df9ddad82c56de332cbb7d00dd294b",
+    "semantic_hash": "a5df9ddad82c56de332cbb7d00dd294b"
+  },
+  "C:\\Users\\hp\\Nourah\\.claude\\settings.local.json": {
+    "mtime": 1778435521.1116362,
+    "ast_hash": "88d00e93e1bec658c5c676b53412fcbd",
+    "semantic_hash": "88d00e93e1bec658c5c676b53412fcbd"
+  },
+  "C:\\Users\\hp\\Nourah\\.vscode\\launch.json": {
+    "mtime": 1777120823.4419565,
+    "ast_hash": "8536c0b1b0a5a6da1637feed7ca91d43",
+    "semantic_hash": "8536c0b1b0a5a6da1637feed7ca91d43"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\_layout.tsx": {
+    "mtime": 1779120763.4482763,
+    "ast_hash": "a5adb53d0a181ed3919db1d45f576026",
+    "semantic_hash": "a5adb53d0a181ed3919db1d45f576026"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(auth)\\login.tsx": {
+    "mtime": 1779118132.0610118,
+    "ast_hash": "5ab850ee35121ac99c43cd60f215ad1c",
+    "semantic_hash": "5ab850ee35121ac99c43cd60f215ad1c"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(auth)\\signup.tsx": {
+    "mtime": 1779118157.9689355,
+    "ast_hash": "dfde80eb64d5b36b75b6b90d4671da78",
+    "semantic_hash": "dfde80eb64d5b36b75b6b90d4671da78"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(onboarding)\\concerns.tsx": {
+    "mtime": 1779032043.6993718,
+    "ast_hash": "69635c85fd29bafb46b402d2b40d12bb",
+    "semantic_hash": "69635c85fd29bafb46b402d2b40d12bb"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(onboarding)\\index.tsx": {
+    "mtime": 1779032026.5070508,
+    "ast_hash": "30463a055f7ebb71bc2ac29894e27e08",
+    "semantic_hash": "30463a055f7ebb71bc2ac29894e27e08"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(onboarding)\\skintype.tsx": {
+    "mtime": 1779032061.2198617,
+    "ast_hash": "1f0b38d2dd9c8841cd5974a5633d6672",
+    "semantic_hash": "1f0b38d2dd9c8841cd5974a5633d6672"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(onboarding)\\_layout.tsx": {
+    "mtime": 1777112248.9222863,
+    "ast_hash": "5c89ec6079ffbe6eefa160dcef24e1dc",
+    "semantic_hash": "5c89ec6079ffbe6eefa160dcef24e1dc"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\index.tsx": {
+    "mtime": 1779120980.1542597,
+    "ast_hash": "1b72b47e9a016cd5f33c9c5fb2449c37",
+    "semantic_hash": "1b72b47e9a016cd5f33c9c5fb2449c37"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\products.tsx": {
+    "mtime": 1779032626.6262279,
+    "ast_hash": "9fd16389a89d9ae0b588d16a22e2acc1",
+    "semantic_hash": "9fd16389a89d9ae0b588d16a22e2acc1"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\profile.tsx": {
+    "mtime": 1779032787.7966774,
+    "ast_hash": "e9770510b58b5666305bd8222392aa6a",
+    "semantic_hash": "e9770510b58b5666305bd8222392aa6a"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\routine.tsx": {
+    "mtime": 1779032996.3648143,
+    "ast_hash": "2bf9c3efc0c645d33628f26bf7c3e631",
+    "semantic_hash": "2bf9c3efc0c645d33628f26bf7c3e631"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\scan-history.tsx": {
+    "mtime": 1779032763.9791956,
+    "ast_hash": "15c70c607c3a00f03eaacfad30598b15",
+    "semantic_hash": "15c70c607c3a00f03eaacfad30598b15"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\scan-product.tsx": {
+    "mtime": 1779116036.014109,
+    "ast_hash": "032ce4d90c958aa19309256fb5d72e7d",
+    "semantic_hash": "032ce4d90c958aa19309256fb5d72e7d"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\scan.tsx": {
+    "mtime": 1779014383.2632122,
+    "ast_hash": "da27b651772a8a807719b4a4af7469c5",
+    "semantic_hash": "da27b651772a8a807719b4a4af7469c5"
+  },
+  "C:\\Users\\hp\\Nourah\\app\\(tabs)\\_layout.tsx": {
+    "mtime": 1779032773.8815675,
+    "ast_hash": "8ac1950d1c90194439ffd75c814560c9",
+    "semantic_hash": "8ac1950d1c90194439ffd75c814560c9"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\auth\\GoogleButton.tsx": {
+    "mtime": 1779118182.0049114,
+    "ast_hash": "751b22995656792ed0886522cfc55abd",
+    "semantic_hash": "751b22995656792ed0886522cfc55abd"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\auth\\PhoneField.tsx": {
+    "mtime": 1778435521.183581,
+    "ast_hash": "7da5a146b4ee5bc801a725080abfb152",
+    "semantic_hash": "7da5a146b4ee5bc801a725080abfb152"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\ClimateChip.tsx": {
+    "mtime": 1778438287.3296497,
+    "ast_hash": "59c4c98087cb778094a9fb927544b4b3",
+    "semantic_hash": "59c4c98087cb778094a9fb927544b4b3"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\DailyTip.tsx": {
+    "mtime": 1779121002.5001493,
+    "ast_hash": "3652c01cfe253e295cd280656f560604",
+    "semantic_hash": "3652c01cfe253e295cd280656f560604"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\FailedScanCard.tsx": {
+    "mtime": 1779120986.9424276,
+    "ast_hash": "bfff03d193256996cd0d34a08f22ef94",
+    "semantic_hash": "bfff03d193256996cd0d34a08f22ef94"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\FirstScanCard.tsx": {
+    "mtime": 1778438306.2615623,
+    "ast_hash": "e34227e15f266ccd1161efa947c84b17",
+    "semantic_hash": "e34227e15f266ccd1161efa947c84b17"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\HomeHeader.tsx": {
+    "mtime": 1778438277.688969,
+    "ast_hash": "aa6d16cd2c1e61c4a0805e3043638dd3",
+    "semantic_hash": "aa6d16cd2c1e61c4a0805e3043638dd3"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\PendingScanCard.tsx": {
+    "mtime": 1779013598.3897507,
+    "ast_hash": "63b3888d64932283adfa36c0e3bf1aa0",
+    "semantic_hash": "63b3888d64932283adfa36c0e3bf1aa0"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\RoutinePreviewCard.tsx": {
+    "mtime": 1779121042.2145529,
+    "ast_hash": "5b6d88685310ea64ae2665b4228ea503",
+    "semantic_hash": "5b6d88685310ea64ae2665b4228ea503"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\home\\StickyScanCTA.tsx": {
+    "mtime": 1778435521.195722,
+    "ast_hash": "f2015ced77c0141fea10ca5c68f12838",
+    "semantic_hash": "f2015ced77c0141fea10ca5c68f12838"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\routine\\StreakStrip.tsx": {
+    "mtime": 1779032926.0678813,
+    "ast_hash": "25000750b9408daf74c58a12333d44b1",
+    "semantic_hash": "25000750b9408daf74c58a12333d44b1"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\scan\\Countdown.tsx": {
+    "mtime": 1778435521.1977334,
+    "ast_hash": "2190bf5dfbad8cf58152ea0c50bf142c",
+    "semantic_hash": "2190bf5dfbad8cf58152ea0c50bf142c"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\scan\\FaceGuide.tsx": {
+    "mtime": 1779014339.496961,
+    "ast_hash": "45e9cc0587c2a0d0c0a9e6dfba6c22f7",
+    "semantic_hash": "45e9cc0587c2a0d0c0a9e6dfba6c22f7"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\ui\\Button.tsx": {
+    "mtime": 1778435521.202756,
+    "ast_hash": "b2aadd8e913ced1f6734d5012344ade3",
+    "semantic_hash": "b2aadd8e913ced1f6734d5012344ade3"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\ui\\Card.tsx": {
+    "mtime": 1778435521.2053597,
+    "ast_hash": "5b6902f54bae9b58a030c7f68becd841",
+    "semantic_hash": "5b6902f54bae9b58a030c7f68becd841"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\ui\\GeneratedIcon.tsx": {
+    "mtime": 1778404157.966211,
+    "ast_hash": "9381f78e64806758bcfde752a988f129",
+    "semantic_hash": "9381f78e64806758bcfde752a988f129"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\ui\\ScoreCard.tsx": {
+    "mtime": 1778435521.2073941,
+    "ast_hash": "453d7faeb2ce441d7c8c907e57bfee31",
+    "semantic_hash": "453d7faeb2ce441d7c8c907e57bfee31"
+  },
+  "C:\\Users\\hp\\Nourah\\components\\ui\\TextField.tsx": {
+    "mtime": 1778435521.209386,
+    "ast_hash": "7fd24cba60215b797b9439f36e7bd6e2",
+    "semantic_hash": "7fd24cba60215b797b9439f36e7bd6e2"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\climate.ts": {
+    "mtime": 1778435521.2113984,
+    "ast_hash": "11744e15164df87041c1f338c7650d61",
+    "semantic_hash": "11744e15164df87041c1f338c7650d61"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\colors.ts": {
+    "mtime": 1779120888.9159093,
+    "ast_hash": "0070b263b76b220c0be21dba97d313cd",
+    "semantic_hash": "0070b263b76b220c0be21dba97d313cd"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\fonts.ts": {
+    "mtime": 1777103047.5303478,
+    "ast_hash": "b6d9458ee86db1a41afa2154640d41bc",
+    "semantic_hash": "b6d9458ee86db1a41afa2154640d41bc"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\ingredientKnowledge.ts": {
+    "mtime": 1779115831.5219266,
+    "ast_hash": "7deffb88f6407c4072ee8e397806ca6b",
+    "semantic_hash": "7deffb88f6407c4072ee8e397806ca6b"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\locales.ts": {
+    "mtime": 1779115932.6832964,
+    "ast_hash": "c9d5320775c98605866fa56366005479",
+    "semantic_hash": "c9d5320775c98605866fa56366005479"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\spacing.ts": {
+    "mtime": 1777103049.5517995,
+    "ast_hash": "e2c1fdebcff10f4be50099e21f5b55d6",
+    "semantic_hash": "e2c1fdebcff10f4be50099e21f5b55d6"
+  },
+  "C:\\Users\\hp\\Nourah\\constants\\tips.ts": {
+    "mtime": 1778438496.8480713,
+    "ast_hash": "2ea23b77a82147e65d57c4ba9010fc26",
+    "semantic_hash": "2ea23b77a82147e65d57c4ba9010fc26"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\useAuth.tsx": {
+    "mtime": 1778761584.455493,
+    "ast_hash": "cc16e549b9d3b750abd711c24d834bd7",
+    "semantic_hash": "cc16e549b9d3b750abd711c24d834bd7"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\useLanguage.tsx": {
+    "mtime": 1778438156.669094,
+    "ast_hash": "c24e0b9bb6e295a0ddbd0ed17c5ad1d1",
+    "semantic_hash": "c24e0b9bb6e295a0ddbd0ed17c5ad1d1"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\useLatestScan.ts": {
+    "mtime": 1778917467.2168546,
+    "ast_hash": "9e057e20dcf1991a91b2316b225e8049",
+    "semantic_hash": "9e057e20dcf1991a91b2316b225e8049"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\usePremiumStatus.ts": {
+    "mtime": 1779033210.0621645,
+    "ast_hash": "1a6e9d97447602ad86be650051c27fe8",
+    "semantic_hash": "1a6e9d97447602ad86be650051c27fe8"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\useProfile.ts": {
+    "mtime": 1779115877.5751872,
+    "ast_hash": "e28f9ab66b6b99cc9feedbc895dad39f",
+    "semantic_hash": "e28f9ab66b6b99cc9feedbc895dad39f"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\useRoutineHistory.ts": {
+    "mtime": 1779032861.1382568,
+    "ast_hash": "99df3dc30390706daec3a3dd59c54b7f",
+    "semantic_hash": "99df3dc30390706daec3a3dd59c54b7f"
+  },
+  "C:\\Users\\hp\\Nourah\\hooks\\useTheme.tsx": {
+    "mtime": 1779120867.2461612,
+    "ast_hash": "2cdd7c3c7a1a03596e8e4f549590ed6e",
+    "semantic_hash": "2cdd7c3c7a1a03596e8e4f549590ed6e"
+  },
+  "C:\\Users\\hp\\Nourah\\lib\\personalize.ts": {
+    "mtime": 1779115968.9905932,
+    "ast_hash": "eea2f4086f1fae3b88dad41696110f77",
+    "semantic_hash": "eea2f4086f1fae3b88dad41696110f77"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\auth.ts": {
+    "mtime": 1779118112.8837588,
+    "ast_hash": "8c66a7497b0a43172cd823e859500fec",
+    "semantic_hash": "8c66a7497b0a43172cd823e859500fec"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\mockAuthStore.ts": {
+    "mtime": 1778761554.625559,
+    "ast_hash": "9ab3dbab4a644b182f142f1d74974fef",
+    "semantic_hash": "9ab3dbab4a644b182f142f1d74974fef"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\productService.ts": {
+    "mtime": 1779035617.497841,
+    "ast_hash": "7cb14fbfdd6aaccaf858fad059b2764c",
+    "semantic_hash": "7cb14fbfdd6aaccaf858fad059b2764c"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\profileService.ts": {
+    "mtime": 1778763788.7767353,
+    "ast_hash": "9981b70b35c12b64250384324e78c7af",
+    "semantic_hash": "9981b70b35c12b64250384324e78c7af"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\routineService.ts": {
+    "mtime": 1778763826.9857213,
+    "ast_hash": "3f5e288762d0beeba00d3419fdf96e5d",
+    "semantic_hash": "3f5e288762d0beeba00d3419fdf96e5d"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\scanService.ts": {
+    "mtime": 1779032717.149876,
+    "ast_hash": "519490f08fbbe5b62a9f15af73312127",
+    "semantic_hash": "519490f08fbbe5b62a9f15af73312127"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\subscriptionService.ts": {
+    "mtime": 1778763798.1607692,
+    "ast_hash": "46b0a85965bb5d5fd58bfb9b3207bd1b",
+    "semantic_hash": "46b0a85965bb5d5fd58bfb9b3207bd1b"
+  },
+  "C:\\Users\\hp\\Nourah\\services\\supabase.ts": {
+    "mtime": 1779116348.2455673,
+    "ast_hash": "22b161a0ade1ef32b459c3798e631f6d",
+    "semantic_hash": "22b161a0ade1ef32b459c3798e631f6d"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\seed.sql": {
+    "mtime": 1778763647.141153,
+    "ast_hash": "9f4acbd7d9791f08319469176181aeef",
+    "semantic_hash": "9f4acbd7d9791f08319469176181aeef"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\.temp\\linked-project.json": {
+    "mtime": 1778765694.8012269,
+    "ast_hash": "d2174c123e0032a7286b7529562d4645",
+    "semantic_hash": "d2174c123e0032a7286b7529562d4645"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\product-lookup\\index.ts": {
+    "mtime": 1779115136.3961272,
+    "ast_hash": "7691a41c04be6401d7176bbb9f9bafbd",
+    "semantic_hash": "7691a41c04be6401d7176bbb9f9bafbd"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\revenuecat-webhook\\index.ts": {
+    "mtime": 1778763762.3355143,
+    "ast_hash": "de30bbc1410950baf77cbffe32ac14c0",
+    "semantic_hash": "de30bbc1410950baf77cbffe32ac14c0"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\routine-generate\\index.ts": {
+    "mtime": 1778766743.3772452,
+    "ast_hash": "00f0064dbf5bf64362359494e4cde74a",
+    "semantic_hash": "00f0064dbf5bf64362359494e4cde74a"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\scan-analyze\\index.ts": {
+    "mtime": 1778917380.1368124,
+    "ast_hash": "f733c9a11d28143acfc41783027c38f2",
+    "semantic_hash": "f733c9a11d28143acfc41783027c38f2"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\scan-status\\index.ts": {
+    "mtime": 1778919561.7250586,
+    "ast_hash": "1eebe8ed5ec3428e1404683cc2569252",
+    "semantic_hash": "1eebe8ed5ec3428e1404683cc2569252"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\_shared\\auth.ts": {
+    "mtime": 1778763680.659743,
+    "ast_hash": "3b898a0138d3c7e18c8271237e278d22",
+    "semantic_hash": "3b898a0138d3c7e18c8271237e278d22"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\_shared\\cors.ts": {
+    "mtime": 1778763664.8293676,
+    "ast_hash": "5de57943fce676a404387e9926808a2c",
+    "semantic_hash": "5de57943fce676a404387e9926808a2c"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\_shared\\deno.json": {
+    "mtime": 1778763681.6464581,
+    "ast_hash": "dd4e5419a13e0f6a76b4d40d889676e7",
+    "semantic_hash": "dd4e5419a13e0f6a76b4d40d889676e7"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\_shared\\errors.ts": {
+    "mtime": 1778763669.3178008,
+    "ast_hash": "6ae12ae679402414f471c1e85c7ebd02",
+    "semantic_hash": "6ae12ae679402414f471c1e85c7ebd02"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\functions\\_shared\\supabase-admin.ts": {
+    "mtime": 1778763673.7773964,
+    "ast_hash": "95fba14e096f17be3da984e015e615d9",
+    "semantic_hash": "95fba14e096f17be3da984e015e615d9"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\migrations\\20260514000001_profiles.sql": {
+    "mtime": 1778763646.8811462,
+    "ast_hash": "696a87688e1e1fa6ccf99e88738359e9",
+    "semantic_hash": "696a87688e1e1fa6ccf99e88738359e9"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\migrations\\20260514000002_scans.sql": {
+    "mtime": 1778763646.957153,
+    "ast_hash": "1df75fb241b5a610918b6d6f864440d9",
+    "semantic_hash": "1df75fb241b5a610918b6d6f864440d9"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\migrations\\20260514000003_routines.sql": {
+    "mtime": 1778763647.0121508,
+    "ast_hash": "1635af1aa8175b18244c690aef604386",
+    "semantic_hash": "1635af1aa8175b18244c690aef604386"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\migrations\\20260514000004_products_halal.sql": {
+    "mtime": 1778763647.0471568,
+    "ast_hash": "936de7fc683b82ada8aa0db789e525df",
+    "semantic_hash": "936de7fc683b82ada8aa0db789e525df"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\migrations\\20260514000005_subscriptions.sql": {
+    "mtime": 1778763647.0901523,
+    "ast_hash": "b6af0e7b2552564e30fb44b9e468cdf4",
+    "semantic_hash": "b6af0e7b2552564e30fb44b9e468cdf4"
+  },
+  "C:\\Users\\hp\\Nourah\\supabase\\migrations\\20260516000001_scans_async.sql": {
+    "mtime": 1778917339.7050686,
+    "ast_hash": "fff6cceb1c9bb63a2b01b68fd9eea426",
+    "semantic_hash": "fff6cceb1c9bb63a2b01b68fd9eea426"
+  },
+  "C:\\Users\\hp\\Nourah\\AGENTS.md": {
+    "mtime": 1778435521.1187017,
+    "ast_hash": "7f12b1e55c7c87f30f24991062140379",
+    "semantic_hash": "7f12b1e55c7c87f30f24991062140379"
+  },
+  "C:\\Users\\hp\\Nourah\\DESIGN.md": {
+    "mtime": 1777057931.3529384,
+    "ast_hash": "4c565c446bef2f4b96036b7135b25c30",
+    "semantic_hash": "4c565c446bef2f4b96036b7135b25c30"
+  },
+  "C:\\Users\\hp\\Nourah\\PRODUCT.md": {
+    "mtime": 1778435521.1279292,
+    "ast_hash": "fa51fd3eafd1a1225916d3d58a050483",
+    "semantic_hash": "fa51fd3eafd1a1225916d3d58a050483"
+  },
+  "C:\\Users\\hp\\Nourah\\.claude\\AGENT.md": {
+    "mtime": 1777107252.8074212,
+    "ast_hash": "038f8222156146739b21a927c67c2c92",
+    "semantic_hash": "038f8222156146739b21a927c67c2c92"
+  },
+  "C:\\Users\\hp\\Nourah\\.claude\\GOAL.md": {
+    "mtime": 1779120644.9388525,
+    "ast_hash": "a21e46b0739555912b4f84842ca5f9d0",
+    "semantic_hash": "a21e46b0739555912b4f84842ca5f9d0"
+  },
+  "C:\\Users\\hp\\Nourah\\Screenshot 2026-04-24 231911.png": {
+    "mtime": 1777058357.3430336,
+    "ast_hash": "09fa34324148793e93af5a4e1edfb0dc",
+    "semantic_hash": "09fa34324148793e93af5a4e1edfb0dc"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\adaptive-icon.png": {
+    "mtime": 499162500.0,
+    "ast_hash": "97dae5a0e62ad8551d8a31897b425e63",
+    "semantic_hash": "97dae5a0e62ad8551d8a31897b425e63"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\favicon.png": {
+    "mtime": 499162500.0,
+    "ast_hash": "4f1cb2cac2370cd5050681232e8575a8",
+    "semantic_hash": "4f1cb2cac2370cd5050681232e8575a8"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\icon.png": {
+    "mtime": 499162500.0,
+    "ast_hash": "4e3f888fc8475f69fd5fa32f1ad5216a",
+    "semantic_hash": "4e3f888fc8475f69fd5fa32f1ad5216a"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\splash-icon.png": {
+    "mtime": 499162500.0,
+    "ast_hash": "97dae5a0e62ad8551d8a31897b425e63",
+    "semantic_hash": "97dae5a0e62ad8551d8a31897b425e63"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\icons\\nourah-home-icon.png": {
+    "mtime": 1778403724.7835445,
+    "ast_hash": "deff9e3d9578407e291282e2059bfa94",
+    "semantic_hash": "deff9e3d9578407e291282e2059bfa94"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\icons\\nourah-products-icon.png": {
+    "mtime": 1778403724.8313856,
+    "ast_hash": "650af4300572b8e16e1e5259fdc97696",
+    "semantic_hash": "650af4300572b8e16e1e5259fdc97696"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\icons\\nourah-profile-icon.png": {
+    "mtime": 1778403724.8515549,
+    "ast_hash": "928c7cf32bb9dfc8d582851cb4d2947a",
+    "semantic_hash": "928c7cf32bb9dfc8d582851cb4d2947a"
+  },
+  "C:\\Users\\hp\\Nourah\\assets\\icons\\nourah-scan-icon.png": {
+    "mtime": 1778403724.805046,
+    "ast_hash": "4ee0609298cbe17253e55359d104e56f",
+    "semantic_hash": "4ee0609298cbe17253e55359d104e56f"
+  }
+}

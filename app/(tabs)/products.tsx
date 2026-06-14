@@ -2,6 +2,7 @@ import { Pressable, SafeAreaView, ScrollView, StatusBar, Text, View } from 'reac
 import { useRouter } from 'expo-router';
 import { colors } from '../../constants/colors';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../hooks/useTheme';
 
 const PRODUCT_IDS = ['cleanser', 'serum', 'sunscreen'] as const;
 
@@ -9,21 +10,21 @@ const PRODUCT_IDS = ['cleanser', 'serum', 'sunscreen'] as const;
 // only ships two states ("Halal-friendly" and "Check fragrance"); we keep the mapping
 // resilient so when the live product-lookup edge function returns 'halal' / 'haram' /
 // 'doubtful' / 'unknown' the same tag UI flexes without rework.
-function verdictTone(text: string): {
+function verdictTone(text: string, themeColors: ReturnType<typeof useTheme>['colors']): {
   color: string;
   bg: string;
 } {
   const t = text.toLowerCase();
   if (t.includes('halal') && !t.includes('check')) {
-    return { color: colors.success, bg: 'rgba(123, 168, 146, 0.12)' };
+    return { color: themeColors.success, bg: 'rgba(123, 168, 146, 0.12)' };
   }
   if (t.includes('check') || t.includes('doubt')) {
-    return { color: colors.warning, bg: 'rgba(217, 167, 106, 0.14)' };
+    return { color: themeColors.warning, bg: 'rgba(217, 167, 106, 0.14)' };
   }
   if (t.includes('haram')) {
-    return { color: colors.error, bg: 'rgba(199, 74, 96, 0.12)' };
+    return { color: themeColors.error, bg: 'rgba(199, 74, 96, 0.12)' };
   }
-  return { color: colors.darkGray, bg: 'rgba(90, 90, 90, 0.08)' };
+  return { color: themeColors.inkSecondary, bg: themeColors.hairlineSoft };
 }
 
 // Shows a quiet product surface that previews halal-aware recommendations without
@@ -33,14 +34,18 @@ function verdictTone(text: string): {
 export default function ProductsScreen() {
   const { t } = useLanguage();
   const router = useRouter();
+  const { theme, colors: themeColors } = useTheme();
 
   return (
-    <View className="flex-1 bg-softBlush">
-      <SafeAreaView className="flex-1 bg-softBlush">
-        <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+        <StatusBar
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors.surface}
+        />
 
         <ScrollView
-          style={{ flex: 1, backgroundColor: colors.softBlush }}
+          style={{ flex: 1, backgroundColor: themeColors.surface }}
           contentContainerStyle={{ paddingBottom: 96 }}
           showsVerticalScrollIndicator={false}
         >
@@ -80,7 +85,7 @@ export default function ProductsScreen() {
             >
               <Text
                 style={{
-                  color: colors.white,
+                  color: themeColors.inkOnAccent,
                   fontSize: 15,
                   fontWeight: '600',
                   letterSpacing: 0.4,
@@ -89,7 +94,7 @@ export default function ProductsScreen() {
                 {t('products.scan.cta')}
               </Text>
               <Text
-                style={{ color: colors.white, fontSize: 15, marginLeft: 8, opacity: 0.9 }}
+                style={{ color: themeColors.inkOnAccent, fontSize: 15, marginLeft: 8, opacity: 0.9 }}
               >
                 →
               </Text>
@@ -104,7 +109,7 @@ export default function ProductsScreen() {
               className="mt-8 flex-row items-center"
               style={{
                 borderBottomWidth: 1,
-                borderBottomColor: 'rgba(212, 160, 167, 0.35)',
+                borderBottomColor: themeColors.hairline,
                 paddingBottom: 10,
               }}
             >
@@ -122,7 +127,7 @@ export default function ProductsScreen() {
               <View
                 className="ml-auto px-2.5 py-1 rounded-full"
                 style={{
-                  backgroundColor: 'rgba(212, 160, 167, 0.18)',
+                  backgroundColor: themeColors.accent,
                 }}
               >
                 <Text
@@ -144,7 +149,7 @@ export default function ProductsScreen() {
                 const category = t(`products.catalog.${id}.category`);
                 const halal = t(`products.catalog.${id}.halal`);
                 const reason = t(`products.catalog.${id}.reason`);
-                const tone = verdictTone(halal);
+                const tone = verdictTone(halal, themeColors);
 
                 return (
                   <View
@@ -152,7 +157,7 @@ export default function ProductsScreen() {
                     className={`${idx === 0 ? '' : 'mt-3'} rounded-2xl bg-white p-5`}
                     style={{
                       borderWidth: 1,
-                      borderColor: 'rgba(212, 160, 167, 0.25)',
+                      borderColor: themeColors.hairlineSoft,
                     }}
                   >
                     <View className="flex-row items-start justify-between">

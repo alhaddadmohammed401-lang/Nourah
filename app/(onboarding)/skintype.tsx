@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
 
 const SKIN_TYPES = [
   { id: 'oily', label: 'Oily', description: 'Shiny all over, visible pores', emoji: '💧' },
@@ -22,6 +23,7 @@ const SKIN_TYPES = [
 export default function SkinTypeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { theme, colors } = useTheme();
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
   const handleComplete = async () => {
@@ -41,8 +43,11 @@ export default function SkinTypeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F9E8E8" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -50,8 +55,8 @@ export default function SkinTypeScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>What is your{'\n'}skin type?</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.ink }]}>What is your{'\n'}skin type?</Text>
+          <Text style={[styles.subtitle, { color: colors.inkSecondary }]}>
             This helps us build a base routine perfectly suited for your skin.
           </Text>
         </View>
@@ -65,7 +70,10 @@ export default function SkinTypeScreen() {
                 key={type.id}
                 style={[
                   styles.card,
-                  isSelected ? styles.cardSelected : styles.cardUnselected,
+                  {
+                    backgroundColor: isSelected ? colors.accentStrong : colors.surfaceElevated,
+                    borderColor: isSelected ? colors.brandRose : colors.hairline,
+                  },
                 ]}
                 onPress={() => setSelectedType(type.id)}
               >
@@ -74,7 +82,7 @@ export default function SkinTypeScreen() {
                   <Text
                     style={[
                       styles.cardLabel,
-                      isSelected ? styles.cardLabelSelected : styles.cardLabelUnselected,
+                      { color: colors.ink },
                     ]}
                   >
                     {type.label}
@@ -83,7 +91,7 @@ export default function SkinTypeScreen() {
                 <Text
                   style={[
                     styles.cardDescription,
-                    isSelected ? styles.cardDescriptionSelected : styles.cardDescriptionUnselected,
+                    { color: colors.inkSecondary },
                   ]}
                 >
                   {type.description}
@@ -95,7 +103,7 @@ export default function SkinTypeScreen() {
       </ScrollView>
 
       {/* Complete Onboarding Button */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.surface }]}>
         <Pressable
           style={({ pressed }) => [
             styles.continueButton,
@@ -115,7 +123,7 @@ export default function SkinTypeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9E8E8',
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     paddingHorizontal: 24,

@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, Text, View, type PressableProps } from 'react-native';
 import { type ReactNode } from 'react';
+import { useTheme } from '../../hooks/useTheme';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
 
@@ -43,8 +44,10 @@ export function Button({
   trailing,
   ...rest
 }: ButtonProps) {
+  const { colors } = useTheme();
   const inactive = disabled || loading;
   const v = VARIANT[variant];
+  const spinnerColor = variant === 'primary' ? v.spinner : colors.ink;
 
   return (
     <Pressable
@@ -62,7 +65,7 @@ export function Button({
             className={`h-[52px] flex-row items-center justify-center rounded-xl px-6 ${bg} ${width}`}
           >
             {loading ? (
-              <ActivityIndicator color={v.spinner} />
+              <ActivityIndicator color={spinnerColor} />
             ) : (
               <>
                 <Text className={`text-[17px] font-medium ${labelColor}`}>{label}</Text>

@@ -9,9 +9,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { colors } from '../../constants/colors';
+import { colors, type ThemeColors } from '../../constants/colors';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme, type ThemeMode } from '../../hooks/useTheme';
 import type { Lang } from '../../constants/locales';
 import { signOut } from '../../services/auth';
 
@@ -24,6 +25,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t, lang, setLang } = useLanguage();
+  const { theme, colors: themeColors, mode, setMode } = useTheme();
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
   const [showRestartHint, setShowRestartHint] = useState(false);
@@ -48,6 +50,11 @@ export default function ProfileScreen() {
     setShowRestartHint(next === 'ar');
   }
 
+  async function handleThemePress(next: ThemeMode) {
+    if (next === mode) return;
+    await setMode(next);
+  }
+
   async function handleSignOutPress() {
     setSigningOut(true);
     setSignOutError('');
@@ -65,12 +72,15 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View className="flex-1 bg-softBlush">
-      <SafeAreaView className="flex-1 bg-softBlush">
-        <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+        <StatusBar
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors.surface}
+        />
 
         <ScrollView
-          style={{ flex: 1, backgroundColor: colors.softBlush }}
+          style={{ flex: 1, backgroundColor: themeColors.surface }}
           contentContainerStyle={{ paddingBottom: 96 }}
           showsVerticalScrollIndicator={false}
         >
@@ -100,11 +110,11 @@ export default function ProfileScreen() {
                   width: 64,
                   height: 64,
                   borderRadius: 32,
-                  backgroundColor: colors.white,
+                  backgroundColor: themeColors.surfaceElevated,
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderWidth: 1,
-                  borderColor: 'rgba(212, 160, 167, 0.45)',
+                  borderColor: themeColors.hairline,
                 }}
               >
                 <Text
@@ -166,18 +176,20 @@ export default function ProfileScreen() {
               className="mt-2 flex-row"
               style={{
                 borderBottomWidth: 1,
-                borderBottomColor: 'rgba(212, 160, 167, 0.35)',
+                borderBottomColor: themeColors.hairline,
               }}
             >
-              <LangTab
+              <ChoiceTab
                 active={lang === 'en'}
                 label={t('profile.languageEnglish')}
                 onPress={() => handleLanguagePress('en')}
+                themeColors={themeColors}
               />
-              <LangTab
+              <ChoiceTab
                 active={lang === 'ar'}
                 label={t('profile.languageArabic')}
                 onPress={() => handleLanguagePress('ar')}
+                themeColors={themeColors}
               />
             </View>
 
@@ -186,6 +198,41 @@ export default function ProfileScreen() {
                 {t('profile.restartHint')}
               </Text>
             ) : null}
+
+            <Text className="mt-6 text-[15px] font-semibold text-deepMauve">
+              {t('profile.appearanceLabel')}
+            </Text>
+
+            <View
+              className="mt-2 flex-row"
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: themeColors.hairline,
+              }}
+            >
+              <ChoiceTab
+                active={mode === 'light'}
+                label={t('profile.appearanceLight')}
+                onPress={() => handleThemePress('light')}
+                themeColors={themeColors}
+              />
+              <ChoiceTab
+                active={mode === 'dark'}
+                label={t('profile.appearanceDark')}
+                onPress={() => handleThemePress('dark')}
+                themeColors={themeColors}
+              />
+              <ChoiceTab
+                active={mode === 'system'}
+                label={t('profile.appearanceSystem')}
+                onPress={() => handleThemePress('system')}
+                themeColors={themeColors}
+              />
+            </View>
+
+            <Text className="mt-3 text-[13px] leading-5 text-darkGray">
+              {t('profile.appearanceHint')}
+            </Text>
 
             {/* Stats block: serif numerals replace the bold sans figures — same typographic
               voice as the Routine step ordinals (01 / 02 / 03), giving numbers a consistent
@@ -210,7 +257,7 @@ export default function ProfileScreen() {
                     justifyContent: 'space-between',
                     paddingVertical: 14,
                     borderBottomWidth: idx < stats.length - 1 ? 1 : 0,
-                    borderBottomColor: 'rgba(212, 160, 167, 0.25)',
+                    borderBottomColor: themeColors.hairlineSoft,
                   }}
                 >
                   <Text className="text-[14px] text-darkGray">{t(stat.labelKey)}</Text>
@@ -307,14 +354,16 @@ export default function ProfileScreen() {
 }
 
 // Inline-underline language tab — same control vocabulary as the Routine AM/PM tabs.
-function LangTab({
+function ChoiceTab({
   active,
   label,
   onPress,
+  themeColors,
 }: {
   active: boolean;
   label: string;
   onPress: () => void;
+  themeColors: ThemeColors;
 }) {
   return (
     <Pressable
@@ -326,14 +375,14 @@ function LangTab({
         paddingBottom: 10,
         marginBottom: -1,
         borderBottomWidth: active ? 2 : 0,
-        borderBottomColor: colors.brandRose,
+        borderBottomColor: themeColors.brandRose,
       }}
     >
       <Text
         style={{
           fontSize: 15,
           fontWeight: active ? '600' : '500',
-          color: active ? colors.brandRose : colors.deepMauve,
+          color: active ? themeColors.brandRose : themeColors.ink,
           letterSpacing: 0.3,
         }}
       >

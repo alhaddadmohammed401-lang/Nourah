@@ -15,7 +15,8 @@ import {
 import { signIn, signInWithGoogle } from '../../services/auth';
 import { useAuth } from '../../hooks/useAuth';
 import { GoogleButton } from '../../components/auth/GoogleButton';
-import { colors } from '../../constants/colors';
+import { type ThemeColors } from '../../constants/colors';
+import { useTheme } from '../../hooks/useTheme';
 
 // Polished login screen. Replaces the previous bold-sans "Welcome back" title with a
 // DM Serif Display headline that matches the rest of the app, lighter input borders
@@ -30,6 +31,7 @@ export default function LoginScreen() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuth();
+  const { theme, colors } = useTheme();
 
   // Belt-and-suspenders forward-redirect: if a session lands on this screen (e.g. from
   // a Google OAuth round-trip where Supabase redirected us back here so the auth guard
@@ -82,8 +84,11 @@ export default function LoginScreen() {
   const disabled = loading || !email || !password;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.softBlush }}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.surface}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -91,7 +96,7 @@ export default function LoginScreen() {
         <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 56 }}>
           <Text
             style={{
-              color: colors.darkGray,
+              color: colors.inkSecondary,
               fontSize: 11,
               fontWeight: '600',
               letterSpacing: 2,
@@ -103,7 +108,7 @@ export default function LoginScreen() {
           <Text
             style={{
               marginTop: 6,
-              color: colors.deepMauve,
+              color: colors.ink,
               fontFamily: 'DMSerifDisplay-Regular',
               fontSize: 36,
               lineHeight: 42,
@@ -112,7 +117,7 @@ export default function LoginScreen() {
           >
             Pick up where you{'\n'}left off.
           </Text>
-          <Text style={{ marginTop: 10, color: colors.darkGray, fontSize: 14, lineHeight: 22 }}>
+          <Text style={{ marginTop: 10, color: colors.inkSecondary, fontSize: 14, lineHeight: 22 }}>
             Sign in to continue your skincare reading.
           </Text>
 
@@ -132,30 +137,30 @@ export default function LoginScreen() {
           ) : null}
 
           <View style={{ marginTop: 28 }}>
-            <Field label="Email">
+            <Field label="Email" colors={colors}>
               <TextInput
                 placeholder="hello@example.com"
-                placeholderTextColor={colors.lightGray}
+                placeholderTextColor={colors.inkMuted}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
                 value={email}
                 onChangeText={setEmail}
-                style={inputStyle}
+                style={inputStyle(colors)}
               />
             </Field>
           </View>
 
           <View style={{ marginTop: 16 }}>
-            <Field label="Password">
+            <Field label="Password" colors={colors}>
               <TextInput
                 placeholder="••••••••"
-                placeholderTextColor={colors.lightGray}
+                placeholderTextColor={colors.inkMuted}
                 secureTextEntry
                 autoComplete="current-password"
                 value={password}
                 onChangeText={setPassword}
-                style={inputStyle}
+                style={inputStyle(colors)}
               />
             </Field>
           </View>
@@ -178,7 +183,7 @@ export default function LoginScreen() {
           >
             <Text
               style={{
-                color: colors.white,
+                color: colors.inkOnAccent,
                 fontSize: 16,
                 fontWeight: '600',
                 letterSpacing: 0.4,
@@ -192,19 +197,19 @@ export default function LoginScreen() {
               symmetric. Loading state is wired separately from the email-password flow so
               tapping Google doesn't dim the primary button. */}
           <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }} />
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.hairline }} />
             <Text
               style={{
                 marginHorizontal: 12,
                 fontSize: 12,
-                color: colors.darkGray,
+                color: colors.inkSecondary,
                 letterSpacing: 2,
                 textTransform: 'uppercase',
               }}
             >
               or
             </Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }} />
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.hairline }} />
           </View>
 
           <View style={{ marginTop: 16 }}>
@@ -212,7 +217,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={{ marginTop: 24, flexDirection: 'row', justifyContent: 'center' }}>
-            <Text style={{ color: colors.darkGray, fontSize: 13 }}>New here? </Text>
+            <Text style={{ color: colors.inkSecondary, fontSize: 13 }}>New here? </Text>
             <Pressable onPress={() => router.push('/(auth)/signup')}>
               <Text style={{ color: colors.brandRose, fontSize: 13, fontWeight: '600' }}>
                 Create an account
@@ -225,12 +230,20 @@ export default function LoginScreen() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+  colors,
+}: {
+  label: string;
+  children: React.ReactNode;
+  colors: ThemeColors;
+}) {
   return (
     <View>
       <Text
         style={{
-          color: colors.deepMauve,
+          color: colors.ink,
           fontSize: 12,
           fontWeight: '600',
           letterSpacing: 1.4,
@@ -245,13 +258,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const inputStyle = {
-  backgroundColor: colors.white,
-  borderWidth: 1,
-  borderColor: 'rgba(212, 160, 167, 0.45)',
-  borderRadius: 14,
-  paddingHorizontal: 16,
-  paddingVertical: 14,
-  fontSize: 15,
-  color: colors.charcoal,
-} as const;
+function inputStyle(colors: ThemeColors) {
+  return {
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.hairline,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: colors.ink,
+  } as const;
+}

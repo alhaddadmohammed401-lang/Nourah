@@ -4,6 +4,7 @@
 import { useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { colors } from '../../constants/colors';
+import { useTheme } from '../../hooks/useTheme';
 
 const PROMISE_TAGS = ['Halal-aware', 'GCC climate', 'AI-powered'];
 
@@ -15,14 +16,18 @@ const PROMISE_TAGS = ['Halal-aware', 'GCC climate', 'AI-powered'];
 // Blush ground instead of inside a card surface.
 export default function OnboardingWelcomeScreen() {
   const router = useRouter();
+  const { theme, colors: themeColors } = useTheme();
 
   function handleGetStartedPress() {
     router.push('/(onboarding)/concerns');
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-softBlush">
-      <StatusBar barStyle="dark-content" backgroundColor={colors.softBlush} />
+    <SafeAreaView className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
+      <StatusBar
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.surface}
+      />
 
       <View className="flex-1 px-7 pt-16">
         <Text
@@ -94,7 +99,7 @@ export default function OnboardingWelcomeScreen() {
               className="mr-2 mt-2 rounded-full px-3 py-1.5"
               style={{
                 borderWidth: 1,
-                borderColor: 'rgba(212, 160, 167, 0.55)',
+                borderColor: themeColors.hairline,
               }}
             >
               <Text className="text-[12px] font-medium text-deepMauve" style={{ letterSpacing: 0.2 }}>

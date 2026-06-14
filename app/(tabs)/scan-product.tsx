@@ -18,6 +18,7 @@ import { CameraView, useCameraPermissions, type BarcodeType } from 'expo-camera'
 import { colors } from '../../constants/colors';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useProfile } from '../../hooks/useProfile';
+import { useTheme } from '../../hooks/useTheme';
 import {
   lookupProduct,
   type ProductLookupResult,
@@ -48,16 +49,19 @@ const DEMO_BARCODES = [
 
 // Maps a YouCam-style halal verdict to a (color, copy-key) pair. Color paired with
 // label per the Score-Triplet Rule — color is never the only carrier of meaning.
-function verdictTone(verdict: HalalVerdict): { color: string; bg: string; key: string } {
+function verdictTone(
+  verdict: HalalVerdict,
+  themeColors: ReturnType<typeof useTheme>['colors'],
+): { color: string; bg: string; key: string } {
   switch (verdict) {
     case 'halal':
-      return { color: colors.success, bg: 'rgba(123, 168, 146, 0.12)', key: 'products.scan.verdictHalal' };
+      return { color: themeColors.success, bg: 'rgba(123, 168, 146, 0.12)', key: 'products.scan.verdictHalal' };
     case 'haram':
-      return { color: colors.error, bg: 'rgba(199, 74, 96, 0.12)', key: 'products.scan.verdictHaram' };
+      return { color: themeColors.error, bg: 'rgba(199, 74, 96, 0.12)', key: 'products.scan.verdictHaram' };
     case 'doubtful':
-      return { color: colors.warning, bg: 'rgba(217, 167, 106, 0.14)', key: 'products.scan.verdictDoubtful' };
+      return { color: themeColors.warning, bg: 'rgba(217, 167, 106, 0.14)', key: 'products.scan.verdictDoubtful' };
     default:
-      return { color: colors.darkGray, bg: 'rgba(90, 90, 90, 0.08)', key: 'products.scan.verdictUnknown' };
+      return { color: themeColors.inkSecondary, bg: themeColors.hairlineSoft, key: 'products.scan.verdictUnknown' };
   }
 }
 
@@ -406,6 +410,8 @@ function BarcodeGuide() {
 // Shared sheet base — Soft-Blush surface, rounded-top, generous padding. Used by all
 // three result states (found / not-found / error) for visual consistency.
 function SheetBase({ children }: { children: React.ReactNode }) {
+  const { colors: themeColors } = useTheme();
+
   return (
     <View
       style={{
@@ -413,7 +419,7 @@ function SheetBase({ children }: { children: React.ReactNode }) {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: colors.softBlush,
+        backgroundColor: themeColors.surface,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         paddingHorizontal: 20,
@@ -427,7 +433,7 @@ function SheetBase({ children }: { children: React.ReactNode }) {
           height: 4,
           width: 36,
           borderRadius: 2,
-          backgroundColor: colors.lightGray,
+          backgroundColor: themeColors.hairline,
           marginBottom: 16,
         }}
       />
@@ -447,7 +453,8 @@ function ResultSheet({
 }) {
   const { t, lang } = useLanguage();
   const { profile } = useProfile();
-  const tone = verdictTone(product.halal_verdict);
+  const { colors: themeColors } = useTheme();
+  const tone = verdictTone(product.halal_verdict, themeColors);
 
   // Personalize against the signed-in user's skin_type + concerns. The matcher returns
   // empty arrays when there's no profile (mock-auth dev) or when no ingredient matched
@@ -470,7 +477,7 @@ function ResultSheet({
           {product.brand ? (
             <Text
               style={{
-                color: colors.brandRose,
+              color: themeColors.brandRose,
                 fontSize: 11,
                 fontWeight: '600',
                 letterSpacing: 1.6,
@@ -506,7 +513,7 @@ function ResultSheet({
         <View className="mt-4">
           <Text
             style={{
-              color: colors.darkGray,
+              color: themeColors.inkSecondary,
               fontSize: 11,
               fontWeight: '600',
               letterSpacing: 1.6,
@@ -583,7 +590,7 @@ function ResultSheet({
             marginRight: 8,
           })}
         >
-          <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 15 }}>
+          <Text style={{ color: themeColors.inkOnAccent, fontWeight: '600', fontSize: 15 }}>
             {t('products.scan.tryAnother')}
           </Text>
         </Pressable>
@@ -594,14 +601,14 @@ function ResultSheet({
             height: 48,
             borderRadius: 14,
             borderWidth: 1,
-            borderColor: colors.brandRose,
-            backgroundColor: pressed ? 'rgba(232, 99, 122, 0.08)' : 'transparent',
+            borderColor: themeColors.brandRose,
+            backgroundColor: pressed ? themeColors.accent : 'transparent',
             alignItems: 'center',
             justifyContent: 'center',
             marginLeft: 8,
           })}
         >
-          <Text style={{ color: colors.brandRose, fontWeight: '600', fontSize: 15 }}>
+          <Text style={{ color: themeColors.brandRose, fontWeight: '600', fontSize: 15 }}>
             {t('scan.done')}
           </Text>
         </Pressable>
@@ -626,7 +633,8 @@ function PersonalizedSection({
   lang: 'en' | 'ar';
 }) {
   const { t } = useLanguage();
-  const accent = tone === 'good' ? colors.success : colors.warning;
+  const { colors: themeColors } = useTheme();
+  const accent = tone === 'good' ? themeColors.success : themeColors.warning;
   const marker = tone === 'good' ? '✓' : '!';
 
   return (
@@ -672,12 +680,12 @@ function PersonalizedSection({
                 </Text>
               </View>
               <View className="flex-1">
-                <Text style={{ color: colors.deepMauve, fontSize: 14, fontWeight: '600' }}>
+                <Text style={{ color: themeColors.ink, fontSize: 14, fontWeight: '600' }}>
                   {m.name}
                 </Text>
                 <Text
                   className="mt-0.5"
-                  style={{ color: colors.darkGray, fontSize: 13, lineHeight: 18 }}
+                  style={{ color: themeColors.inkSecondary, fontSize: 13, lineHeight: 18 }}
                 >
                   {reason}
                 </Text>
@@ -685,7 +693,7 @@ function PersonalizedSection({
                   <Text
                     className="mt-0.5"
                     style={{
-                      color: colors.deepMauve,
+                      color: themeColors.ink,
                       opacity: 0.55,
                       fontSize: 11,
                       fontWeight: '500',
@@ -736,11 +744,12 @@ function NotFoundSheet({
   onClose: () => void;
 }) {
   const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
   return (
     <SheetBase>
       <Text
         style={{
-          color: colors.deepMauve,
+          color: themeColors.ink,
           opacity: 0.6,
           fontSize: 11,
           fontWeight: '600',
@@ -791,7 +800,7 @@ function NotFoundSheet({
             marginRight: 8,
           })}
         >
-          <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 15 }}>
+          <Text style={{ color: themeColors.inkOnAccent, fontWeight: '600', fontSize: 15 }}>
             {t('products.scan.tryAnother')}
           </Text>
         </Pressable>
@@ -802,14 +811,14 @@ function NotFoundSheet({
             height: 48,
             borderRadius: 14,
             borderWidth: 1,
-            borderColor: colors.brandRose,
-            backgroundColor: pressed ? 'rgba(232, 99, 122, 0.08)' : 'transparent',
+            borderColor: themeColors.brandRose,
+            backgroundColor: pressed ? themeColors.accent : 'transparent',
             alignItems: 'center',
             justifyContent: 'center',
             marginLeft: 8,
           })}
         >
-          <Text style={{ color: colors.brandRose, fontWeight: '600', fontSize: 15 }}>
+          <Text style={{ color: themeColors.brandRose, fontWeight: '600', fontSize: 15 }}>
             {t('scan.done')}
           </Text>
         </Pressable>
@@ -828,11 +837,12 @@ function ErrorSheet({
   onClose: () => void;
 }) {
   const { t } = useLanguage();
+  const { colors: themeColors } = useTheme();
   return (
     <SheetBase>
       <Text
         style={{
-          color: colors.error,
+          color: themeColors.error,
           fontSize: 11,
           fontWeight: '600',
           letterSpacing: 1.6,
@@ -858,7 +868,7 @@ function ErrorSheet({
             marginRight: 8,
           })}
         >
-          <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 15 }}>
+          <Text style={{ color: themeColors.inkOnAccent, fontWeight: '600', fontSize: 15 }}>
             {t('products.scan.tryAnother')}
           </Text>
         </Pressable>
@@ -869,14 +879,14 @@ function ErrorSheet({
             height: 48,
             borderRadius: 14,
             borderWidth: 1,
-            borderColor: colors.brandRose,
-            backgroundColor: pressed ? 'rgba(232, 99, 122, 0.08)' : 'transparent',
+            borderColor: themeColors.brandRose,
+            backgroundColor: pressed ? themeColors.accent : 'transparent',
             alignItems: 'center',
             justifyContent: 'center',
             marginLeft: 8,
           })}
         >
-          <Text style={{ color: colors.brandRose, fontWeight: '600', fontSize: 15 }}>
+          <Text style={{ color: themeColors.brandRose, fontWeight: '600', fontSize: 15 }}>
             {t('scan.done')}
           </Text>
         </Pressable>
