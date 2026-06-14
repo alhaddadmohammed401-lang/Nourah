@@ -13,7 +13,8 @@
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > types/database.ts",
     "functions:serve": "supabase functions serve",
-    "functions:deploy": "supabase functions deploy"
+    "functions:deploy": "supabase functions deploy",
+    "bundle-context": "node scripts/bundle-context.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
