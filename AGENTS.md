@@ -520,7 +520,7 @@ Never use variables without this prefix for client-side keys.
 
 #### Onboarding
 - [x] Welcome screen (Screen 1)
-- [x] Skin concerns picker (Screen 2)
+- [x] Skin concerns picker (Screen 2) — NativeWind-only with accessible selection states
 - [x] Skin type selector (Screen 3)
 - [ ] Onboarding data saved to Supabase profiles table
 
@@ -635,14 +635,14 @@ feature/[name] ← specific feature work
 ## CURRENT TASK
 # ⬇️ AGENT: READ AND DO ONLY THIS SECTION ⬇️
 
-**Status:** Onboarding welcome screen refactored to NativeWind and TypeScript check passed
+**Status:** Skin concerns picker refactored to NativeWind; TypeScript and Expo web export passed
 
-**Next task:** Build onboarding welcome screen
+**Next task:** Refactor onboarding skin type selector to NativeWind
 
 **Steps:**
-1. Create `/app/(onboarding)/index.tsx`
-2. Match DESIGN.md visual style
-3. Add app name, tagline, intro copy, and CTA
-4. Link CTA to concerns screen placeholder
-5. Test in Expo Go
+1. Update `/app/(onboarding)/skintype.tsx`
+2. Remove `StyleSheet` and inline style usage
+3. Preserve selection, onboarding params, and signup routing
+4. Add accessible radio-button state
+5. Run TypeScript and Expo web export checks
 6. Commit changes
