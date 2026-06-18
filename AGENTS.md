@@ -521,7 +521,7 @@ Never use variables without this prefix for client-side keys.
 #### Onboarding
 - [x] Welcome screen (Screen 1)
 - [x] Skin concerns picker (Screen 2) — NativeWind-only with accessible selection states
-- [x] Skin type selector (Screen 3)
+- [x] Skin type selector (Screen 3) — NativeWind-only with accessible radio states
 - [ ] Onboarding data saved to Supabase profiles table
 
 #### Core Screens
@@ -635,14 +635,13 @@ feature/[name] ← specific feature work
 ## CURRENT TASK
 # ⬇️ AGENT: READ AND DO ONLY THIS SECTION ⬇️
 
-**Status:** Skin concerns picker refactored to NativeWind; TypeScript and Expo web export passed
+**Status:** Skin type selector refactored to NativeWind with accessible radio states; TypeScript and Expo web export passed
 
-**Next task:** Refactor onboarding skin type selector to NativeWind
+**Next task:** Save onboarding data to the Supabase profiles table
 
 **Steps:**
-1. Update `/app/(onboarding)/skintype.tsx`
-2. Remove `StyleSheet` and inline style usage
-3. Preserve selection, onboarding params, and signup routing
-4. Add accessible radio-button state
-5. Run TypeScript and Expo web export checks
-6. Commit changes
+1. Verify the current signup and profile service flow
+2. Add a typed, narrow persistence path for onboarding concerns and skin type
+3. Preserve existing signup behavior and error handling
+4. Run TypeScript and focused app verification
+5. Commit changes
