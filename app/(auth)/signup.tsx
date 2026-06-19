@@ -14,9 +14,13 @@ import {
   View,
 } from 'react-native';
 
-import { signUp, signInWithGoogle } from '../../services/auth';
+import {
+  signUp,
+  signInWithGoogle,
+  type OnboardingAnswers,
+} from '../../services/auth';
 import { useAuth } from '../../hooks/useAuth';
-import { saveOnboardingAnswers } from '../../services/profileService';
+import type { SkinType } from '../../services/profileService';
 import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
 import { PhoneField } from '../../components/auth/PhoneField';
@@ -29,6 +33,35 @@ type FieldErrors = {
   phone?: string;
   password?: string;
 };
+
+type SignupParams = {
+  concerns?: string;
+  skinType?: string;
+};
+
+function parseSkinType(value: string | undefined): SkinType | null {
+  switch (value) {
+    case 'oily':
+    case 'dry':
+    case 'combination':
+    case 'normal':
+    case 'sensitive':
+      return value;
+    default:
+      return null;
+  }
+}
+
+function parseOnboardingAnswers(params: SignupParams): OnboardingAnswers | undefined {
+  const skinType = parseSkinType(params.skinType);
+  const concerns = params.concerns
+    ?.split(',')
+    .map((concern) => concern.trim())
+    .filter(Boolean);
+
+  if (!skinType || !concerns || concerns.length === 0) return undefined;
+  return { skinType, concerns };
+}
 
 function validate(name: string, email: string, phone: string, password: string): FieldErrors {
   const errors: FieldErrors = {};
@@ -45,7 +78,7 @@ function validate(name: string, email: string, phone: string, password: string):
 
 export default function SignupScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ concerns?: string; skinType?: string }>();
+  const params = useLocalSearchParams<SignupParams>();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -75,7 +108,14 @@ export default function SignupScreen() {
 
     setSubmitting(true);
     const fullPhone = `+971${phone.replace(/\D/g, '')}`;
-    const { data, error } = await signUp(email.trim(), password, name.trim(), fullPhone);
+    const onboardingAnswers = parseOnboardingAnswers(params);
+    const { error } = await signUp(
+      email.trim(),
+      password,
+      name.trim(),
+      fullPhone,
+      onboardingAnswers,
+    );
     setSubmitting(false);
 
     if (error) {
@@ -83,16 +123,6 @@ export default function SignupScreen() {
       return;
     }
 
-    // Onboarding answers carried in via params land here. Persist them to the
-    // profiles row created by the on_auth_user_created trigger. The save is best-effort:
-    // if Supabase is unreachable (mock mode), the user still proceeds to the home tab.
-    const newUserId = data?.user?.id;
-    if (newUserId && (params.concerns || params.skinType)) {
-      await saveOnboardingAnswers(newUserId, {
-        skinType: params.skinType,
-        concerns: params.concerns ? params.concerns.split(',').filter(Boolean) : undefined,
-      });
-    }
     router.replace('/(tabs)');
   }
 

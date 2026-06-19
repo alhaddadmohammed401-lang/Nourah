@@ -3,6 +3,12 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { supabase } from './supabase';
 import { setMockUser, type MockUser } from './mockAuthStore';
+import type { SkinType } from './profileService';
+
+export type OnboardingAnswers = {
+  skinType: SkinType;
+  concerns: string[];
+};
 
 // In-app browser pre-warm: only matters on Android, where the first open of a Custom Tab
 // is otherwise noticeably slower. No-op on iOS / web. Cheap to call repeatedly so we just
@@ -30,6 +36,7 @@ export const signUp = async (
   password: string,
   name?: string,
   phone?: string,
+  onboarding?: OnboardingAnswers,
 ) => {
   if (!supabase) {
     const user = buildMockUser(email, name, phone);
@@ -45,6 +52,12 @@ export const signUp = async (
       data: {
         name,
         phone,
+        ...(onboarding
+          ? {
+              skin_type: onboarding.skinType,
+              concerns: onboarding.concerns,
+            }
+          : {}),
       },
     },
   });

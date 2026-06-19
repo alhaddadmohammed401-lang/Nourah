@@ -635,13 +635,13 @@ feature/[name] ← specific feature work
 ## CURRENT TASK
 # ⬇️ AGENT: READ AND DO ONLY THIS SECTION ⬇️
 
-**Status:** Skin type selector refactored to NativeWind with accessible radio states; TypeScript and Expo web export passed
+**Status:** Onboarding concerns and skin type persist through typed signup metadata and the Supabase profile trigger; TypeScript and Expo web export passed
 
-**Next task:** Save onboarding data to the Supabase profiles table
+**Next task:** Finalize the app icon and splash screen assets
 
 **Steps:**
-1. Verify the current signup and profile service flow
-2. Add a typed, narrow persistence path for onboarding concerns and skin type
-3. Preserve existing signup behavior and error handling
-4. Run TypeScript and focused app verification
+1. Verify founder-approved source artwork exists before editing assets or config
+2. Confirm the required Expo icon, adaptive icon, favicon, and splash dimensions
+3. Add only the approved assets and the minimum explicit app config references
+4. Run TypeScript and focused Expo verification
 5. Commit changes
