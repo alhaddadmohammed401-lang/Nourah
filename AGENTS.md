@@ -505,14 +505,14 @@ Never use variables without this prefix for client-side keys.
 - [x] tailwind.config.js configured with design tokens
 - [x] /constants/colors.ts created
 - [x] /constants/fonts.ts created
-- [ ] Google Fonts loaded (DMSerifDisplay, DMSans, Tajawal)
+- [x] Google Fonts loaded (DMSerifDisplay, DMSans, Tajawal)
 - [x] Expo Router navigation structure created
 - [ ] All placeholder screens created
 
 #### Authentication
 - [x] Supabase client initialized (`/services/supabase.ts`)
-- [ ] Supabase database schema applied (SQL above)
-- [ ] RLS policies applied
+- [x] Supabase database schema applied (SQL above)
+- [x] RLS policies applied
 - [x] Login screen built
 - [x] Sign up screen built
 - [x] Auth service built (`/services/auth.ts`)
