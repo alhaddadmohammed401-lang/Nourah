@@ -477,8 +477,9 @@ export default function RoutineScreen() {
             ))}
 
             {!plan.isPremium ? (
-              <View
-                className="mt-2 rounded-2xl bg-white p-5"
+              <Pressable
+                onPress={() => router.push('/paywall')}
+                className="mt-2 rounded-2xl bg-white p-5 active:opacity-85"
                 style={{
                   borderWidth: 1,
                   borderColor: 'rgba(201, 168, 76, 0.45)',
@@ -509,7 +510,7 @@ export default function RoutineScreen() {
                 <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
                   {t('routine.premiumBody')}
                 </Text>
-              </View>
+              </Pressable>
             ) : null}
 
             {/* Back-to-home is a quiet ghost link, not a competing button. The user came

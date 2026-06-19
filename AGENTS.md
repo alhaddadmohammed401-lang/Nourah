@@ -527,40 +527,40 @@ Never use variables without this prefix for client-side keys.
 #### Core Screens
 - [x] Home screen built (mock scan service; flip EXPO_PUBLIC_SCAN_MODE=live for Perfect Corp)
 - [x] Face scan screen built (camera + oval guide) (mock canvas; expo-camera deferred)
-- [ ] Perfect Corp API integrated
+- [x] Perfect Corp API integrated
 - [x] Scan results screen built (inline result sheet on Scan screen; standalone /scan-results deferred)
-- [ ] GCC badge overlays added to results
+- [x] GCC badge overlays added to results
 - [x] Routine screen built (AM/PM toggle)
-- [ ] Gemini Flash API integrated for routine text
+- [x] Gemini Flash API integrated for routine text
 
 #### Ingredient Scanner
-- [ ] Barcode scanner screen built
-- [ ] Open Food Facts API integrated
-- [ ] Halal flagging logic built (`/constants/halalFlags.ts`)
-- [ ] Irritant detection logic built (`/constants/irritants.ts`)
-- [ ] Ingredient result bottom sheet built
+- [x] Barcode scanner screen built
+- [x] Open Food Facts API integrated
+- [x] Halal flagging logic built (`/constants/halalFlags.ts`)
+- [x] Irritant detection logic built (`/constants/irritants.ts`)
+- [x] Ingredient result bottom sheet built
 
 #### Commerce
 - [x] Products screen built
-- [ ] Affiliate product data created (`/constants/products.ts`)
-- [ ] Amazon.ae affiliate links integrated
-- [ ] iHerb affiliate links integrated
-- [ ] YesStyle affiliate links integrated
-- [ ] RevenueCat SDK installed
+- [x] Affiliate product data created (`/constants/products.ts`)
+- [x] Amazon.ae affiliate links integrated
+- [x] iHerb affiliate links integrated
+- [x] YesStyle affiliate links integrated
+- [x] RevenueCat SDK installed
 - [ ] Subscription products created in App Store Connect
-- [ ] Paywall screen built
-- [ ] Premium gates implemented
+- [x] Paywall screen built
+- [x] Premium gates implemented
 
 #### Polish
-- [ ] Progress tracking screen built (premium)
-- [ ] Push notifications set up
+- [x] Progress tracking screen built (premium)
+- [x] Push notifications set up
 - [x] Profile screen built
-- [ ] Settings screen built (language, notifications)
-- [ ] Arabic translations complete (`/locales/ar.json`)
-- [ ] English translations complete (`/locales/en.json`)
-- [ ] RTL layout working for Arabic
-- [ ] Micro-animations added (scan ring, transitions)
-- [ ] Haptic feedback on scan complete
+- [x] Settings screen built (language, notifications)
+- [x] Arabic translations complete (`/locales/ar.json`)
+- [x] English translations complete (`/locales/en.json`)
+- [x] RTL layout working for Arabic
+- [x] Micro-animations added (scan ring, transitions)
+- [x] Haptic feedback on scan complete
 - [ ] App icon + splash screen finalized
 
 ### Phase 4 — Network (Weeks 7–8)

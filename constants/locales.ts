@@ -243,6 +243,22 @@ const en = {
       noIngredients: 'No ingredient list available.',
     },
   },
+  paywall: {
+    title: 'Nourah Premium',
+    subtitle: 'Your skin, fully understood.',
+    feature1: 'Unlimited daily face scans',
+    feature2: 'Full AM & PM routines (Free is AM only)',
+    feature3: 'Full ingredient analysis & irritants list',
+    feature4: 'Priority product recommendations',
+    monthly: 'Monthly',
+    monthlyPrice: 'AED 29 / month',
+    annual: 'Annual',
+    annualPrice: 'AED 199 / year',
+    trial: '5 days free trial',
+    bestValue: 'Best Value',
+    subscribe: 'Start Free Trial',
+    restore: 'Restore Purchases',
+  },
 } as const;
 
 type LocaleShape<T> = {
@@ -488,6 +504,22 @@ const ar: LocaleDictionary = {
       serum: { name: 'سيروم نياسيناميد', category: 'عناية', halal: 'راجعي العطر', reason: 'يساعد على تقليل اللمعان مع الحفاظ على روتين خفيف.' },
       sunscreen: { name: 'واقي شمس SPF 50', category: 'حماية', halal: 'حلال', reason: 'خطوة يومية مناسبة لأشعة الإمارات وخطر التصبغ.' },
     },
+  },
+  paywall: {
+    title: 'نورة بريميوم',
+    subtitle: 'عناية تفهم بشرتك بالكامل.',
+    feature1: 'فحص غير محدود للوجه ومخططات تقدم',
+    feature2: 'روتين صباحي ومسائي مخصص بالكامل',
+    feature3: 'تحليل شامل للمكونات وقائمة المهيجات',
+    feature4: 'أولوية توصيات المنتجات الحلال',
+    monthly: 'شهري',
+    monthlyPrice: '٢٩ د.إ / شهرياً',
+    annual: 'سنوي',
+    annualPrice: '١٩٩ د.إ / سنوياً',
+    trial: 'تجربة مجانية لمدة ٥ أيام',
+    bestValue: 'القيمة الأفضل',
+    subscribe: 'ابدئي التجربة المجانية',
+    restore: 'استعادة المشتريات',
   },
 };
 

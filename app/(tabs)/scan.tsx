@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { CameraView, useCameraPermissions, type CameraView as CameraViewType } from 'expo-camera';
 
 import { FaceGuide } from '../../components/scan/FaceGuide';
+import { ScanningRing } from '../../components/scan/ScanningRing';
+import * as Haptics from 'expo-haptics';
 import { Countdown } from '../../components/scan/Countdown';
 import { ScoreCard } from '../../components/ui/ScoreCard';
 import { Button } from '../../components/ui/Button';
@@ -53,6 +55,10 @@ export default function ScanScreen() {
       }
       const result = await analyzeSkin(base64);
       setScan(result);
+      
+      // Haptic feedback on scan complete
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
       // Live scans return a 'pending' row from the async kick-off — there are no scores
       // yet, so show the in-progress UI on Home instead of the ResultSheet here.
       if (result.status === 'pending') {
@@ -261,6 +267,7 @@ function ScanCanvas({
       ) : null}
 
       <FaceGuide pulsing={phase === 'analyzing'} />
+      <ScanningRing active={phase === 'analyzing'} />
 
       {phase === 'counting' ? (
         <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>

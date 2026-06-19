@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,12 +9,19 @@ import {
   Text,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, type ThemeColors } from '../../constants/colors';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme, type ThemeMode } from '../../hooks/useTheme';
 import type { Lang } from '../../constants/locales';
 import { signOut } from '../../services/auth';
+import {
+  requestNotificationPermissions,
+  scheduleDailyReminder,
+  scheduleWeeklyCheck,
+  cancelNotificationById,
+} from '../../services/notificationService';
 
 // Settings + identity surface. Headlines the language toggle so the bilingual promise is
 // always within reach. Sign-out lives at the bottom because it's the destructive path.
@@ -29,6 +36,54 @@ export default function ProfileScreen() {
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
   const [showRestartHint, setShowRestartHint] = useState(false);
+  const [dailyReminder, setDailyReminder] = useState(false);
+  const [weeklyCheck, setWeeklyCheck] = useState(false);
+
+  useEffect(() => {
+    async function loadNotificationPreferences() {
+      try {
+        const dailyVal = await AsyncStorage.getItem('nourah:pref:daily-reminder');
+        const weeklyVal = await AsyncStorage.getItem('nourah:pref:weekly-check');
+        setDailyReminder(dailyVal === 'true');
+        setWeeklyCheck(weeklyVal === 'true');
+      } catch (err) {
+        console.warn('Failed to load notification preferences:', err);
+      }
+    }
+    void loadNotificationPreferences();
+  }, []);
+
+  async function handleDailyReminderToggle() {
+    const next = !dailyReminder;
+    if (next) {
+      const granted = await requestNotificationPermissions();
+      if (granted) {
+        await scheduleDailyReminder();
+        setDailyReminder(true);
+        await AsyncStorage.setItem('nourah:pref:daily-reminder', 'true');
+      }
+    } else {
+      await cancelNotificationById('daily-pm-reminder');
+      setDailyReminder(false);
+      await AsyncStorage.setItem('nourah:pref:daily-reminder', 'false');
+    }
+  }
+
+  async function handleWeeklyCheckToggle() {
+    const next = !weeklyCheck;
+    if (next) {
+      const granted = await requestNotificationPermissions();
+      if (granted) {
+        await scheduleWeeklyCheck();
+        setWeeklyCheck(true);
+        await AsyncStorage.setItem('nourah:pref:weekly-check', 'true');
+      }
+    } else {
+      await cancelNotificationById('weekly-skin-check');
+      setWeeklyCheck(false);
+      await AsyncStorage.setItem('nourah:pref:weekly-check', 'false');
+    }
+  }
 
   const displayName =
     typeof user?.user_metadata?.name === 'string'
@@ -232,6 +287,37 @@ export default function ProfileScreen() {
 
             <Text className="mt-3 text-[13px] leading-5 text-darkGray">
               {t('profile.appearanceHint')}
+            </Text>
+
+            <Text className="mt-6 text-[15px] font-semibold text-deepMauve">
+              {lang === 'ar' ? 'التنبيهات' : 'Notifications'}
+            </Text>
+
+            <View
+              className="mt-2 flex-row"
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: themeColors.hairline,
+              }}
+            >
+              <ChoiceTab
+                active={dailyReminder}
+                label={lang === 'ar' ? 'تذكير يومي' : 'Daily Reminder'}
+                onPress={handleDailyReminderToggle}
+                themeColors={themeColors}
+              />
+              <ChoiceTab
+                active={weeklyCheck}
+                label={lang === 'ar' ? 'فحص أسبوعي' : 'Weekly Check'}
+                onPress={handleWeeklyCheckToggle}
+                themeColors={themeColors}
+              />
+            </View>
+
+            <Text className="mt-3 text-[13px] leading-5 text-darkGray">
+              {lang === 'ar'
+                ? 'تذكير روتين المساء اليومي في الساعة ٨:٠٠ مساءً، وتذكير الفحص الأسبوعي كل أحد في الساعة ١٠:٠٠ صباحاً.'
+                : 'Daily PM routine reminder at 8:00 PM and weekly check-in Sunday at 10:00 AM.'}
             </Text>
 
             {/* Stats block: serif numerals replace the bold sans figures — same typographic

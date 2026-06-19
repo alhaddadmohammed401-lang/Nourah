@@ -1,40 +1,56 @@
-import { Pressable, SafeAreaView, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Linking, Pressable, SafeAreaView, ScrollView, StatusBar, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors } from '../../constants/colors';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../hooks/useTheme';
+import { useProfile } from '../../hooks/useProfile';
+import { usePremiumStatus } from '../../hooks/usePremiumStatus';
+import { getRecommendedProducts } from '../../services/affiliateService';
+import { type Product } from '../../constants/products';
 
-const PRODUCT_IDS = ['cleanser', 'serum', 'sunscreen'] as const;
+// Dynamic localization of category badges
+const getCategoryLabel = (category: string, lang: string): string => {
+  const labels: Record<string, Record<string, string>> = {
+    en: {
+      cleanser: 'Cleanse',
+      moisturizer: 'Hydrate',
+      serum: 'Treat',
+      sunscreen: 'Protect',
+    },
+    ar: {
+      cleanser: 'تنظيف',
+      moisturizer: 'ترطيب',
+      serum: 'معالجة',
+      sunscreen: 'حماية',
+    },
+  };
+  return labels[lang]?.[category] ?? category;
+};
 
-// Maps the locale's free-form halal verdict string to a UI tone. The English copy currently
-// only ships two states ("Halal-friendly" and "Check fragrance"); we keep the mapping
-// resilient so when the live product-lookup edge function returns 'halal' / 'haram' /
-// 'doubtful' / 'unknown' the same tag UI flexes without rework.
-function verdictTone(text: string, themeColors: ReturnType<typeof useTheme>['colors']): {
-  color: string;
-  bg: string;
-} {
-  const t = text.toLowerCase();
-  if (t.includes('halal') && !t.includes('check')) {
-    return { color: themeColors.success, bg: 'rgba(123, 168, 146, 0.12)' };
-  }
-  if (t.includes('check') || t.includes('doubt')) {
-    return { color: themeColors.warning, bg: 'rgba(217, 167, 106, 0.14)' };
-  }
-  if (t.includes('haram')) {
-    return { color: themeColors.error, bg: 'rgba(199, 74, 96, 0.12)' };
-  }
-  return { color: themeColors.inkSecondary, bg: themeColors.hairlineSoft };
-}
-
-// Shows a quiet product surface that previews halal-aware recommendations without
-// commerce clutter. PRODUCT.md positions this as "a recommendation from someone who
-// knows your skin, not a marketplace," so the page leans on type and quiet hierarchy
-// rather than icon-cards and chips.
 export default function ProductsScreen() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const { theme, colors: themeColors } = useTheme();
+  const { profile } = useProfile();
+  const { isPremium } = usePremiumStatus();
+
+  // Load recommended products dynamically based on profile and subscription status
+  const recommendedProducts = getRecommendedProducts({
+    skinType: profile?.skin_type,
+    concerns: profile?.concerns ?? [],
+    isPremium,
+  });
+
+  const handleShopPress = async (url: string) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      }
+    } catch (err) {
+      console.warn('Could not open affiliate link:', err);
+    }
+  };
 
   return (
     <View className="flex-1 bg-softBlush" style={{ backgroundColor: themeColors.surface }}>
@@ -63,12 +79,12 @@ export default function ProductsScreen() {
               {t('products.title')}
             </Text>
             <Text className="mt-2 text-[14px] leading-[22px] text-darkGray">
-              {t('products.intro')}
+              {lang === 'ar'
+                ? 'توصيات هادئة مبنية على تحليلات بشرتك. تسوقي مباشرة عبر الروابط الموثوقة.'
+                : 'Personalized recommendations tailored to your GCC skin profile. Shop via trusted platforms.'}
             </Text>
 
-            {/* "Scan a product" CTA — primary action of this tab now that the barcode
-              scanner is wired. Brand-Rose pill button + a one-line hint below. Sits
-              above the day's shelf so it's the first action a user sees. */}
+            {/* "Scan a product" CTA */}
             <Pressable
               onPress={() => router.push('/(tabs)/scan-product')}
               accessibilityRole="button"
@@ -103,8 +119,7 @@ export default function ProductsScreen() {
               {t('products.scan.ctaHint')}
             </Text>
 
-            {/* Inline section eyebrow + mood tag on the Blush ground (no card). Frames
-              the list below without competing with the product surfaces themselves. */}
+            {/* Section Header */}
             <View
               className="mt-8 flex-row items-center"
               style={{
@@ -143,72 +158,174 @@ export default function ProductsScreen() {
               </View>
             </View>
 
+            {/* Recommended Products List */}
             <View className="mt-4">
-              {PRODUCT_IDS.map((id, idx) => {
-                const name = t(`products.catalog.${id}.name`);
-                const category = t(`products.catalog.${id}.category`);
-                const halal = t(`products.catalog.${id}.halal`);
-                const reason = t(`products.catalog.${id}.reason`);
-                const tone = verdictTone(halal, themeColors);
+              {recommendedProducts.length > 0 ? (
+                recommendedProducts.map((product, idx) => {
+                  const name = product.name;
+                  const category = getCategoryLabel(product.category, lang);
+                  const reason = lang === 'ar' ? product.reason_ar : product.reason_en;
+                  const halalLabel =
+                    product.halal_verdict === 'halal'
+                      ? t('products.scan.verdictHalal')
+                      : t('products.scan.verdictDoubtful');
 
-                return (
-                  <View
-                    key={id}
-                    className={`${idx === 0 ? '' : 'mt-3'} rounded-2xl bg-white p-5`}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: themeColors.hairlineSoft,
-                    }}
-                  >
-                    <View className="flex-row items-start justify-between">
-                      <View className="flex-1 pr-3">
-                        <Text
-                          className="text-brandRose"
-                          style={{
-                            fontSize: 11,
-                            fontWeight: '600',
-                            letterSpacing: 1.6,
-                            textTransform: 'uppercase',
-                          }}
+                  const isHalal = product.halal_verdict === 'halal';
+                  const halalTone = {
+                    color: isHalal ? themeColors.success : themeColors.warning,
+                    bg: isHalal ? 'rgba(123, 168, 146, 0.12)' : 'rgba(217, 167, 106, 0.14)',
+                  };
+
+                  return (
+                    <View
+                      key={product.id}
+                      className={`${idx === 0 ? '' : 'mt-4'} rounded-2xl bg-white p-5`}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: themeColors.hairlineSoft,
+                      }}
+                    >
+                      {/* Product Header */}
+                      <View className="flex-row items-start justify-between">
+                        <View className="flex-1 pr-3">
+                          <Text
+                            className="text-brandRose"
+                            style={{
+                              fontSize: 11,
+                              fontWeight: '600',
+                              letterSpacing: 1.6,
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {product.brand} • {category}
+                          </Text>
+                          <Text
+                            className="mt-1 text-deepMauve"
+                            style={{
+                              fontFamily: 'DMSerifDisplay-Regular',
+                              fontSize: 22,
+                              lineHeight: 28,
+                              letterSpacing: -0.1,
+                            }}
+                          >
+                            {name}
+                          </Text>
+                        </View>
+
+                        <View
+                          className="rounded-full px-2.5 py-1.5"
+                          style={{ backgroundColor: halalTone.bg }}
                         >
-                          {category}
-                        </Text>
-                        <Text
-                          className="mt-2 text-deepMauve"
-                          style={{
-                            fontFamily: 'DMSerifDisplay-Regular',
-                            fontSize: 22,
-                            lineHeight: 28,
-                            letterSpacing: -0.1,
-                          }}
-                        >
-                          {name}
-                        </Text>
+                          <Text
+                            style={{
+                              color: halalTone.color,
+                              fontSize: 11,
+                              fontWeight: '600',
+                              letterSpacing: 0.6,
+                            }}
+                          >
+                            {halalLabel}
+                          </Text>
+                        </View>
                       </View>
 
-                      <View
-                        className="rounded-full px-2.5 py-1.5"
-                        style={{ backgroundColor: tone.bg }}
-                      >
-                        <Text
-                          style={{
-                            color: tone.color,
-                            fontSize: 11,
-                            fontWeight: '600',
-                            letterSpacing: 0.6,
-                          }}
-                        >
-                          {halal}
-                        </Text>
+                      {/* Product Description */}
+                      <Text className="mt-3 text-[14px] leading-[22px] text-darkGray">
+                        {reason}
+                      </Text>
+
+                      {/* Affiliate Shopping Buttons */}
+                      <View className="mt-4 pt-4 border-t border-lightGray/35 flex-col gap-2">
+                        {product.affiliate.amazon_ae && (
+                          <Pressable
+                            onPress={() => handleShopPress(product.affiliate.amazon_ae)}
+                            style={({ pressed }) => ({
+                              height: 48,
+                              borderRadius: 12,
+                              borderWidth: 1,
+                              borderColor: themeColors.hairline,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: pressed ? '#F5F5F5' : '#FFFFFF',
+                            })}
+                          >
+                            <Text
+                              style={{
+                                color: colors.deepMauve,
+                                fontSize: 13,
+                                fontWeight: '600',
+                              }}
+                            >
+                              {lang === 'ar' ? 'تسوقي من أمازون الإمارات' : 'Shop on Amazon.ae'}
+                            </Text>
+                          </Pressable>
+                        )}
+
+                        {product.affiliate.iherb && (
+                          <Pressable
+                            onPress={() => handleShopPress(product.affiliate.iherb!)}
+                            style={({ pressed }) => ({
+                              height: 48,
+                              borderRadius: 12,
+                              borderWidth: 1,
+                              borderColor: themeColors.hairline,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: pressed ? '#F5F5F5' : '#FFFFFF',
+                            })}
+                          >
+                            <Text
+                              style={{
+                                color: colors.deepMauve,
+                                fontSize: 13,
+                                fontWeight: '600',
+                              }}
+                            >
+                              {lang === 'ar' ? 'تسوقي من آي هيرب' : 'Shop on iHerb'}
+                            </Text>
+                          </Pressable>
+                        )}
+
+                        {product.affiliate.yesstyle && (
+                          <Pressable
+                            onPress={() => handleShopPress(product.affiliate.yesstyle!)}
+                            style={({ pressed }) => ({
+                              height: 48,
+                              borderRadius: 12,
+                              borderWidth: 1,
+                              borderColor: themeColors.hairline,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: pressed ? '#F5F5F5' : '#FFFFFF',
+                            })}
+                          >
+                            <Text
+                              style={{
+                                color: colors.deepMauve,
+                                fontSize: 13,
+                                fontWeight: '600',
+                              }}
+                            >
+                              {lang === 'ar' ? 'تسوقي من يس ستايل' : 'Shop on YesStyle'}
+                            </Text>
+                          </Pressable>
+                        )}
                       </View>
                     </View>
-
-                    <Text className="mt-3 text-[14px] leading-[22px] text-darkGray">
-                      {reason}
-                    </Text>
-                  </View>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <View className="p-8 items-center bg-white rounded-2xl">
+                  <Text className="text-[14px] text-darkGray text-center">
+                    {lang === 'ar'
+                      ? 'لا توجد توصيات حالياً تناسب ملفك.'
+                      : 'No recommendations match your current profile filters.'}
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </ScrollView>
