@@ -507,7 +507,7 @@ Never use variables without this prefix for client-side keys.
 - [x] /constants/fonts.ts created
 - [x] Google Fonts loaded (DMSerifDisplay, DMSans, Tajawal)
 - [x] Expo Router navigation structure created
-- [ ] All placeholder screens created
+- [x] All placeholder screens created
 
 #### Authentication
 - [x] Supabase client initialized (`/services/supabase.ts`)
