@@ -6,6 +6,7 @@ import {
   subscribeMockUser,
   type MockUser,
 } from '../services/mockAuthStore';
+import { persistPendingOnboardingToServer } from '../services/profileService';
 
 type AuthContextType = {
   session: Session | null;
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (hydrated) {
           setUser(mockUserToSupabaseUser(hydrated));
           setSession(mockUserToSession(hydrated));
+          void persistPendingOnboardingToServer(hydrated.id);
         }
         setLoading(false);
       })();
@@ -56,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (next) {
           setUser(mockUserToSupabaseUser(next));
           setSession(mockUserToSession(next));
+          void persistPendingOnboardingToServer(next.id);
         } else {
           setUser(null);
           setSession(null);
@@ -71,6 +74,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user?.id) {
+        void persistPendingOnboardingToServer(session.user.id);
+      }
       setLoading(false);
     });
 
@@ -79,6 +85,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
+      if (nextSession?.user?.id) {
+        void persistPendingOnboardingToServer(nextSession.user.id);
+      }
     });
 
     return () => {

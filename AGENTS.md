@@ -522,7 +522,7 @@ Never use variables without this prefix for client-side keys.
 - [x] Welcome screen (Screen 1)
 - [x] Skin concerns picker (Screen 2) — NativeWind-only with accessible selection states
 - [x] Skin type selector (Screen 3) — NativeWind-only with accessible radio states
-- [ ] Onboarding data saved to Supabase profiles table
+- [x] Onboarding data saved to Supabase profiles table
 
 #### Core Screens
 - [x] Home screen built (mock scan service; flip EXPO_PUBLIC_SCAN_MODE=live for Perfect Corp)
@@ -583,7 +583,7 @@ Never use variables without this prefix for client-side keys.
 
 ### For Antigravity
 - Use as your primary planning and multi-agent orchestration tool
-- Ideal for: scaffolding new screens, setting up Firebase services, large refactors
+- Ideal for: scaffolding new screens, setting up Supabase services, large refactors
 - Always tell Antigravity to read AGENTS.md first using: "Read the AGENTS.md file in the project root before you begin"
 - When Antigravity hits rate limits → switch to Claude Code
 

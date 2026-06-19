@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, ScrollView, StatusBar, Text, View } from 'react-native';
 import { Button } from '../../components/ui/Button';
 import { useTheme } from '../../hooks/useTheme';
+import { savePendingOnboardingLocal } from '../../services/profileService';
 
 const SKIN_TYPES = [
   { id: 'oily', label: 'Oily', description: 'Shiny all over, visible pores', emoji: '💧' },
@@ -31,6 +32,15 @@ export default function SkinTypeScreen() {
 
   function handleComplete() {
     if (!selectedType) return;
+
+    // Save onboarding answers locally to support OAuth and robust signup flows
+    const concernsArray = params.concerns
+      ? (params.concerns as string).split(',').filter(Boolean)
+      : [];
+    void savePendingOnboardingLocal({
+      skinType: selectedType,
+      concerns: concernsArray,
+    });
 
     // The user has finished the unauthenticated onboarding interview. Carry their
     // answers into signup so the account creation step can persist them. Going

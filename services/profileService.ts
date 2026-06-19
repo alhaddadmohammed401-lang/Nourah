@@ -2,6 +2,7 @@
 // Profile tab. When Supabase env vars are missing, every call returns a no-op result
 // instead of throwing so the mock-auth dev experience keeps working.
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from './supabase';
 
 export type SkinType = 'oily' | 'dry' | 'combination' | 'normal' | 'sensitive';
@@ -48,6 +49,8 @@ export async function updateProfile(
   return { data: (data as Profile) ?? null, error: error?.message ?? null };
 }
 
+const PENDING_ONBOARDING_KEY = 'nourah:pending-onboarding';
+
 // Convenience: called immediately after signup to persist onboarding answers into the
 // profile row that the on_auth_user_created trigger just created.
 export async function saveOnboardingAnswers(
@@ -58,5 +61,41 @@ export async function saveOnboardingAnswers(
   if (answers.skinType) patch.skin_type = answers.skinType as SkinType;
   if (answers.concerns && answers.concerns.length > 0) patch.concerns = answers.concerns;
   if (Object.keys(patch).length === 0) return { data: null, error: null };
-  return updateProfile(userId, patch);
+  
+  const result = await updateProfile(userId, patch);
+  if (!result.error) {
+    try {
+      await AsyncStorage.removeItem(PENDING_ONBOARDING_KEY);
+    } catch {
+      // Ignored
+    }
+  }
+  return result;
+}
+
+export async function savePendingOnboardingLocal(answers: {
+  skinType?: string;
+  concerns?: string[];
+}): Promise<void> {
+  try {
+    await AsyncStorage.setItem(PENDING_ONBOARDING_KEY, JSON.stringify(answers));
+  } catch (error) {
+    console.warn('Failed to save pending onboarding locally:', error);
+  }
+}
+
+export async function persistPendingOnboardingToServer(userId: string): Promise<void> {
+  try {
+    const raw = await AsyncStorage.getItem(PENDING_ONBOARDING_KEY);
+    if (!raw) return;
+    const answers = JSON.parse(raw) as { skinType?: string; concerns?: string[] };
+    if (answers && (answers.skinType || answers.concerns)) {
+      const { error } = await saveOnboardingAnswers(userId, answers);
+      if (!error) {
+        await AsyncStorage.removeItem(PENDING_ONBOARDING_KEY);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to persist pending onboarding to server:', error);
+  }
 }
