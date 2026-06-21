@@ -646,12 +646,13 @@ feature/[name] ← specific feature work
 
 ### Prioritized 7-day builder queue
 
-#### 1. READY — Type notification scheduling
+#### 1. DONE — Type notification scheduling
 - **Goal:** Remove explicit `any` types from notification permission and schedule handling without changing reminder behavior.
 - **Likely files:** `/services/notificationService.ts`
 - **Done condition:** Permission responses and daily/weekly triggers use Expo-provided types, no explicit `any` remains in this file, and the 8:00 PM daily plus Sunday 10:00 AM schedules are unchanged.
 - **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
 - **Out of scope:** Notification UI, push credentials, EAS configuration, and physical-device delivery testing.
+- **Completed:** 2026-06-21 — Expo permission and daily/weekly trigger types applied with reminder times unchanged.
 
 #### 2. READY — Type ingredient API parsing
 - **Goal:** Replace the untyped Open Food/Beauty Facts response parsing with narrow local TypeScript interfaces.

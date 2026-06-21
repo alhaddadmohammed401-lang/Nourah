@@ -1,5 +1,10 @@
 import * as Notifications from 'expo-notifications';
+import type { PermissionResponse } from 'expo-modules-core';
 import { Platform } from 'react-native';
+
+// Expo 54 does not re-export the PermissionResponse base expected by expo-notifications 56.
+type NotificationPermissionResponse =
+  Notifications.NotificationPermissionsStatus & PermissionResponse;
 
 // Set up default behavior for when notifications arrive while app is foregrounded
 Notifications.setNotificationHandler({
@@ -19,11 +24,13 @@ Notifications.setNotificationHandler({
 export async function requestNotificationPermissions(): Promise<boolean> {
   if (Platform.OS === 'web') return false;
 
-  const { granted: existingGranted } = (await Notifications.getPermissionsAsync()) as any;
-  if (existingGranted) return true;
+  const existingPermissions =
+    (await Notifications.getPermissionsAsync()) as NotificationPermissionResponse;
+  if (existingPermissions.granted) return true;
 
-  const { granted } = (await Notifications.requestPermissionsAsync()) as any;
-  return !!granted;
+  const requestedPermissions =
+    (await Notifications.requestPermissionsAsync()) as NotificationPermissionResponse;
+  return requestedPermissions.granted;
 }
 
 /**
@@ -31,8 +38,9 @@ export async function requestNotificationPermissions(): Promise<boolean> {
  */
 export async function hasNotificationPermissions(): Promise<boolean> {
   if (Platform.OS === 'web') return false;
-  const { granted } = (await Notifications.getPermissionsAsync()) as any;
-  return !!granted;
+  const permissions =
+    (await Notifications.getPermissionsAsync()) as NotificationPermissionResponse;
+  return permissions.granted;
 }
 
 /**
@@ -44,8 +52,8 @@ export async function scheduleDailyReminder(): Promise<string> {
   // Cancel existing PM reminders first to avoid duplicates
   await cancelNotificationById('daily-pm-reminder');
 
-  const trigger: any = {
-    type: 'daily',
+  const trigger: Notifications.DailyTriggerInput = {
+    type: Notifications.SchedulableTriggerInputTypes.DAILY,
     hour: 20, // 8:00 PM
     minute: 0,
   };
@@ -69,8 +77,8 @@ export async function scheduleWeeklyCheck(): Promise<string> {
 
   await cancelNotificationById('weekly-skin-check');
 
-  const trigger: any = {
-    type: 'weekly',
+  const trigger: Notifications.WeeklyTriggerInput = {
+    type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
     weekday: 1, // Sunday (1 = Sunday in expo-notifications trigger)
     hour: 10,  // 10:00 AM
     minute: 0,
