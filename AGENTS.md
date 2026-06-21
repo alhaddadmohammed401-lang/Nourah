@@ -1,6 +1,6 @@
 # AGENTS.md — Skincare App Master Context
 # READ THIS ENTIRE FILE BEFORE TOUCHING ANY CODE
-# Last updated: 2026-04-25
+# Last updated: 2026-06-21
 
 ---
 
@@ -488,6 +488,7 @@ Never use variables without this prefix for client-side keys.
 - [ ] Figma design file created with brand page
 - [ ] Color palette + fonts set up in Figma
 - [ ] App icon designed (1024×1024px)
+  Note: The current icon, adaptive icon, splash, and favicon are Expo scaffold placeholders; no founder-approved source artwork was found as of 2026-06-21.
 - [ ] Onboarding screens wireframed (3 screens)
 - [ ] Home screen wireframed
 - [ ] Scan screen wireframed
@@ -556,8 +557,8 @@ Never use variables without this prefix for client-side keys.
 - [x] Push notifications set up
 - [x] Profile screen built
 - [x] Settings screen built (language, notifications)
-- [x] Arabic translations complete (`/locales/ar.json`)
-- [x] English translations complete (`/locales/en.json`)
+- [ ] Arabic translations complete — post-auth keys exist in `/constants/locales.ts`; auth and onboarding screens still have explicit i18n TODOs
+- [ ] English translations complete — post-auth keys exist in `/constants/locales.ts`; auth and onboarding screens still have explicit i18n TODOs
 - [x] RTL layout working for Arabic
 - [x] Micro-animations added (scan ring, transitions)
 - [x] Haptic feedback on scan complete
@@ -635,13 +636,105 @@ feature/[name] ← specific feature work
 ## CURRENT TASK
 # ⬇️ AGENT: READ AND DO ONLY THIS SECTION ⬇️
 
-**Status:** Onboarding concerns and skin type persist through typed signup metadata and the Supabase profile trigger; TypeScript and Expo web export passed
+**Roadmap refreshed:** 2026-06-21
 
-**Next task:** Finalize the app icon and splash screen assets
+**Current verified baseline:** Onboarding concerns and skin type persist through typed signup metadata and the Supabase profile trigger. The app currently uses Expo SDK 54 and Expo Router 6 from `package.json`; do not change package versions based on older prose elsewhere in this file.
 
-**Steps:**
-1. Verify founder-approved source artwork exists before editing assets or config
-2. Confirm the required Expo icon, adaptive icon, favicon, and splash dimensions
-3. Add only the approved assets and the minimum explicit app config references
-4. Run TypeScript and focused Expo verification
-5. Commit changes
+**Builder selection rule:** Take the first `READY` task only, complete it in one automation run and one commit, update this queue, then stop. Do not combine tasks.
+
+**Blocked release gate:** Founder-approved app icon and splash artwork is not present. The existing `assets/icon.png`, `assets/adaptive-icon.png`, `assets/splash-icon.png`, and `assets/favicon.png` are Expo placeholders even though their dimensions and `app.json` references are valid. Do not modify assets or app config until approved source artwork is supplied.
+
+### Prioritized 7-day builder queue
+
+#### 1. READY — Type notification scheduling
+- **Goal:** Remove explicit `any` types from notification permission and schedule handling without changing reminder behavior.
+- **Likely files:** `/services/notificationService.ts`
+- **Done condition:** Permission responses and daily/weekly triggers use Expo-provided types, no explicit `any` remains in this file, and the 8:00 PM daily plus Sunday 10:00 AM schedules are unchanged.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
+- **Out of scope:** Notification UI, push credentials, EAS configuration, and physical-device delivery testing.
+
+#### 2. READY — Type ingredient API parsing
+- **Goal:** Replace the untyped Open Food/Beauty Facts response parsing with narrow local TypeScript interfaces.
+- **Likely files:** `/services/ingredientService.ts`
+- **Done condition:** No explicit `any` remains, missing product fields still fall back safely, and halal/irritant results keep the current return contract.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
+- **Out of scope:** Scanner UI, Supabase product lookup, new ingredient rules, and API endpoint changes.
+
+#### 3. READY — Type the RevenueCat service boundary
+- **Goal:** Replace `any` package and error values in the RevenueCat service with SDK types and a cancellation-safe error guard.
+- **Likely files:** `/services/revenueCatService.ts`
+- **Done condition:** No explicit `any` remains in the service and purchase, restore, offering, and entitlement behavior is unchanged.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
+- **Out of scope:** Paywall UI, pricing copy, RevenueCat dashboard products, and entitlement naming changes.
+
+#### 4. READY — Type the paywall integration
+- **Goal:** Remove explicit `any` usage from the paywall package state and localized feature-key lookup.
+- **Likely files:** `/app/paywall.tsx`
+- **Done condition:** The file has no explicit `any`, package selection remains compatible with `react-native-purchases`, and all four feature rows still resolve through typed locale keys.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
+- **Out of scope:** Paywall redesign, price changes, subscription product creation, and RevenueCat service refactoring.
+
+#### 5. READY — Make the ingredient scanner route canonical
+- **Goal:** Replace the duplicate placeholder ingredient-scanner screen with a route bridge to the implemented barcode scanner.
+- **Likely files:** `/app/ingredient-scanner.tsx`
+- **Done condition:** Opening `/ingredient-scanner` reaches `/(tabs)/scan-product`, and no duplicate placeholder scanner UI remains.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Barcode scanner redesign, product lookup logic, navigation restructuring, and deleting route files.
+
+#### 6. READY — Localize the login screen
+- **Goal:** Move login-screen user-facing copy into the typed locale dictionary.
+- **Likely files:** `/app/(auth)/login.tsx`, `/constants/locales.ts`
+- **Done condition:** The login i18n TODO is removed, English and Arabic keys are shape-identical, and the screen has no hardcoded user-facing labels or helper copy.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Signup, onboarding, auth service behavior, and visual redesign.
+
+#### 7. READY — Localize the signup screen
+- **Goal:** Move signup-screen user-facing copy into the typed locale dictionary.
+- **Likely files:** `/app/(auth)/signup.tsx`, `/constants/locales.ts`
+- **Done condition:** The signup i18n TODO is removed, English and Arabic keys are shape-identical, and the existing typed onboarding metadata submission remains unchanged.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Login, onboarding screens, profile-trigger SQL, auth service changes, and visual redesign.
+
+#### 8. READY — Localize onboarding welcome
+- **Goal:** Migrate only the onboarding welcome screen to the typed locale dictionary.
+- **Likely files:** `/app/(onboarding)/index.tsx`, `/constants/locales.ts`
+- **Done condition:** The welcome-screen i18n TODO is removed and its English/Arabic copy renders from typed keys without changing navigation.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Concerns, skin type, onboarding persistence, and visual redesign.
+
+#### 9. READY — Localize onboarding concerns
+- **Goal:** Migrate only the skin-concerns picker copy and option labels to the typed locale dictionary.
+- **Likely files:** `/app/(onboarding)/concerns.tsx`, `/constants/locales.ts`
+- **Done condition:** The concerns-screen i18n TODO is removed, all options have English and Arabic labels, and selection/persistence behavior is unchanged.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Welcome, skin type, database changes, and visual redesign.
+
+#### 10. READY — Localize onboarding skin type
+- **Goal:** Migrate only the skin-type selector copy and option labels to the typed locale dictionary.
+- **Likely files:** `/app/(onboarding)/skintype.tsx`, `/constants/locales.ts`
+- **Done condition:** The skin-type i18n TODO is removed, all options have English and Arabic labels, and typed signup metadata remains unchanged.
+- **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Welcome, concerns, profile-trigger SQL, and visual redesign.
+
+### Blocked asset slices — start only after founder approval
+
+#### A. BLOCKED — Replace app and adaptive icons
+- **Goal:** Replace only the app icon pair with founder-approved artwork.
+- **Likely files:** `/assets/icon.png`, `/assets/adaptive-icon.png`
+- **Done condition:** Both files are approved, square 1024×1024 PNGs, visually safe inside iOS and Android masks, and no placeholder grid remains.
+- **Verification:** Inspect both files at full size, then run `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** Splash, favicon, app config, and generating unapproved artwork.
+
+#### B. BLOCKED — Replace splash and favicon
+- **Goal:** Derive the splash mark and web favicon only from the approved brand artwork.
+- **Likely files:** `/assets/splash-icon.png`, `/assets/favicon.png`
+- **Done condition:** Splash is a square high-resolution PNG with safe whitespace, favicon is a legible square PNG, and both match the approved icon system.
+- **Verification:** Inspect both files at full size, then run `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** App/adaptive icons, app config, splash animation, and generating unapproved artwork.
+
+#### C. BLOCKED — Align Expo asset references
+- **Goal:** Apply only the approved asset filenames and approved background colors to Expo config.
+- **Likely files:** `/app.json`
+- **Done condition:** Icon, adaptive icon, splash, and favicon references resolve to approved files, and `npx.cmd expo config --type public` reports the expected values.
+- **Verification:** `npx.cmd expo config --type public`, then `npx.cmd expo export --platform web --output-dir .expo\builder-web`
+- **Out of scope:** EAS build profiles, bundle identifiers, package changes, and unrelated app configuration.
