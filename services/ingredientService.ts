@@ -10,6 +10,22 @@ export type IngredientResult = {
   irritants: string[];
 };
 
+interface OpenFactsIngredient {
+  text?: string | null;
+}
+
+interface OpenFactsProduct {
+  product_name?: string | null;
+  brands?: string | null;
+  ingredients?: OpenFactsIngredient[] | null;
+  ingredients_text?: string | null;
+}
+
+interface OpenFactsResponse {
+  status?: number;
+  product?: OpenFactsProduct | null;
+}
+
 /**
  * Directly queries the Open Food/Beauty Facts API from the client as a fallback/lookup.
  * Performs local halal and irritant checks on the parsed ingredient list.
@@ -33,12 +49,12 @@ export async function lookupBarcode(barcode: string): Promise<IngredientResult |
       if (res.status === 404) continue;
       if (!res.ok) continue;
 
-      const body = await res.json();
+      const body = (await res.json()) as OpenFactsResponse;
       if (body.status !== 1 || !body.product) continue;
 
       const p = body.product;
-      const ingredientsRaw: string[] = p.ingredients?.map((i: any) => i.text ?? '').filter(Boolean)
-        || (p.ingredients_text ? p.ingredients_text.split(/[,;]/).map((s: string) => s.trim()) : []);
+      const ingredientsRaw = p.ingredients?.map((ingredient) => ingredient.text ?? '').filter(Boolean)
+        || (p.ingredients_text ? p.ingredients_text.split(/[,;]/).map((ingredient) => ingredient.trim()) : []);
       const ingredients = ingredientsRaw.map((s) => s.toLowerCase()).filter(Boolean);
 
       const halal = checkHalalIngredients(ingredients);

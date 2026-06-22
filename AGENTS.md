@@ -654,12 +654,13 @@ feature/[name] ← specific feature work
 - **Out of scope:** Notification UI, push credentials, EAS configuration, and physical-device delivery testing.
 - **Completed:** 2026-06-21 — Expo permission and daily/weekly trigger types applied with reminder times unchanged.
 
-#### 2. READY — Type ingredient API parsing
+#### 2. DONE — Type ingredient API parsing
 - **Goal:** Replace the untyped Open Food/Beauty Facts response parsing with narrow local TypeScript interfaces.
 - **Likely files:** `/services/ingredientService.ts`
 - **Done condition:** No explicit `any` remains, missing product fields still fall back safely, and halal/irritant results keep the current return contract.
 - **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
 - **Out of scope:** Scanner UI, Supabase product lookup, new ingredient rules, and API endpoint changes.
+- **Completed:** 2026-06-22 — Narrow Open Facts response interfaces applied with existing parsing fallbacks and result behavior unchanged.
 
 #### 3. READY — Type the RevenueCat service boundary
 - **Goal:** Replace `any` package and error values in the RevenueCat service with SDK types and a cancellation-safe error guard.
