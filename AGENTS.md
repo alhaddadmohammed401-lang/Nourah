@@ -662,12 +662,13 @@ feature/[name] ← specific feature work
 - **Out of scope:** Scanner UI, Supabase product lookup, new ingredient rules, and API endpoint changes.
 - **Completed:** 2026-06-22 — Narrow Open Facts response interfaces applied with existing parsing fallbacks and result behavior unchanged.
 
-#### 3. READY — Type the RevenueCat service boundary
+#### 3. DONE — Type the RevenueCat service boundary
 - **Goal:** Replace `any` package and error values in the RevenueCat service with SDK types and a cancellation-safe error guard.
 - **Likely files:** `/services/revenueCatService.ts`
 - **Done condition:** No explicit `any` remains in the service and purchase, restore, offering, and entitlement behavior is unchanged.
 - **Verification:** `npx.cmd tsc --project C:\tmp\nourah-tsconfig-app.json --noEmit`
 - **Out of scope:** Paywall UI, pricing copy, RevenueCat dashboard products, and entitlement naming changes.
+- **Completed:** 2026-06-22 — Explicit any replaced with PurchasesPackage and PurchasesError SDK types, and cancellation-safe checks implemented.
 
 #### 4. READY — Type the paywall integration
 - **Goal:** Remove explicit `any` usage from the paywall package state and localized feature-key lookup.
